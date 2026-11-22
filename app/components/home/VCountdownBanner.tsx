@@ -123,8 +123,9 @@ export const VCountdownBanner = memo(function VCountdownBanner({
                 color: useCustomColors ? 'var(--color-primary-reverse)' : data.glow_color || '#5cd5c4',
               }}
             >
-              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-64 md:h-64 rounded-full border-2 border-current animate-ping opacity-30" />
-              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-96 md:h-96 rounded-full border-2 border-current opacity-40" />
+              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-1" />
+              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-2 opacity-80" />
+              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-3 opacity-85" />
             </div>
           )}
 

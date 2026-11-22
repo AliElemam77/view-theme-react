@@ -96,3 +96,29 @@ body.footer-is-dark .store-footer {
     @apply border-white/10 text-white;
   }
 }
+
+.group:hover .arrow-hover-launch {
+  animation: arrowHoverLaunch 0.7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.F__stack {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.V__fot_ac_i {
+  &_h {
+    &.active i {
+      @apply transform rotate-180;
+    }
+  }
+
+  &_c.active {
+    @apply max-h-none p-2.5;
+  }
+}
+

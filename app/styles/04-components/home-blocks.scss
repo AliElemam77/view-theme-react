@@ -2012,6 +2012,20 @@ salla-reviews:not(:has(.s-reviews-swiper-slide)) {
     .s-count-down-item-label {
       @apply text-mediumgray;
     }
+
+    .rinddg-1 {
+      animation: expandRinddg1 8s infinite ease-out;
+    }
+
+    .rinddg-2 {
+      animation: expandRinddg2 8s infinite ease-out;
+      opacity: 0.8;
+    }
+
+    .rinddg-3 {
+      animation: expandRinddg3 8s infinite ease-out;
+      opacity: 0.85;
+    }
   }
 
   &__nested_categories {

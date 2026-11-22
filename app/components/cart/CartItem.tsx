@@ -321,7 +321,7 @@ export function CartItem({ item, isFirst = false, onMutated }: CartItemProps) {
 
   return (
     <form ref={formRef} onChange={handleChange} id={`item-${item.id}`}>
-      <section className="cart-item relative border-b border-gray-200 pb-6 mb-6">
+      <section className="cart-item relative p-3 rounded-theme border border-lightgray shadow-sm mb-4 block">
         <input type="hidden" name="id" value={item.id} />
 
         <div className="md:flex rtl:space-x-reverse md:space-x-12 items-start justify-between mb-4 last:mb-0">
@@ -356,7 +356,7 @@ export function CartItem({ item, isFirst = false, onMutated }: CartItemProps) {
 
             <button
               type="button"
-              className="cart-item__delete shrink-0 text-gray-400 transition-colors hover:text-red-600"
+              className="cart-item__delete group relative inline-flex h-10 w-10 flex-col items-center justify-end overflow-y-clip remove-btn shrink-0"
               aria-label={t('common.elements.remove', 'Remove from the cart')}
               aria-busy={deleting}
               disabled={deleting}
@@ -365,7 +365,61 @@ export function CartItem({ item, isFirst = false, onMutated }: CartItemProps) {
               {deleting ? (
                 <span className="cart-item__delete-spinner" aria-hidden="true" />
               ) : (
-                <Delete01Icon aria-hidden="true" className="h-5 w-5" />
+                <>
+                  <svg
+                    viewBox="0 0 1.625 1.625"
+                    className="absolute -top-7 fill-gray-400 group-hover:fill-red-500 delay-100 group-hover:top-6 group-hover:animate-[spin_1.4s] group-hover:duration-500 transition-all duration-500"
+                    height="15"
+                    width="15"
+                  >
+                    <path d="M.471 1.024v-.52a.1.1 0 0 0-.098.098v.618c0 .054.044.098.098.098h.487a.1.1 0 0 0 .098-.099h-.39c-.107 0-.195 0-.195-.195"></path>
+                    <path d="M1.219.601h-.163A.1.1 0 0 1 .959.504V.341A.033.033 0 0 0 .926.309h-.26a.1.1 0 0 0-.098.098v.618c0 .054.044.098.098.098h.487a.1.1 0 0 0 .098-.099v-.39a.033.033 0 0 0-.032-.033"></path>
+                    <path d="m1.245.465-.15-.15a.02.02 0 0 0-.016-.006.023.023 0 0 0-.023.022v.108c0 .036.029.065.065.065h.107a.023.023 0 0 0 .023-.023.02.02 0 0 0-.007-.016"></path>
+                  </svg>
+                  <svg
+                    width="16"
+                    fill="none"
+                    viewBox="0 0 39 7"
+                    className="del origin-right duration-300 group-hover:rotate-90"
+                  >
+                    <line
+                      strokeWidth="4"
+                      className="group-hover:stroke-red-500 transition-all duration-300"
+                      stroke="var(--light-gray-color, #d6d6d6)"
+                      y2="5"
+                      x2="39"
+                      y1="5"
+                    ></line>
+                    <line
+                      strokeWidth="3"
+                      className="group-hover:stroke-red-500 transition-all duration-300"
+                      stroke="var(--light-gray-color, #d6d6d6)"
+                      y2="1.5"
+                      x2="26.0357"
+                      y1="1.5"
+                      x1="12"
+                    ></line>
+                  </svg>
+                  <svg width="16" fill="none" viewBox="0 0 33 39">
+                    <path
+                      className="group-hover:fill-red-500 transition-all duration-300"
+                      fill="var(--light-gray-color, #d6d6d6)"
+                      d="M0 0H33H0ZM37 35C37 39.4183 33.4183 43 29 43H4C-0.418278 43 -4 39.4183 -4 35H4H29H37ZM4 43C-0.418278 43 -4 39.4183 -4 35V0H4V35V43ZM37 0V35C37 39.4183 33.4183 43 29 43V35V0H37Z"
+                    ></path>
+                    <path
+                      className="group-hover:stroke-red-500 transition-all duration-300"
+                      strokeWidth="4"
+                      stroke="var(--light-gray-color, #d6d6d6)"
+                      d="M12 6L12 29"
+                    ></path>
+                    <path
+                      className="group-hover:stroke-red-500 transition-all duration-300"
+                      strokeWidth="4"
+                      stroke="var(--light-gray-color, #d6d6d6)"
+                      d="M21 6V29"
+                    ></path>
+                  </svg>
+                </>
               )}
             </button>
           </div>
