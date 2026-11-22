@@ -9,3 +9,27 @@ export { PhotosSlider } from './PhotosSlider';
 export { ProductsSlider } from './ProductsSlider';
 export { SliderProductsWithHeader } from './SliderProductsWithHeader';
 export { EnhancedSquareBanners } from './EnhancedSquareBanners';
+
+// Custom View components (22)
+export { VBannerLine } from './VBannerLine';
+export { VCountdownBanner } from './VCountdownBanner';
+export { VMarque } from './VMarque';
+export { VTextBlock } from './VTextBlock';
+export { VMultiSlider } from './VMultiSlider';
+export { VStyledCategories } from './VStyledCategories';
+export { VFeaturedProduct } from './VFeaturedProduct';
+export { VProductBundle } from './VProductBundle';
+export { VBrandsSlider } from './VBrandsSlider';
+export { VTaggedProducts } from './VTaggedProducts';
+export { VReviewsWithProduct } from './VReviewsWithProduct';
+export { VStoreFeatures } from './VStoreFeatures';
+export { VProductsSlider } from './VProductsSlider';
+export { VOfferCollection } from './VOfferCollection';
+export { VProductHighlight } from './VProductHighlight';
+export { VNestedCategories } from './VNestedCategories';
+export { VLinksGallery } from './VLinksGallery';
+export { VGroupFeatures } from './VGroupFeatures';
+export { VMixedReviews } from './VMixedReviews';
+export { VFaq } from './VFaq';
+export { VBlogPosts } from './VBlogPosts';
+export { VInstagramFeed } from './VInstagramFeed';

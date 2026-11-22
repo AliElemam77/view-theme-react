@@ -17,3 +17,17 @@ export function linkUrl(value: unknown): string | undefined {
   if (value && typeof value === 'object') return linkUrl((value as { url?: unknown }).url);
   return undefined;
 }
+
+/** Coerces a boolean-like setting (boolean, 'true'/'false', 1/0) into a boolean. */
+export function booleanValue(value: unknown, defaultValue = false): boolean {
+  if (value === null || value === undefined) return defaultValue;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const s = value.trim().toLowerCase();
+    if (s === 'true' || s === '1') return true;
+    if (s === 'false' || s === '0') return false;
+  }
+  return defaultValue;
+}
+

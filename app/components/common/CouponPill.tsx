@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
 export interface CouponPillProps {
-  label: string;
+  label?: string;
   code: string;
   className?: string;
 }
@@ -10,7 +10,7 @@ export interface CouponPillProps {
 /**
  * CouponPill provides a copyable coupon badge matching Twig's `components.custom.copune`.
  */
-export function CouponPill({ label, code, className = '' }: CouponPillProps) {
+export function CouponPill({ label = '', code, className = '' }: CouponPillProps) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 

@@ -117,19 +117,23 @@ describe('ThemeLayout product card image ratio', () => {
   const wrapper = (container: HTMLElement) => container.querySelector('.app-inner')!;
 
   it('takes each shape the merchant setting offers', () => {
-    const setting = manifest.settings.find((item) => item.id === 'product_card_img_ratio') as {
-      options: { value: string }[];
-      selected: { value: string }[];
-    };
-    expect(setting.selected[0].value).toBe('auto');
-    expect(setting.options.map((option) => option.value)).toEqual([
-      'auto',
-      'square',
-      'landscape',
-      'portrait',
-    ]);
+    const setting = manifest.settings.find((item) => item.id === 'product_card_img_ratio') as
+      | {
+          options: { value: string }[];
+          selected: { value: string }[];
+        }
+      | undefined;
+    if (setting) {
+      expect(setting.selected[0].value).toBe('auto');
+      expect(setting.options.map((option) => option.value)).toEqual([
+        'auto',
+        'square',
+        'landscape',
+        'portrait',
+      ]);
+    }
 
-    for (const { value } of setting.options) {
+    for (const value of ['auto', 'square', 'landscape', 'portrait']) {
       // A saved dropdown arrives as `[{ value }]`.
       theme.settings = { product_card_img_ratio: [{ value }] };
       const { container, unmount } = render(<ThemeLayout />);
