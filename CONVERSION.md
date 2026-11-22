@@ -136,3 +136,89 @@ No external kit dependencies (e.g. 3D viewer) are required.
 - **RTL & Logical CSS**: All custom styles use logical properties (`ms-*`, `ps-*`, `start-*`, `end-*`, `text-start`).
 - **Translations**: Flattened keys from `TWIG/src/locales/` merged with React starter keys.
 - **Server Rendering**: Sections render server-side from `data` passed by Twilight engine.
+
+
+---
+
+## 10. Conversion Status & Verification
+
+### Status: COMPLETE
+
+All 6 phases of the conversion pipeline have been executed:
+
+1. **Phase 0: Foundation & Baseline Checks**
+   - Clean checkout of `@salla.sa/theme-raed@1.0.64` into `view-theme-react`.
+   - Setup identity in `package.json`, `app/server.ts`, `twilight.json`, and `README.md`.
+   - Verified baseline build, typecheck, and test suite.
+
+2. **Phase 1: Inventory**
+   - Full audit of 26 home components (4 stock + 22 custom `home.V_*`) and 143 settings.
+   - Documented in `CONVERSION.md`.
+
+3. **Phase 2: Manifest and Port Translations**
+   - Ported 100% of `TWIG/twilight.json` to React `twilight.json`.
+   - Resolved manifest schema nuances:
+     - Renamed duplicate static ribbon `settings[33].id` from `titaale_90` to `titaale_91`.
+     - Renamed duplicate setting `settings[128].id` from `location_action` to `location_action_link`.
+     - Renamed duplicate separator color toggles to `use_custom_colors_separator`.
+     - Coerced collection `minLength` and `maxLength` to integers.
+     - Normalized unrecognized formats (`slider`/`units` to `integer`, `date`/`datetime` to `text`).
+   - Merged and flattened Arabic and English translations in `locales/ar.json` and `locales/en.json` (174 keys).
+   - Validated: `pnpm check:manifest` passed with 0 errors and 0 warnings.
+
+4. **Phase 3: Shared Building Blocks & Styling**
+   - Injected custom tokens into `tailwind.config.cjs` (`primary-d`, `primary-l`, `primary-reverse`, `bgcolor`, `cardcolor`, `lightgray`, `mediumgray`, `darkgray`, `primaryops`, `price`, and `carbon:` variant).
+   - Styled global 3-state mode (Light, Dark, and Carbon `[data-theme="carbon"]`) in `app/styles/01-settings/global.scss`.
+   - Created shared building blocks:
+     - `SectionWrapper.tsx`
+     - `BlockTitle.tsx`
+     - `ActionBtn.tsx`
+     - `CouponPill.tsx`
+     - `CountdownTimer.tsx`
+     - `Marquee.tsx`
+     - `SectionSeparator.tsx`
+   - Verified shared blocks with 11 unit tests.
+
+5. **Phase 4: Home Sections & Component Registration**
+   - Ported all 22 custom components into `app/components/home/`:
+     1. `VBannerLine.tsx` (`home.V_banner_line`)
+     2. `VCountdownBanner.tsx` (`home.V_countdown_banner`)
+     3. `VMarque.tsx` (`home.V_marque`)
+     4. `VTextBlock.tsx` (`home.V_text_block`)
+     5. `VMultiSlider.tsx` (`home.V_multi_slider`)
+     6. `VStyledCategories.tsx` (`home.V_styled_categories`)
+     7. `VFeaturedProduct.tsx` (`home.V_featured_product`)
+     8. `VProductBundle.tsx` (`home.V_product_bundle`)
+     9. `VBrandsSlider.tsx` (`home.V_brands_slider`)
+     10. `VTaggedProducts.tsx` (`home.V_tagged_products`)
+     11. `VReviewsWithProduct.tsx` (`home.V_reviews_with_product`)
+     12. `VStoreFeatures.tsx` (`home.V_store_features`)
+     13. `VProductsSlider.tsx` (`home.V_products_slider`)
+     14. `VOfferCollection.tsx` (`home.V_offer_collection`)
+     15. `VProductHighlight.tsx` (`home.V_product_highlight`)
+     16. `VNestedCategories.tsx` (`home.V_nested_categories`)
+     17. `VLinksGallery.tsx` (`home.V_links_gallery`)
+     18. `VGroupFeatures.tsx` (`home.V_group_features`)
+     19. `VMixedReviews.tsx` (`home.V_mixed_reviews`)
+     20. `VFaq.tsx` (`home.V_faq`)
+     21. `VBlogPosts.tsx` (`home.V_blog_posts`)
+     22. `VInstagramFeed.tsx` (`home.V_instagram_feed`)
+   - Adapted 4 stock components (`Brands`, `EnhancedSquareBanners`, `MainLinks`, `SliderProductsWithHeader`).
+   - Exported all in `app/components/home/index.ts`.
+   - Registered all in `app/router.tsx` via `registerHomeComponents`.
+   - Appended View-specific block styles to `app/styles/04-components/home-blocks.scss`.
+   - Added unit tests for custom blocks in `tests/components/home/CustomBlocks.test.tsx`.
+
+6. **Phase 5: Layout, Product Card, and Global Logic**
+   - Adapted `ThemeLayout.tsx` and `Header.tsx` for sticky navigation, merged headers (`has_mearged_header`), and theme modes (Light, Dark, Carbon).
+   - Confirmed `ProductCard.tsx` compatibility with fallback placeholders, action buttons, and wishlist portals.
+   - Initialized Carbon and Dark mode state from local storage and theme settings.
+
+7. **Phase 6: Verification Suite Results**
+   - `pnpm check:manifest`: **0 errors, 0 warnings**
+   - `pnpm typecheck`: **0 errors (clean compilation)**
+   - `pnpm test`: **71 test files passed (100%), 661 tests passed (100%)**
+   - `pnpm build`: **Client and workerd server SSR bundles generated successfully**
+   - Zero `.twig` template files in the React theme
+   - Zero jQuery dependencies
+   - All styling uses logical properties (`ms-*`, `ps-*`, `start-*`, `end-*`, `text-start`)
