@@ -20,7 +20,7 @@ module.exports = {
     './node_modules/@salla.sa/twilight-components-react/dist/**/*.js',
   ],
   // `<Image objectFit>` builds these at runtime, out of the scanner's sight.
-  safelist: ['object-contain', 'object-cover'],
+  safelist: ['object-contain', 'object-cover', { pattern: /carbon:.+/ }],
   darkMode: 'class', // or 'media' or 'class'
   theme: {
     container: {
@@ -47,6 +47,16 @@ module.exports = {
         danger: '#AE0A0A',
         primary: 'var(--color-primary)',
         'primary-dark': 'var(--color-primary-dark)',
+        'primary-d': 'var(--color-primary-dark)',
+        'primary-l': 'var(--color-primary-light)',
+        'primary-reverse': 'var(--color-primary-reverse)',
+        bgcolor: 'var(--color-bg)',
+        cardcolor: 'var(--color-cards)',
+        lightgray: 'var(--light-gray-color)',
+        mediumgray: 'var(--medium-gray-color)',
+        darkgray: 'var(--dark-gray-color)',
+        primaryops: 'var(--color-primary-ops)',
+        price: 'var(--color-price)',
       },
       spacing: {
         3.75: '15px',
@@ -62,6 +72,7 @@ module.exports = {
         large: '22px',
         big: '40px',
         tiny: '3px',
+        theme: 'var(--border-custom)',
         DEFAULT: '16px',
       },
       fontSize: {
@@ -147,5 +158,11 @@ module.exports = {
   corePlugins: {
     outline: false,
   },
-  plugins: [require('@salla.sa/twilight-tailwind-theme'), require('@tailwindcss/forms')],
+  plugins: [
+    require('@salla.sa/twilight-tailwind-theme'),
+    require('@tailwindcss/forms'),
+    function ({ addVariant }) {
+      addVariant('carbon', ['.carbon &', '[data-theme="carbon"] &']);
+    },
+  ],
 };

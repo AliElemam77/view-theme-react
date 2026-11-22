@@ -41,4 +41,37 @@ $main-text-color: var(--main-text-color);
      Fixed elements use `--safe-*`. */
   --flow-safe-top: max(0px, env(safe-area-inset-top, 0px) - var(--app-safe-area-top, 0px));
   --flow-safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - var(--app-safe-area-bottom, 0px));
+
+  /* View Theme custom properties */
+  --border-custom: 8px;
+  --rause-card: 4px;
+  --color-primary-ops: rgba(92, 213, 196, 0.12);
+  --color-cards: #ffffff;
+  --color-bg: #f2f6ef;
+  --color-price: #f55157;
+  --light-gray-color: #d6d6d6;
+  --medium-gray-color: #666666;
+  --dark-gray-color: #1d1f1f;
+}
+
+html[data-theme="dark"] {
+  --color-bg: #1d1f1f;
+  --color-cards: #272628;
+  --color-text: #f2f6ef;
+  --color-price: #f55157;
+  --light-gray-color: #4a4a4a;
+  --medium-gray-color: #888888;
+  --dark-gray-color: #ffffff;
+}
+
+html[data-theme="carbon"],
+.carbon {
+  --color-primary: #5cd5c4;
+  --color-bg: #141414;
+  --color-cards: #1f1f1f;
+  --color-text: #e0e0e0;
+  --color-price: #f55157;
+  --light-gray-color: #333333;
+  --medium-gray-color: #777777;
+  --dark-gray-color: #f0f0f0;
 }
