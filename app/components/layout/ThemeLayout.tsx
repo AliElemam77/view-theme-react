@@ -159,6 +159,17 @@ export function ThemeLayout({ children }: ThemeLayoutProps) {
     return lang.subscribe(() => fillComponentTranslations(lang, themeTranslations));
   }, []);
 
+  // Theme mode initialization (Light, Dark, Carbon)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mode = localStorage.getItem('theme:mode');
+    if (mode === 'carbon') {
+      document.documentElement.setAttribute('data-theme', 'carbon');
+    } else if (mode === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
   const imgRatio = productImageRatio(theme?.settings?.product_card_img_ratio);
   const squarePhotos = squarePhotosCover(theme?.settings?.squar_photo_bg_image_size)
     ? ' square-photos--cover'
