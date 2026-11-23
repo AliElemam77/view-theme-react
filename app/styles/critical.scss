@@ -11,9 +11,12 @@
 @import './02-generic/reset';
 @import './02-generic/common';
 @import './02-generic/animations';
+@import './02-generic/react-animations';
+@import './02-generic/lazyload';
 @import './02-generic/rtl';
 @import './02-generic/ltr';
 @import './02-generic/mixins';
+@import './02-generic/react-extras';
 
 @import './vendor/swiper.css';
 
@@ -23,7 +26,11 @@
 @import './04-components/social';
 @import './04-components/mobile-bottom-bar';
 @import './04-components/mobile-page-title';
+@import './04-components/home-legacy';
 @import './04-components/home-blocks';
+@import './04-components/home';
+@import './04-components/home-view-a';
+@import './04-components/home-view-b';
 @import './04-components/slider';
 
 @import './05-utilities/font-customization';

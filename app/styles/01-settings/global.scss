@@ -1,77 +1,758 @@
 /*
- * Global SCSS Variables
- * Note: CSS custom properties (--color-primary, etc.) should be defined
- * in the consuming theme's CSS, not here. This allows each theme to customize colors.
+ * View (فيو) global settings — ported verbatim from the Twig theme's
+ * `src/assets/styles/01-settings/global.scss`. Per-mode colours come from the
+ * merchant's settings at runtime (`lib/viewTheme.ts` → `<ViewThemeHead>`), the
+ * way `layouts/css.twig` does it; nothing here hard-codes a mode palette.
  */
 
-// SCSS Variables (for use within SCSS files)
+// React-only tokens kept from the starter: the device safe-area insets.
+:root {
+  --s-radius: 0.75rem;
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--app-safe-area-top, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--app-safe-area-bottom, 0px));
+  --flow-safe-top: max(0px, env(safe-area-inset-top, 0px) - var(--app-safe-area-top, 0px));
+  --flow-safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - var(--app-safe-area-bottom, 0px));
+}
+
+// Colors
 $main-color: var(--color-primary);
 $infinte-color: var(--infinte-color);
 $main-text-color: var(--main-text-color);
 
-// Default CSS custom properties (can be overridden by consuming theme)
 :root {
-  // Twilight web components ship their own CSS and read only this token for the
-  // default corner radius; keep it equal to Tailwind's `rounded` for this theme.
-  --s-radius: 16px;
   --infinte-color: #c9c9c9;
   --main-text-color: #231f1e;
   --main-text-color-dark: #2b2d34;
+
+  /* current */
+  --color-primary: #5cd5c4;
+  --color-primary: #414042;
+  --color-primary-d: #272628;
+  --color-primary-l: #676668;
+  --color-primary-reverse: #ff6767;
   --color-text: #7c8082;
   --bg-gray: #c6c7ce1a;
   --color-grey: #f5f7f9;
   --color-light-grey: #eeeeee;
-  
   /* font-size */
   --font-sm: 0.8685714286rem;
-  
+  /* font-family: ; */
+  --font-main: "DINNextLTArabic";
+
   /* plugins */
   --mm-ocd-width: calc(100% - 51px);
-
-  /* The device's unsafe edges (notch / status bar, home indicator). In the Salla
-     app the engine writes the app's own insets (`mobile::ui.safearea`) to
-     `--app-safe-area-*`; in a browser they are unset and env() answers. Taking
-     the larger keeps one inset from being counted twice. */
-  --safe-top: max(env(safe-area-inset-top, 0px), var(--app-safe-area-top, 0px));
-  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--app-safe-area-bottom, 0px));
-  /* What is left for an element in the page flow: the app's insets are already
-     taken at the top by the header's status-bar strip (`.site-header__safe-area`)
-     and at the bottom by the body's padding (02-generic/common.scss), so only the
-     part env() asks for beyond them. env() in a browser; normally 0 in the app.
-     Fixed elements use `--safe-*`. */
-  --flow-safe-top: max(0px, env(safe-area-inset-top, 0px) - var(--app-safe-area-top, 0px));
-  --flow-safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - var(--app-safe-area-bottom, 0px));
-
-  /* View Theme custom properties */
-  --border-custom: 8px;
-  --rause-card: 4px;
-  --color-primary-ops: rgba(92, 213, 196, 0.12);
-  --color-cards: #ffffff;
-  --color-bg: #f2f6ef;
-  --color-price: #f55157;
-  --light-gray-color: #d6d6d6;
-  --medium-gray-color: #666666;
-  --dark-gray-color: #1d1f1f;
 }
+
+:root {
+  --modal-unfold: .75s;
+  /* بدل 0.4s */
+  --modal-zoom: .55s;
+  /* بدل 0.3s */
+}
+
+#modal-container {
+  position: fixed;
+  display: table;
+  height: 100%;
+  width: 100%;
+  inset: 0;
+  transform: scale(0);
+  z-index: 80;
+  transition: transform var(--modal-unfold) ease;
+
+  .cl_w {
+    top: 0;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .cl_w:after,
+  .cl_w:before {
+    width: 20px;
+  }
+
+  &.one {
+    transform: scaleY(.01) scaleX(0);
+    animation: unfoldIn var(--modal-unfold) cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+
+    .modal-background .modal {
+      transform: scale(0);
+      animation: zoomIn var(--modal-zoom) calc(var(--modal-zoom) - .25s) cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    }
+
+    &.out {
+      transform: scale(1);
+      animation: unfoldOut var(--modal-unfold) .2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+
+      .modal-background .modal {
+        animation: zoomOut var(--modal-zoom) cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+      }
+    }
+  }
+
+  .modal-background {
+    @apply md:px-5 px-3;
+    display: table-cell;
+    background: rgba(0, 0, 0, .8);
+    text-align: center;
+    vertical-align: middle;
+
+    .modal {
+      background: var(--color-bg);
+      padding: 10px;
+      display: inline-block;
+      border-radius: 3px;
+      font-weight: 300;
+      max-width: 900px;
+      position: relative;
+      overflow: hidden;
+
+      @media (min-width: 769px) and (max-width: 900px) {
+        max-width: 750px;
+      }
+
+      @media (max-width: 768px) {
+        max-width: 365px;
+      }
+
+      .modal-title,
+      .cl_w {
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: opacity .35s ease, transform .35s ease;
+        pointer-events: none;
+      }
+    }
+  }
+
+  &.is-ready .modal .modal-title,
+  &.is-ready .modal .cl_w {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+
+#pro__content {
+  max-height: 100px;
+  overflow: hidden;
+  transition: opacity 0.6s ease, max-height 1s ease, max-width 1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .salla-conditional-fields {
+    gap: 0.5rem;
+  }
+}
+
+#pro__content.revealloding {
+  visibility: visible;
+  opacity: 1;
+  max-height: 2000px;
+}
+
+
+@keyframes unfoldIn {
+  0% {
+    transform: scaleY(.005) scaleX(0);
+  }
+
+  50% {
+    transform: scaleY(.005) scaleX(1);
+  }
+
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    transform: scale(0);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes unfoldOut {
+  0% {
+    transform: scaleY(1) scaleX(1);
+  }
+
+  50% {
+    transform: scaleY(.005) scaleX(1);
+  }
+
+  100% {
+    transform: scaleY(.005) scaleX(0);
+  }
+}
+
+@keyframes zoomOut {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(0);
+  }
+}
+
+
+
+.has-overlay {
+  &:after {
+    @apply content-[''] h-full w-full bg-black/60 absolute top-0 left-0 transition-colors duration-200;
+  }
+
+  &.with-hover {
+    &:after {
+      transition: opacity .3s;
+      opacity: 0;
+    }
+  }
+
+  &.bock_page::after {
+    @apply bg-primary-l opacity-45;
+  }
+
+  &.ass::after {
+    @apply bg-primary opacity-45;
+  }
+}
+
+
+.s-list-tile-item {
+  @apply text-primary p-0 bg-primaryops;
+}
+
+.s-list-tile-item-subtitle {
+  @apply text-mediumgray;
+}
+
+[tooltip] {
+  position: relative;
+}
+
+[tooltip]::before,
+[tooltip]::after {
+  text-transform: none;
+  font-size: .9em;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  position: absolute;
+  display: none;
+  opacity: 0;
+}
+
+[tooltip]::before {
+  content: '';
+  border: 5px solid transparent;
+  z-index: 1001;
+}
+
+[tooltip]::after {
+  content: attr(tooltip);
+  text-align: center;
+  min-width: 3em;
+  max-width: 21em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 1ch 1.5ch;
+  border-radius: .3ch;
+  box-shadow: 0 1em 2em -.5em rgba(0, 0, 0, 0.35);
+  background: var(--color-primary-light);
+  color: #fff;
+  z-index: 1000;
+}
+
+[tooltip]:hover::before,
+[tooltip]:hover::after {
+  display: block;
+}
+
+[tooltip='']::before,
+[tooltip='']::after {
+  display: none !important;
+}
+
+[tooltip]:not([flow])::before,
+[tooltip][flow^="up"]::before {
+  bottom: 100%;
+  border-bottom-width: 0;
+  border-top-color: var(--color-primary-light);
+}
+
+[tooltip]:not([flow])::after,
+[tooltip][flow^="up"]::after {
+  bottom: calc(100% + 5px);
+}
+
+[tooltip]:not([flow])::before,
+[tooltip]:not([flow])::after,
+[tooltip][flow^="up"]::before,
+[tooltip][flow^="up"]::after {
+  left: 50%;
+  transform: translate(-50%, -.5em);
+}
+
+[tooltip][flow^="down"]::before {
+  top: 100%;
+  border-top-width: 0;
+  border-bottom-color: var(--color-primary-light);
+}
+
+[tooltip][flow^="down"]::after {
+  top: calc(100% + 5px);
+}
+
+[tooltip][flow^="down"]::before,
+[tooltip][flow^="down"]::after {
+  left: 50%;
+  transform: translate(-50%, .5em);
+}
+
+[dir="rtl"] [tooltip][flow^="left"]::before {
+  top: 50%;
+  border-right-width: 0;
+  border-left-color: var(--color-primary-light);
+  left: calc(0em - 5px);
+  transform: translate(-.5em, -50%);
+}
+
+[dir="rtl"] [tooltip][flow^="left"]::after {
+  top: 50%;
+  right: calc(100% + 5px);
+  transform: translate(-.5em, -50%);
+}
+
+[dir="rtl"] [tooltip][flow^="right"]::before {
+  top: 50%;
+  border-left-width: 0;
+  border-right-color: var(--color-primary-light);
+  right: calc(0em - 5px);
+  transform: translate(.5em, -50%);
+}
+
+[dir="rtl"] [tooltip][flow^="right"]::after {
+  top: 50%;
+  left: calc(100% + 5px);
+  transform: translate(.5em, -50%);
+}
+
+[dir="ltr"] [tooltip][flow^="left"]::before {
+  top: 50%;
+  border-left-width: 0;
+  border-right-color: var(--color-primary-light);
+  right: calc(0em - 5px);
+  transform: translate(.5em, -50%);
+}
+
+[dir="ltr"] [tooltip][flow^="left"]::after {
+  top: 50%;
+  left: calc(100% + 5px);
+  transform: translate(.5em, -50%);
+}
+
+[dir="ltr"] [tooltip][flow^="right"]::before {
+  top: 50%;
+  border-right-width: 0;
+  border-left-color: var(--color-primary-light);
+  left: calc(0em - 5px);
+  transform: translate(-.5em, -50%);
+}
+
+[dir="ltr"] [tooltip][flow^="right"]::after {
+  top: 50%;
+  right: calc(100% + 5px);
+  transform: translate(-.5em, -50%);
+}
+
+/* ====== Animation ====== */
+@keyframes tooltips-vert {
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes tooltips-horz {
+  to {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+[tooltip]:not([flow]):hover::before,
+[tooltip]:not([flow]):hover::after,
+[tooltip][flow^="up"]:hover::before,
+[tooltip][flow^="up"]:hover::after,
+[tooltip][flow^="down"]:hover::before,
+[tooltip][flow^="down"]:hover::after {
+  animation: tooltips-vert 300ms ease-out forwards;
+}
+
+[tooltip][flow^="left"]:hover::before,
+[tooltip][flow^="left"]:hover::after,
+[tooltip][flow^="right"]:hover::before,
+[tooltip][flow^="right"]:hover::after {
+  animation: tooltips-horz 300ms ease-out forwards;
+}
+
+
 
 html[data-theme="dark"] {
-  --color-bg: #1d1f1f;
-  --color-cards: #272628;
-  --color-text: #f2f6ef;
-  --color-price: #f55157;
-  --light-gray-color: #4a4a4a;
-  --medium-gray-color: #888888;
-  --dark-gray-color: #ffffff;
+
+  .s-filters-widget-title,
+  .s-filters-widget-container {
+    @apply dark:border-darkgray;
+  }
 }
 
-html[data-theme="carbon"],
-.carbon {
-  --color-primary: #5cd5c4;
-  --color-bg: #141414;
-  --color-cards: #1f1f1f;
-  --color-text: #e0e0e0;
-  --color-price: #f55157;
-  --light-gray-color: #333333;
-  --medium-gray-color: #777777;
-  --dark-gray-color: #f0f0f0;
+.s-breadcrumb-wrapper,
+.s-filters-widget-title,
+.s-slider-block__title {
+  @apply text-darkgray;
+}
+
+.s-breadcrumb-arrow svg {
+  @apply fill-darkgray;
+
+}
+
+.swiper-button-prev:after,
+.swiper-button-next:after {
+  @apply text-base text-primary #{!important};
+}
+
+custom-shahien-products,
+.V__styled_categories,
+.thumbs_mixed_reviews,
+.V__nested_categories {
+  .swiper-wrapper.s-slider-swiper-wrapper {
+    padding-bottom: 4rem;
+  }
+}
+
+custom-shahien-products,
+.V__styled_categories,
+.V__arows,
+.thumbs_mixed_reviews,
+.V__nested_categories {
+
+  .swiper-pagination-progressbar {
+    @apply hidden md:flex right-0 rounded-full mx-2.5;
+    bottom: 22px;
+    position: unset !important;
+    width: 60% !important;
+    top: unset !important;
+    left: unset !important;
+    height: 7px !important;
+
+    .swiper-pagination-progressbar-fill {
+      border-radius: 20px;
+      background-color: var(--color-primary);
+    }
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    @apply border-primary-l border relative top-0 m-0 p-4;
+    inset: 0 !important;
+    padding-inline: 1.3rem;
+    border-radius: 50px;
+    padding-block: 0;
+
+    @media (max-width: 768px) {
+      padding-inline: 0.8rem;
+      height: 30px !important;
+      width: 30px !important;
+    }
+  }
+}
+
+.shine {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    background: linear-gradient(to right,
+        fade_out(#fff, 1) 0%,
+        fade_out(#fff, 0.7) 100%);
+    content: "";
+    display: block;
+    height: 100%;
+    left: -100%;
+    position: absolute;
+    top: 0;
+    transform: skewX(-25deg);
+    width: 50%;
+    z-index: 2;
+  }
+
+  &:hover,
+  &:focus {
+    &::before {
+      animation: shine 0.85s;
+    }
+  }
+
+  @keyframes shine {
+    100% {
+      left: 125%;
+    }
+  }
+}
+
+
+
+
+.after_effect::after {
+  @apply absolute left-0 -bottom-full w-full h-full rounded-full bg-primaryops pointer-events-none;
+  content: "";
+  animation: slideUp 0.6s ease forwards;
+}
+
+@keyframes slideUp {
+  to {
+    bottom: 0;
+  }
+}
+
+:root {
+  --anim-duration: .35s;
+  --anim-ease: cubic-bezier(.2, .65, .15, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .reveal,
+  .animating {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+// React: `data-reveal="done"` stands for Twig removing the `.reveal` class.
+.reveal:not([data-reveal='done']) {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.will-animate {
+  will-change: transform, opacity;
+}
+
+.animating {
+  animation: floatBack var(--anim-duration) var(--anim-ease) both;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes floatBack {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+
+  60% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+html[dir="rtl"] .prima_round {
+  -webkit-mask-image: url("#mask-prima-round");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("#mask-prima-round");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+html[dir="ltr"] .prima_round {
+  -webkit-mask-image: url("#mask-prima-round-inverse");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("#mask-prima-round-inverse");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+html[dir="rtl"] .black_rond {
+  -webkit-mask-image: url("#mask-black-rond");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("#mask-black-rond");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+html[dir="ltr"] .black_rond {
+  -webkit-mask-image: url("#mask-black-rond-inverse");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("#mask-black-rond-inverse");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+.s-payments-list-item,
+.s-button-btn,
+.s-price-range-number-input,
+.s-button-primary.s-button-element {
+  @apply rounded-theme;
+}
+
+.s-payments-list-item {
+  @apply backdrop-brightness-75;
+}
+
+#discount-banner {
+  position: fixed;
+
+}
+
+html[dir="rtl"] #discount-banner {
+  right: -170px;
+}
+
+html[dir="rtl"] #discount-banner.active {
+  animation: slideInRTL 0.4s ease forwards;
+}
+
+html[dir="rtl"] #discount-banner.closing {
+  animation: slideOutRTL 0.4s ease forwards;
+}
+
+html[dir="ltr"] #discount-banner {
+  left: -240px;
+}
+
+html[dir="ltr"] #discount-banner.active {
+  animation: slideInLTR 0.4s ease forwards;
+}
+
+html[dir="ltr"] #discount-banner.closing {
+  animation: slideOutLTR 0.4s ease forwards;
+}
+
+@keyframes slideInRTL {
+  0% { right: -170px; }
+  70% { right: 10px; }
+  100% { right: 0; }
+}
+
+@keyframes slideOutRTL {
+  0% { right: 0; }
+  70% { right: -240px; }
+  100% { right: -170px; }
+}
+
+@keyframes slideInLTR {
+  0% { left: -240px; }
+  70% { left: 10px; }
+  100% { left: 4px; }
+}
+
+@keyframes slideOutLTR {
+  0% { left: 4px; }
+  70% { left: -260px; }
+  100% { left: -240px; }
+}
+.cl_w {
+  letter-spacing: 1.5px;
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  z-index: 10;
+  height: 50px;
+  width: 50px;
+}
+
+.cl_w:before,
+.cl_w:after {
+  @apply bg-red-400;
+  content: " ";
+  height: 3px;
+  position: absolute;
+  right: 0;
+  top: 15px;
+  transition: background-color .2s ease-in-out, transform .2s ease-in-out;
+  width: 35px;
+}
+
+.cl_w::before {
+  transform: rotate(45deg);
+}
+
+.cl_w::after {
+  transform: rotate(-45deg);
+}
+
+.cl_w:hover::before,
+.cl_w:hover::after {
+  transform: rotate(0deg);
+}
+
+
+.s-payments-list .s-payments-list-item:has(img[alt="SBC"]) {
+  display: none !important;
+}
+
+.s-product-card-entry {
+
+  .s-button-btn,
+  .s-button-primary.s-button-element {
+    border-radius: var(--rause-card);
+  }
+}
+
+.s-product-card-content-sub,
+.s-product-card-content-main {
+  padding-inline: 8px;
+}
+
+
+.s-product-card-vertical salla-add-product-button>div.w-full {
+  margin-bottom: -3px;
+}
+
+.promotion-title {
+  @apply absolute z-10 top-0 rtl:right-0 ltr:left-0 font-bold text-sm text-white rtl:rounded-l-theme ltr:rounded-r-theme;
+  @apply w-auto m-0 px-3 py-2 #{!important};
+}
+
+.s-product-options-grid-mode-span {
+  @apply bg-transparent text-primary border-primary p-1.5 rounded-theme;
+}
+
+.s-product-options-grid-mode input:checked+div {
+  @apply text-bgcolor;
+}
+
+
+.remove-btn { 
+  -webkit-tap-highlight-color: transparent; 
+  touch-action: manipulation; 
+  cursor: pointer;
+}
+
+
+salla-products-list[horizontal-cards] .s-products-list-wrapper , salla-products-list[horizontal-cards] .s-products-list-filters-results {
+  @apply grid-cols-1 md:grid-cols-2;
 }

@@ -73,7 +73,7 @@ module.exports = {
         big: '40px',
         tiny: '3px',
         theme: 'var(--border-custom)',
-        DEFAULT: '16px',
+        DEFAULT: '.75rem',
       },
       fontSize: {
         'icon-lg': '33px',

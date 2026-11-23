@@ -11,6 +11,15 @@ import { ImportantLinksSheet } from './ImportantLinksSheet';
 import { MobileAccountSheet } from './MobileAccountSheet';
 import { MobileBottomBar } from './MobileBottomBar';
 import { MobilePageTitleBar } from './MobilePageTitleBar';
+import { useDocumentClass } from '@salla.sa/twilight-theme-engine/hooks/useDocumentClass';
+import { ViewThemeHead } from './ViewThemeHead';
+import {
+  useLineInView,
+  useRevealAnimation,
+  useSmoothScroll,
+  useSwalNotifier,
+} from '../../hooks/useViewGlobals';
+import { booleanValue } from '../../lib/fieldValue';
 import { fillComponentTranslations, type ComponentLang } from '../../lib/componentTranslations';
 
 /**
@@ -159,16 +168,20 @@ export function ThemeLayout({ children }: ThemeLayoutProps) {
     return lang.subscribe(() => fillComponentTranslations(lang, themeTranslations));
   }, []);
 
-  // Theme mode initialization (Light, Dark, Carbon)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mode = localStorage.getItem('theme:mode');
-    if (mode === 'carbon') {
-      document.documentElement.setAttribute('data-theme', 'carbon');
-    } else if (mode === 'dark') {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  // View's global app.js behaviours: Lenis, the has_animation reveal, Swal toasts.
+  const settings = theme?.settings as Record<string, unknown> | undefined;
+  useSmoothScroll();
+  useRevealAnimation(booleanValue(settings?.has_animation, true));
+  useSwalNotifier(booleanValue(settings?.enable_add_product_toast, true));
+  useLineInView();
+  // master.twig's <body class="overflow-x-hidden [longeer]">.
+  useDocumentClass({
+    body: {
+      class: ['overflow-x-hidden', booleanValue(settings?.lg_product, true) ? 'longeer' : null].filter(
+        Boolean
+      ) as string[],
+    },
+  });
 
   const imgRatio = productImageRatio(theme?.settings?.product_card_img_ratio);
   const squarePhotos = squarePhotosCover(theme?.settings?.squar_photo_bg_image_size)
@@ -177,6 +190,7 @@ export function ThemeLayout({ children }: ThemeLayoutProps) {
 
   return (
     <>
+      <ViewThemeHead />
       <div
         className={`app-inner flex flex-col min-h-full product-card-img--${imgRatio}${squarePhotos}`}
         suppressHydrationWarning

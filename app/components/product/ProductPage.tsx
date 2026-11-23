@@ -25,7 +25,7 @@ import { ProductsSlider } from '../home';
  */
 function RelatedProducts({ productId, title }: { productId: number; title: string }) {
   const [relatedCount, setRelatedCount] = useState<number | null>(null);
-
+  
   return (
     <>
       <HookSlot name="product:related.start" />

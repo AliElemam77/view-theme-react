@@ -57,9 +57,12 @@
 @import './02-generic/common';
 @import './02-generic/tooltip';
 @import './02-generic/animations';
+@import './02-generic/react-animations';
+@import './02-generic/lazyload';
 @import './02-generic/rtl';
 @import './02-generic/ltr';
 @import './02-generic/mixins';
+@import './02-generic/react-extras';
 
 // Vendored Swiper stylesheet — before the component layers so theme rules
 // override it, matching the cascade the per-chunk link used to have.
@@ -81,10 +84,15 @@
 @import './04-components/user-menu';
 @import './04-components/mobile-account-sheet';
 @import './04-components/user-pages';
+@import './04-components/home-legacy';
 @import './04-components/home-blocks';
+@import './04-components/home';
+@import './04-components/home-view-a';
+@import './04-components/home-view-b';
 @import './04-components/slider';
 @import './04-components/product';
 @import './04-components/product-list';
+@import './04-components/single-product';
 @import './04-components/cart';
 @import './04-components/options-panel';
 @import './04-components/reviews';
@@ -95,6 +103,9 @@
 @import './04-components/gifting';
 @import './04-components/loyalty';
 @import './04-components/thank-you';
+@import './04-components/blog';
+@import './04-components/single-orders';
+@import './04-components/landing-page';
 @import './04-components/virtooal';
 @import './04-components/add-product-toast';
 

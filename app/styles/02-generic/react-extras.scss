@@ -1,0 +1,86 @@
+/*
+ * Rules the React engine needs that the Twig theme never had (no Twig
+ * counterpart, so nothing here changes how a View page looks).
+ */
+
+/* Salla app safe area at the bottom (0 in a browser). `html body` because the
+   engine's inline head style resets `html,body{padding:0}` after this sheet. */
+html body {
+  padding-bottom: var(--app-safe-area-bottom, 0px);
+}
+
+/* Engine hook slots render <salla-hook> wrappers that must not take space. */
+salla-hook {
+  all: unset;
+  display: none;
+}
+
+/* Unhydrated web components: reserve their box so nothing jumps on load. */
+salla-slider,
+salla-advertisement {
+  display: block;
+}
+
+salla-offer-modal,
+salla-login-modal,
+salla-scopes,
+salla-localization-modal {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Description YouTube thumbnails until played (lib/descriptionVideos.ts). */
+.article--main {
+  .video-facade {
+    width: 100%;
+    height: 30vw;
+    position: relative;
+    display: block;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: #000;
+    cursor: pointer;
+
+    @media (max-width: 639px) {
+      height: 50vw;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 50% auto auto 50%;
+      width: 68px;
+      height: 48px;
+      translate: -50% -50%;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 68 48'%3E%3Cpath d='M66.5 7.7a8.5 8.5 0 0 0-6-6C55.2.2 34 .2 34 .2s-21.2 0-26.5 1.5a8.5 8.5 0 0 0-6 6C0 13 0 24 0 24s0 11 1.5 16.3a8.5 8.5 0 0 0 6 6c5.3 1.5 26.5 1.5 26.5 1.5s21.2 0 26.5-1.5a8.5 8.5 0 0 0 6-6C68 35 68 24 68 24s0-11-1.5-16.3z' fill='%23f00'/%3E%3Cpath d='M45 24 27 14v20z' fill='%23fff'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    }
+  }
+}
+
+/* Scroll reveal (has_animation). Twig's app.js removes `.reveal` when the
+   animation ends; React re-applies className on re-render, so progress lives
+   in `data-reveal` instead (hooks/useRevealAnimation.ts). Same keyframes and
+   timing as global.scss `.animating`. */
+.reveal[data-reveal='animating'] {
+  will-change: transform, opacity;
+  animation: floatBack var(--anim-duration) var(--anim-ease) both;
+  animation-delay: var(--delay, 0s);
+}
+
+/* `.line-inner` / `.line-innercomponent` grow in (header.scss). Twig adds the
+   `active` class from JS; React would drop it on re-render, so the layout sets
+   `data-active` instead (hooks/useViewGlobals.ts `useLineInView`). */
+.line-inner[data-active],
+.line-innercomponent[data-active] {
+  transform: scaleX(1);
+}
