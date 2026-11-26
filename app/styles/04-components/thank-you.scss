@@ -1,24 +1,45 @@
-/* Lift the sticky order bar above the mobile bottom nav, like the product page's bar. */
-@media (max-width: 767px) {
-  .app-inner .s-thank-you-page-wrapper {
-    .s-order-shipments-cta,
-    .s-order-branch-cta {
-      left: 16px;
-      right: 16px;
-      bottom: calc(70px + env(safe-area-inset-bottom));
-      border-width: 0;
-      border-radius: 1.5rem;
-      box-shadow: -1px -2px 9px 0 rgba(0, 0, 0, 0.05);
-      padding-bottom: 1rem;
+// View's thank-you page has no stylesheet of its own: `.thankyou-block` lives in
+// `user-pages.scss` (View's single-orders.scss), and the `-z-1` primary band is lifted
+// by `body.thank-you #main-content` there. This file holds what thankyou.js did.
+
+// anime.js's default `easeOutElastic(1, .5)`, sampled.
+$view-elastic: linear(0, 0.2003 2.5%, 0.4279 5%, 0.6505 7.5%, 0.8455 10%, 1 12.5%, 1.1093 15%, 1.1747 17.5%, 1.2023 20%, 1.1999 22.5%, 1.1768 25%, 1.1414 27.5%, 1.1011 30%, 1.0618 32.5%, 1.0273 35%, 1 37.5%, 0.9807 40%, 0.9691 42.5%, 0.9642 45%, 0.9647 47.5%, 0.9688 50%, 0.975 52.5%, 0.9821 55%, 0.9891 57.5%, 0.9952 60%, 1 62.5%, 1.0034 65%, 1.0055 67.5%, 1.0063 70%, 1.0062 72.5%, 1.0055 75%, 1.0044 77.5%, 1.0032 80%, 1.0019 82.5%, 1.0009 85%, 1 87.5%, 0.9994 90%, 0.999 92.5%, 0.9989 95%, 0.9989 97.5%, 1);
+
+@keyframes view-thanks-item {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+body.thank-you {
+  // thankyou.js: `app.anime('.thanks-item', { translateX: [20, 0] })` with the helper's
+  // `opacity: [0, 1]`, 2000ms; the `i * 100`ms stagger is set inline.
+  .thanks-item {
+    animation: view-thanks-item 2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-timing-function: $view-elastic;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      opacity: 1;
     }
   }
 
-  /* Page end clears the nav and the bar: 82px + the bar's height. */
-  .app-inner:has(.s-thank-you-page-wrapper .s-order-shipments-cta) {
-    padding-bottom: calc(162px + env(safe-area-inset-bottom));
-  }
+  // `salla-button.copied` (03-elements/buttons.scss) for the order-number copy button,
+  // which renders the web component's inner <button> directly.
+  .s-button-element.copied {
+    .s-button-text {
+      @apply text-green-600;
+    }
 
-  .app-inner:has(.s-thank-you-page-wrapper .s-order-branch-cta) {
-    padding-bottom: calc(194px + env(safe-area-inset-bottom));
+    i:before {
+      content: '\ea9d';
+      @apply text-green-600;
+    }
   }
 }

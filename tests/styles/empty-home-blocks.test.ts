@@ -18,6 +18,6 @@ describe('empty home blocks', () => {
 
   it('hides a reorder block with nothing to reorder, but not one still waiting to load', () => {
     const source = collapsed(readFileSync(`${stylesDir}home-blocks.scss`, 'utf8'));
-    expect(source).toContain("#reorder-section > &:empty:not([style*='min-height']) { display: none; }");
+    expect(source).toContain("#reorder-section > .s-block:empty:not([style*='min-height']) { display: none; }");
   });
 });

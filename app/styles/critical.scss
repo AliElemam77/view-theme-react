@@ -1,6 +1,9 @@
 /* First-screen CSS for the home route, inlined by __root.tsx; app.css's order, and app.css takes over once loaded. */
 
 @config './critical.tailwind.cjs';
+// Ahead of Tailwind, as in app.css.
+@import './vendor/swiper.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,28 +14,26 @@
 @import './02-generic/reset';
 @import './02-generic/common';
 @import './02-generic/animations';
+@import './02-generic/react-animations';
+@import './02-generic/lazyload';
 @import './02-generic/rtl';
 @import './02-generic/ltr';
 @import './02-generic/mixins';
-
-@import './vendor/swiper.css';
+@import './02-generic/react-extras';
 
 @import './03-elements/buttons';
 
 @import './04-components/header';
 @import './04-components/social';
-@import './04-components/mobile-bottom-bar';
-@import './04-components/mobile-page-title';
 @import './04-components/home-blocks';
+@import './04-components/home';
+@import './04-components/home-view-a';
+@import './04-components/home-view-b';
 @import './04-components/slider';
 
 @import './05-utilities/font-customization';
 
 /* Root basics mirrored from app.css (kept in sync). */
-[dir='rtl'] {
-  --font-main: var(--font-ar);
-}
-
 body {
   font-family: var(--font-main);
 }

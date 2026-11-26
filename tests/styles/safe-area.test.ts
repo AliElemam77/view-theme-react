@@ -45,7 +45,7 @@ describe("the Salla app's insets on the page", () => {
     const engine = specificity('body');
 
     const rules: Rule[] = [];
-    (await compile('02-generic/common.scss')).walkRules((rule) => {
+    (await compile('02-generic/react-extras.scss')).walkRules((rule) => {
       if (decl(rule, 'padding-bottom')?.includes('--app-safe-area-bottom')) rules.push(rule);
     });
 
@@ -56,29 +56,4 @@ describe("the Salla app's insets on the page", () => {
     expect(rule.selectors.every((sel) => beats(specificity(sel), engine))).toBe(true);
   });
 
-  it('grows the header by the status bar with a strip that stays stuck to the top', async () => {
-    const strips: Rule[] = [];
-    (await compile('04-components/header.scss')).walkRules((rule) => {
-      if (rule.selectors.includes('.site-header__safe-area')) strips.push(rule);
-    });
-
-    expect(strips).toHaveLength(1);
-    const [strip] = strips;
-    expect(decl(strip, 'height')).toBe('var(--app-safe-area-top, 0px)');
-    expect(decl(strip, 'position')).toBe('sticky');
-    expect(decl(strip, 'top')).toBe('0px');
-    // Above the pinned bar (z-40), so nothing scrolls over the status bar.
-    expect(Number(decl(strip, 'z-index'))).toBeGreaterThan(40);
-  });
-
-  it('starts the full-screen sheets below the status bar', async () => {
-    const root = await compile('04-components/mobile-account-sheet.scss');
-    for (const sheet of ['.bottom-sheet.account-sheet', '.bottom-sheet.important-links-sheet']) {
-      const padded: string[] = [];
-      root.walkRules((rule) => {
-        if (rule.selectors.includes(sheet)) padded.push(decl(rule, 'padding-top') ?? '');
-      });
-      expect(padded).toContain('var(--safe-top)');
-    }
-  });
 });

@@ -1,17 +1,11 @@
 import { memo } from 'react';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
-import { SectionWrapper } from '../common/SectionWrapper';
 import { BlockTitle } from '../common/BlockTitle';
-import { Marquee } from '../common/Marquee';
 import { SectionSeparator } from '../common/SectionSeparator';
-import { optionValue } from '../../lib/fieldValue';
-
-export interface VBrandItem {
-  id?: number | string;
-  name?: string;
-  logo?: string;
-  url?: string;
-}
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue } from '../../lib/fieldValue';
+import { BrandsBreak, type BreakBrand } from './BrandsBreak';
+import { asArray, cx, separatorProps, text, twigPosition } from './ViewBlockUtils';
 
 export interface VBrandsSliderData {
   main_title?: string;
@@ -19,7 +13,7 @@ export interface VBrandsSliderData {
   show_brands_button?: boolean;
   has_jocer_image?: boolean;
   add_mask?: boolean;
-  brands?: VBrandItem[];
+  brands?: unknown;
   duplcate_brands?: boolean;
   invert_image_dark?: boolean;
   has_container?: boolean;
@@ -31,80 +25,43 @@ export interface VBrandsSliderData {
   star_position_x?: number;
   merge_with_adjacent?: boolean;
   position?: number;
+  [key: string]: unknown;
 }
 
-export const VBrandsSlider = memo(function VBrandsSlider({
-  data,
-}: {
-  data?: VBrandsSliderData;
-}) {
+/**
+ * Port of `V_brands_slider.twig`: one `custom/break` free-mode logo slider, plus a
+ * second one running the other way when `duplcate_brands` is on.
+ */
+export const VBrandsSlider = memo(function VBrandsSlider({ data = {} }: { data?: VBrandsSliderData }) {
   const { t } = useTranslation();
-  if (!data) return null;
-
-  const brands = Array.isArray(data.brands) ? data.brands : [];
-  if (!brands.length) return null;
-
-  const renderBrandsList = (reverse: boolean) => (
-    <Marquee
-      reverse={reverse}
-      speed={35}
-      addMask={Boolean(data.add_mask)}
-      className="py-3"
-    >
-      {brands.map((b, i) => (
-        <a
-          key={b.id ?? i}
-          href={b.url || '#'}
-          className="inline-flex items-center justify-center p-2 shrink-0 transition-opacity hover:opacity-80"
-          aria-label={b.name || 'Brand'}
-        >
-          <img
-            src={b.logo || '/images/placeholder.webp'}
-            alt={b.name || ''}
-            className={`max-w-44 max-h-16 object-contain ${
-              data.invert_image_dark ? 'dark:invert carbon:invert' : ''
-            }`}
-            loading="lazy"
-            width={160}
-            height={64}
-          />
-        </a>
-      ))}
-    </Marquee>
-  );
+  const { spacing } = useViewSettings();
+  const position = twigPosition(data);
+  const brands = asArray<BreakBrand>(data.brands);
+  const invert = booleanValue(data.invert_image_dark);
 
   return (
-    <SectionWrapper
-      id={`V_brands_slider-${data.position ?? 0}`}
-      ariaLabel="Section V_brands_slider"
-      className="V__brands"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V__brands', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_brands_slider-${position}`}
+      id={`V_brands_slider-${position}`}
     >
-      <div className={data.has_container !== false ? 'container' : ''}>
+      <div className={booleanValue(data.has_container) ? 'container' : ''}>
         <BlockTitle
-          title={data.main_title}
-          sub={data.sub_title}
-          jocer={data.has_jocer_image}
-          more={Boolean(data.show_brands_button)}
+          title={text(data.main_title)}
+          sub={text(data.sub_title)}
+          more={booleanValue(data.show_brands_button)}
           moreUrl="/brands"
-          moreAlt={t('blocks.header.all_brands', 'جميع الماركات')}
+          moreAlt={t('blocks.header.all_brands')}
+          jocer={booleanValue(data.has_jocer_image)}
         />
-
-        <div className={data.add_mask ? 'add_mask' : ''}>
-          {renderBrandsList(false)}
-          {data.duplcate_brands && renderBrandsList(true)}
+        <div className={booleanValue(data.add_mask) ? 'add_mask' : ''}>
+          <BrandsBreak position={position} brands={brands} invertImageDark={invert} />
+          {booleanValue(data.duplcate_brands) && (
+            <BrandsBreak position={position} brands={brands} reverse invertImageDark={invert} />
+          )}
         </div>
       </div>
-
-      <SectionSeparator
-        saprator={optionValue(data.saprator)}
-        merge_with_adjacent={Boolean(data.merge_with_adjacent)}
-        use_custom_colors={Boolean(data.use_custom_colors)}
-        line_color={data.line_color}
-        star_color={data.star_color}
-        star_position_x={data.star_position_x}
-      />
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} />
+    </section>
   );
 });

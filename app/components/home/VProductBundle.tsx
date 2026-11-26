@@ -1,17 +1,19 @@
 import { memo } from 'react';
-import type { Product } from '@salla.sa/twilight-theme-engine/types';
-import { SectionWrapper } from '../common/SectionWrapper';
+import { SallaSlider } from '@salla.sa/twilight-components-react/slider';
+import { useTheme } from '@salla.sa/twilight-theme-engine/hooks/useTheme';
 import { BlockTitle } from '../common/BlockTitle';
 import { SectionSeparator } from '../common/SectionSeparator';
 import { ProductCard } from '../product/ProductCard';
-import { optionValue, booleanValue } from '../../lib/fieldValue';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue } from '../../lib/fieldValue';
+import { cx, separatorProps, text, twigPosition, usePickedProducts } from './ViewBlockUtils';
 
 export interface VProductBundleData {
   main_title?: string;
   sub_title?: string;
   has_jocer_image?: boolean;
   add_gift_bow?: boolean;
-  select_package_products?: Product[];
+  select_package_products?: unknown;
   highlight_center_item?: boolean | string | number;
   has_container?: boolean;
   notmrb?: boolean;
@@ -22,88 +24,90 @@ export interface VProductBundleData {
   star_position_x?: number;
   merge_with_adjacent?: boolean;
   position?: number;
+  [key: string]: unknown;
 }
 
-export const VProductBundle = memo(function VProductBundle({
-  data,
-}: {
-  data?: VProductBundleData;
-}) {
-  if (!data) return null;
+const GIFT_BOW = 'https://cdn.salla.sa/form-builder/EvBD19WSHkiVYQ2ALvxE9pzwYmS9fCUvvxpNC9mL.webp';
 
-  const products = Array.isArray(data.select_package_products)
-    ? data.select_package_products
-    : [];
+/** Twig's `highlight_center`: `same as(true)`, or `== 1` / `'1'` / `'true'`. */
+const isHighlightOn = (v: unknown) => v === true || v === 1 || v === '1' || v === 'true';
+
+/**
+ * Port of `V_product_bundle.twig`: the gift bow over a carousel of product cards
+ * (1.7 per view on mobile, all of them from 767px), the middle one (two when
+ * even) optionally `centered` with a primary border.
+ */
+export const VProductBundle = memo(function VProductBundle({ data = {} }: { data?: VProductBundleData }) {
+  const { reveal, spacing } = useViewSettings();
+  const { isRTL } = useTheme();
+  const position = twigPosition(data);
+  const { products } = usePickedProducts(data.select_package_products);
+
   const total = products.length;
-  const midIndex = Math.floor(total / 2);
-  const isOdd = total % 2 !== 0;
-  const highlightCenter = booleanValue(data.highlight_center_item);
+  const half = Math.floor(total / 2);
+  const highlightCenter = isHighlightOn(data.highlight_center_item);
+  // Twig's 1-based `loop.index`: odd → half + 1; even → half or half + 1.
+  const isCentre = (index: number) =>
+    highlightCenter && (total % 2 === 1 ? index === half + 1 : index === half || index === half + 1);
 
   return (
-    <SectionWrapper
-      id={`V_product_bundle-${data.position ?? 0}`}
-      ariaLabel="Section V_product_bundle"
-      className="V__product_bundle"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V__product_bundle', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_product_bundle-${position}`}
+      id={`V_product_bundle-${position}`}
     >
-      <div className={`${data.has_container !== false ? 'container' : ''} relative block`}>
+      <div className={cx(booleanValue(data.has_container) && 'container', 'relative block')}>
         <div className="flex relative">
           <BlockTitle
-            title={data.main_title}
-            sub={data.sub_title}
-            jocer={data.has_jocer_image}
+            title={text(data.main_title)}
+            sub={text(data.sub_title)}
+            jocer={booleanValue(data.has_jocer_image)}
             className="mb-6 !mx-0"
           />
         </div>
-
-        {data.add_gift_bow && (
-          <div className="block">
+        {booleanValue(data.add_gift_bow) && (
+          <div className={cx('block', reveal)}>
             <img
-              src="https://cdn.salla.sa/form-builder/EvBD19WSHkiVYQ2ALvxE9pzwYmS9fCUvvxpNC9mL.webp"
+              src={GIFT_BOW}
               alt="separator"
-              className="absolute top-0 left-0 z-2 pointer-events-none w-full"
+              className={cx('absolute top-0 left-0 z-2 pointer-events-none lazy w-full', !isRTL && 'flip-x')}
               loading="lazy"
               width={1200}
-              height={100}
-              style={{
-                marginTop: 'clamp(-2.813rem, 4.794rem - 8.4522vw, 2.813rem)',
-              }}
+              height="auto"
+              decoding="async"
+              fetchPriority="auto"
+              style={{ marginTop: 'clamp(-2.813rem, 4.794rem - 8.4522vw, 2.813rem)' }}
             />
           </div>
         )}
-
-        <div className="relative overflow-x-auto pb-4">
-          <div className="flex gap-4 items-stretch justify-center flex-nowrap md:flex-wrap">
-            {products.map((prod, idx) => {
-              const isCentered =
-                highlightCenter &&
-                ((isOdd && idx === midIndex) ||
-                  (!isOdd && (idx === midIndex - 1 || idx === midIndex)));
-
-              return (
-                <div
-                  key={prod.id ?? idx}
-                  className={`!h-auto shrink-0 w-[240px] md:w-[280px] rounded-theme transition-all ${
-                    isCentered ? 'centered border-2 border-primary shadow-lg scale-105' : ''
-                  }`}
-                >
-                  <ProductCard product={prod} />
-                </div>
-              );
-            })}
-          </div>
+        <div className="relative">
+          {total > 0 && (
+            <SallaSlider
+              // Swiper reads the slides once: remount when the product count changes.
+              key={total}
+              id={`thumbs-collection-${position}`}
+              showControls={false}
+              type="carousel"
+              sliderConfig={{
+                spaceBetween: 10,
+                breakpoints: { 0: { slidesPerView: 1.7 }, 767: { slidesPerView: total } },
+              }}
+            >
+              <div slot="items">
+                {products.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className={cx('!h-auto', reveal, isCentre(index + 1) && 'centered border border-primary')}
+                  >
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            </SallaSlider>
+          )}
         </div>
       </div>
-
-      <SectionSeparator
-        saprator={optionValue(data.saprator)}
-        merge_with_adjacent={Boolean(data.merge_with_adjacent)}
-        use_custom_colors={Boolean(data.use_custom_colors)}
-        line_color={data.line_color}
-        star_color={data.star_color}
-        star_position_x={data.star_position_x}
-      />
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} />
+    </section>
   );
 });

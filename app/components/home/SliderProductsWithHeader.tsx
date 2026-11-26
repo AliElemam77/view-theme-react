@@ -1,7 +1,7 @@
 import { Suspense, useCallback } from 'react';
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
 import { product, type ProductsListSource } from '@salla.sa/twilight-theme-engine/api/product';
-import { ProductCard } from '../product';
+import { ProductCard } from '../product/ProductCard';
 import { ProductsSliderSkeleton, SallaProductsSlider } from '@salla.sa/twilight-components-react';
 
 interface ProductsSourceConfig {
@@ -79,8 +79,8 @@ export function SliderProductsWithHeader({ data }: SliderProductsWithHeaderProps
       >
         <div className="container pt-8 sm:pt-20 relative">
           <div>
-            {title && <h3 className="text-lg font-bold leading-12">{title}</h3>}
-            {description && <p className="text-sm mb-8 line-clamp-2 max-w-lg">{description}</p>}
+            <h3 className="text-lg font-bold leading-12">{title}</h3>
+            <p className="text-sm mb-8 line-clamp-2 max-w-lg">{description}</p>
           </div>
         </div>
       </div>
@@ -102,3 +102,8 @@ export function SliderProductsWithHeader({ data }: SliderProductsWithHeaderProps
     </>
   );
 }
+
+/** slider-products-with-header.twig's `<section>`: the full-width band with the image header. */
+export const sliderProductsWithHeaderConfig = {
+  className: 's-block s-block--slider-with-bg s-block--full-bg',
+};

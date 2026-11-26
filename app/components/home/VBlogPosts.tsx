@@ -1,28 +1,18 @@
 import { memo } from 'react';
+import { useQueries } from '@tanstack/react-query';
+import { SallaSlider } from '@salla.sa/twilight-components-react/slider';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
-import { SectionWrapper } from '../common/SectionWrapper';
+import { useStore } from '@salla.sa/twilight-theme-engine/hooks/useStore';
+import { blog } from '@salla.sa/twilight-theme-engine/api/blog';
 import { BlockTitle } from '../common/BlockTitle';
-import { ActionBtn } from '../common/ActionBtn';
 import { SectionSeparator } from '../common/SectionSeparator';
-import { optionValue } from '../../lib/fieldValue';
+import { BlogCard, normalizeArticle, type BlogCardArticle } from '../blog/BlogCard';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue } from '../../lib/fieldValue';
+import { asArray, cx, separatorProps, text, twigPosition } from './ViewBlockUtils';
 
-export interface VBlogPostArticle {
-  id: number;
-  title?: string;
-  url?: string;
-  body?: string;
-  created_at?: string;
-  image?: {
-    url?: string;
-    alt?: string;
-  };
-  author?: {
-    name?: string;
-    url?: string;
-  };
-  likes_count?: number;
-  comments_count?: number;
-}
+/** An article as Twig's `skeleton.twig` reads it, or as the blog API sends it. */
+export type VBlogPostArticle = BlogCardArticle;
 
 export interface VBlogPostsData {
   has_container?: boolean;
@@ -31,7 +21,7 @@ export interface VBlogPostsData {
   sub_title?: string;
   has_jocer_image?: boolean;
   show_more_articles?: boolean;
-  articles?: VBlogPostArticle[];
+  articles?: unknown;
   saprator?: unknown;
   use_custom_colors?: boolean;
   line_color?: string;
@@ -39,121 +29,77 @@ export interface VBlogPostsData {
   star_position_x?: number;
   merge_with_adjacent?: boolean;
   position?: number;
+  [key: string]: unknown;
 }
 
-export const VBlogPosts = memo(function VBlogPosts({
-  data,
-}: {
-  data?: VBlogPostsData;
-}) {
-  const { t } = useTranslation();
-  if (!data) return null;
+const articleId = (item: unknown): string | null => {
+  const raw = item && typeof item === 'object' ? ((item as BlogCardArticle).id ?? (item as BlogCardArticle).value) : item;
+  return raw === undefined || raw === null || raw === '' ? null : String(raw);
+};
 
-  const articles = Array.isArray(data.articles) ? data.articles : [];
+/**
+ * Port of `V_blog_posts.twig`: a `<salla-slider>` carousel (1.5 / 2.5 / 3 per view
+ * at 0 / 767 / 880, 10px apart) of `components/custom/skeleton.twig` cards. The
+ * block saves only which articles were picked, so each one is read from
+ * `blog/articles/<id>` (what Twig gets resolved server side).
+ */
+export const VBlogPosts = memo(function VBlogPosts({ data = {} }: { data?: VBlogPostsData }) {
+  const { t } = useTranslation();
+  const { reveal, spacing } = useViewSettings();
+  const store = useStore();
+  const allowLikes = Boolean(store?.settings?.blog?.allow_likes_and_comments);
+  const position = twigPosition(data);
+
+  const picked = asArray(data.articles)
+    .map((item) => ({ item, id: articleId(item) }))
+    .filter((entry): entry is { item: unknown; id: string } => entry.id !== null);
+
+  const results = useQueries({
+    queries: picked.map(({ id }) => ({ ...blog.queries.article(id), retry: false })),
+  });
+
+  const articles = picked
+    .map(({ item, id }, index) => ({ id, article: normalizeArticle(item, results[index]?.data) }))
+    .filter(({ article }) => article.title || article.url);
 
   return (
-    <SectionWrapper
-      id={`V_blog_posts-${data.position ?? 0}`}
-      ariaLabel="Section V_blog_posts"
-      className="V_blog_posts"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V_blog_posts', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_blog_posts-${position}`}
+      id={`V_blog_posts-${position}`}
     >
-      <div className={data.has_container !== false ? 'container' : ''}>
+      <div className={booleanValue(data.has_container) ? 'container' : ''}>
         <BlockTitle
-          title={data.main_title}
-          sub={data.sub_title}
-          jocer={data.has_jocer_image}
-          more={Boolean(data.show_more_articles)}
+          title={text(data.main_title)}
+          sub={text(data.sub_title)}
+          more={booleanValue(data.show_more_articles)}
           moreUrl="/blog"
-          moreAlt={t('blocks.header.all_art', 'جميع المقالات')}
+          moreAlt={t('blocks.header.all_art')}
+          jocer={booleanValue(data.has_jocer_image)}
         />
-
-        {articles.length > 0 && (
-          <div className="overflow-x-auto pb-4">
-            <div className="flex gap-4 items-stretch flex-nowrap">
-              {articles.map((art) => {
-                let day = '';
-                let month = '';
-                if (art.created_at) {
-                  const d = new Date(art.created_at);
-                  if (!isNaN(d.getTime())) {
-                    day = String(d.getDate());
-                    month = d.toLocaleString('default', { month: 'short' });
-                  }
-                }
-
-                return (
-                  <div
-                    key={art.id}
-                    className="list-block relative post-entry h-full transition-shadow duration-200 bg-primary-reverse hover:shadow-default rounded-theme justify-around overflow-hidden flex flex-col p-4 w-[280px] md:w-[320px] shrink-0 border border-lightgray"
-                  >
-                    <a
-                      href={art.url || '#'}
-                      className="post-entry__image relative overflow-hidden hover:opacity-90 rounded-theme m-auto bg-border-color flex items-center justify-center aspect-[16/10] w-full"
-                    >
-                      <img
-                        src={art.image?.url || '/images/placeholder.webp'}
-                        alt={art.image?.alt || art.title || ''}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                        width={600}
-                        height={400}
-                      />
-                    </a>
-
-                    {(day || month) && (
-                      <div className="flex items-center flex-col gap-0.5 absolute top-6 end-6 bg-bgcolor rounded-theme text-xs py-1 px-2.5 shadow-sm">
-                        <span className="font-bold text-darkgray leading-none">
-                          {day}
-                        </span>
-                        <span className="font-medium text-mediumgray text-[10px] leading-none">
-                          {month}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="flex-1 pt-4 flex justify-between flex-col h-auto gap-2">
-                      <h3 className="text-base font-semibold text-darkgray line-clamp-1">
-                        <a href={art.url || '#'} className="hover:underline">
-                          {art.title}
-                        </a>
-                      </h3>
-
-                      {art.body && (
-                        <p className="text-xs text-mediumgray opacity-70 font-light line-clamp-3">
-                          {art.body.replace(/<[^>]*>/g, '')}
-                        </p>
-                      )}
-
-                      <div className="mt-3">
-                        <ActionBtn
-                          text={t('pages.products.read_more', 'اقرأ المزيد')}
-                          href={art.url}
-                          dataStyle="outline"
-                          color="var(--color-primary-reverse)"
-                          backgroundColor="var(--color-primary)"
-                          icon
-                          className="!w-full !justify-center text-xs !py-2"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        <SallaSlider
+          id={`thumbs-blog-${position}`}
+          className="V__articals"
+          autoHeight
+          showControls={false}
+          type="carousel"
+          sliderConfig={{
+            spaceBetween: 10,
+            breakpoints: {
+              0: { slidesPerView: 1.5 },
+              767: { slidesPerView: 2.5 },
+              880: { slidesPerView: 3 },
+            },
+          }}
+        >
+          <div slot="items">
+            {articles.map(({ id, article }, index) => (
+              <BlogCard key={`${id}:${index}`} article={article} allowLikes={allowLikes} reveal={reveal} />
+            ))}
           </div>
-        )}
+        </SallaSlider>
       </div>
-
-      <SectionSeparator
-        saprator={optionValue(data.saprator)}
-        merge_with_adjacent={Boolean(data.merge_with_adjacent)}
-        use_custom_colors={Boolean(data.use_custom_colors)}
-        line_color={data.line_color}
-        star_color={data.star_color}
-        star_position_x={data.star_position_x}
-      />
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} />
+    </section>
   );
 });

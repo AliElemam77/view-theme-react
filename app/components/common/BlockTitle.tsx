@@ -1,26 +1,34 @@
 import type { CSSProperties } from 'react';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue, optionValue } from '../../lib/fieldValue';
 
 export interface BlockTitleProps {
   title?: string;
   sub?: string;
+  /** Twig `more`: shows the "more" link/button (its text is `moreAlt`). */
   more?: boolean;
   moreAlt?: string;
   moreUrl?: string;
   onMoreClick?: () => void;
   titleStyle?: CSSProperties;
   subStyle?: CSSProperties;
+  /** Twig `class` / `style` on the outer row. */
   className?: string;
+  style?: CSSProperties;
+  /** Twig `classone_level` / `classone_level2`. */
   levelClass?: string;
   level2Class?: string;
+  /** @deprecated Not in Twig's `titles.twig`; ignored. Pass classes instead. */
   center?: boolean;
   jocer?: boolean;
+  /** Twig `fqa`: the "more" control is a button (`#see-all-questions`), not a link. */
   fqa?: boolean;
 }
 
-/**
- * BlockTitle renders the standard View block header (h2 title, subtitle, optional jocer icon, and optional more/action link).
- */
+const JOCER_DEFAULT = 'https://cdn.salla.sa/form-builder/BtFck49qPdG3Qujymr5Y6LHJ6CqPq98hYaVy7BdX.webp';
+
+/** Port of `components/custom/titles.twig`, markup and classes unchanged. */
 export function BlockTitle({
   title,
   sub,
@@ -31,76 +39,81 @@ export function BlockTitle({
   titleStyle,
   subStyle,
   className = '',
+  style,
   levelClass = '',
   level2Class = '',
-  center = false,
   jocer = false,
   fqa = false,
 }: BlockTitleProps) {
+  const { settings, reveal } = useViewSettings();
   if (!title && !sub) return null;
 
-  const showMore = Boolean(more ?? Boolean(moreAlt));
-  const alignClasses = center
-    ? 'text-center justify-center items-center'
-    : 'text-start items-center justify-between';
+  const jocerSrc = optionValue(settings.jocer_image) || JOCER_DEFAULT;
+  const invertJocer = booleanValue(settings.invert_image_dark_jocer, true);
+  const cls = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
 
   return (
     <div
-      className={`mx-auto flex flex-col xs:flex-row gap-4 mb-5 md:mb-6 ${alignClasses} ${className}`.trim()}
+      className={cls(
+        'mx-auto flex flex-col xs:flex-row justify-between items-center gap-4 md:mb-6 mb-5',
+        className
+      )}
+      style={style}
     >
-      <div className={`${center ? 'text-center' : 'text-center md:text-start'} ${levelClass}`.trim()}>
+      <div className={cls('text-center md:text-right', levelClass)}>
         <div
-          className={`flex items-baseline ${
-            showMore ? 'md:justify-normal justify-center' : center ? 'justify-center' : 'justify-start'
-          } gap-2 ${level2Class}`.trim()}
+          className={cls(
+            'flex items-baseline',
+            more && 'md:justify-normal justify-center',
+            'gap-2',
+            level2Class,
+            reveal
+          )}
         >
           {jocer && (
             <img
-              src="https://cdn.salla.sa/form-builder/BtFck49qPdG3Qujymr5Y6LHJ6CqPq98hYaVy7BdX.webp"
+              src={jocerSrc}
               alt="jocer-icon"
               width={24}
               height={24}
-              className="w-6 h-6 object-contain aspect-square dark:invert carbon:invert"
+              className={cls(
+                'w-6 h-6 object-contain aspect-square',
+                invertJocer && 'dark:invert carbon:invert'
+              )}
               loading="lazy"
+              decoding="async"
             />
           )}
           {title && (
-            <h2
-              className="text-lg md:text-2xl font-bold text-primary-d"
-              style={titleStyle}
-            >
+            <h2 className="text-lg md:text-2xl font-bold text-primary-d" style={titleStyle}>
               {title}
             </h2>
           )}
         </div>
         {sub && (
-          <p
-            className="md:text-base text-sm text-primary mt-1 opacity-80"
-            style={subStyle}
-          >
+          <p className={cls('md:text-base text-sm text-primary mt-1', reveal)} style={subStyle}>
             {sub}
           </p>
         )}
       </div>
-
-      {showMore && moreAlt && (
-        fqa || onMoreClick ? (
+      {more &&
+        (fqa ? (
           <button
             type="button"
+            id="see-all-questions"
             onClick={onMoreClick}
-            className="text-sm text-primary hover:underline transition-all duration-200 self-center xs:self-auto cursor-pointer"
+            className={cls('text-sm text-primary hover:underline duration-200', reveal)}
           >
             {moreAlt}
           </button>
-        ) : moreUrl ? (
+        ) : (
           <Link
-            to={moreUrl}
-            className="text-sm text-primary hover:underline transition-all duration-200 self-center xs:self-auto"
+            to={moreUrl || '#'}
+            className={cls('text-sm text-primary hover:underline duration-200', reveal)}
           >
             {moreAlt}
           </Link>
-        ) : null
-      )}
+        ))}
     </div>
   );
 }

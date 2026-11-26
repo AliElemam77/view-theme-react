@@ -1,9 +1,11 @@
-import { memo } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { SectionWrapper } from '../common/SectionWrapper';
 import { BlockTitle } from '../common/BlockTitle';
 import { ActionBtn } from '../common/ActionBtn';
-import { linkUrl, optionValue } from '../../lib/fieldValue';
+import { SectionSeparator } from '../common/SectionSeparator';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue, linkUrl, optionValue } from '../../lib/fieldValue';
+import { cx, separatorProps, text, twigPosition } from './ViewBlockUtils';
 
 export interface VBannerLineData {
   main_image_first?: string;
@@ -26,129 +28,111 @@ export interface VBannerLineData {
   star_position_x?: number;
   merge_with_adjacent?: boolean;
   position?: number;
-  priority?: boolean;
+  [key: string]: unknown;
 }
 
-export const VBannerLine = memo(function VBannerLine({
-  data,
-}: {
-  data?: VBannerLineData;
-}) {
-  if (!data) return null;
+const LINE_TRANSITION = 'transform 900ms cubic-bezier(.25,.1,.25,1)';
 
-  const useCustomColors = Boolean(data.use_custom_colors);
-  const bgColor = useCustomColors ? data.background_color : 'var(--color-primary)';
-  const textColor = useCustomColors ? data.text_color : 'var(--color-primary-dark)';
-  const primaryBorder = useCustomColors ? data.primary_border_color : 'var(--color-bg)';
-  const secondaryBorder = useCustomColors ? data.secondary_border_color : 'var(--color-primary-dark)';
+/**
+ * Port of `V_banner_line.twig` + home.js `vbbpn`: the six `.line-anim` bars start at
+ * scaleX(0) (origin left) and grow in, 150ms apart, once the block is half visible.
+ */
+export const VBannerLine = memo(function VBannerLine({ data = {} }: { data?: VBannerLineData }) {
+  const { spacing } = useViewSettings();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [linesIn, setLinesIn] = useState(false);
 
-  const btnUrl = linkUrl(data.btn_url);
-  const btnStyle = optionValue(data.btn_sselector) || 'filled';
-  const saprator = optionValue(data.saprator);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            setLinesIn(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: [0.5] }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-  const sectionStyle: CSSProperties = {
-    background: bgColor,
-  };
+  const position = twigPosition(data);
+  const custom = booleanValue(data.use_custom_colors);
+  const primaryBorder = custom ? text(data.primary_border_color) : 'var(--color-bg)';
+  const secondaryBorder = custom ? text(data.secondary_border_color) : 'var(--color-primary-dark)';
 
-  const lineStyle1: CSSProperties = { backgroundColor: primaryBorder };
-  const lineStyle2: CSSProperties = { backgroundColor: secondaryBorder };
+  // Twig concatenates the raw colour without `color:` when custom colours are on,
+  // which is an invalid declaration: only `text-align` survives then.
+  const textStyle: CSSProperties = custom
+    ? { textAlign: 'center' }
+    : { textAlign: 'center', color: 'var(--color-primary-dark)' };
+
+  // DOM order of the `.line-anim` bars drives the 150ms stagger.
+  const line = (index: number, backgroundColor: string): CSSProperties => ({
+    backgroundColor,
+    transformOrigin: 'left center',
+    transform: linesIn ? 'scaleX(1)' : 'scaleX(0)',
+    transition: LINE_TRANSITION,
+    transitionDelay: linesIn ? `${index * 150}ms` : undefined,
+    willChange: 'transform',
+  });
 
   return (
-    <SectionWrapper
-      id={`V_banner_line-${data.position ?? 0}`}
-      ariaLabel="Section V_banner_line"
-      className="V_banner_line overflow-hidden"
-      style={sectionStyle}
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      ref={sectionRef}
+      className={cx('s-block relative V_banner_line', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_banner_line-${position}`}
+      id={`V_banner_line-${position}`}
+      style={{ background: custom ? text(data.background_color) : 'var(--color-primary)' }}
     >
-      {/* Decorative top start lines */}
-      <div className="flex flex-col absolute top-10 start-0 max-w-1/4 w-full gap-5 pointer-events-none z-0">
-        <span className="h-2 rounded-full" style={lineStyle1} />
-        <div className="flex items-center justify-between gap-4 w-4/5 self-end">
-          <span className="w-1/4 h-2 rounded-full" style={lineStyle1} />
-          <span className="h-2 w-full rounded-full" style={lineStyle2} />
+      <div className="flex flex-col absolute top-10 left-0 max-w-1/4 w-full gap-5 pointer-events-none z-0">
+        <span className="h-2 rounded-full line-anim" style={line(0, primaryBorder)} />
+        <div className="center-between gap-4 w-4/5 self-end">
+          <span className="w-1/4 h-2 rounded-full line-anim" style={line(1, primaryBorder)} />
+          <span className="h-2 w-full rounded-full line-anim" style={line(2, secondaryBorder)} />
         </div>
       </div>
 
-      <div className={`${data.has_container ? 'container' : ''} relative z-10 block`}>
+      <div className={cx(booleanValue(data.has_container) && 'container', 'relative z-10 block')}>
         <div className="flex items-center justify-between flex-col py-9">
-          {data.main_image_first && (
-            <img
-              src={data.main_image_first}
-              alt=""
-              className="max-h-40 md:max-h-64 object-contain text-primary-d mb-5 md:mb-6"
-              loading={data.priority ? 'eager' : 'lazy'}
-              fetchPriority={data.priority ? 'high' : 'auto'}
-            />
-          )}
-
+          <img
+            src={text(data.main_image_first) || undefined}
+            alt=""
+            className="max-h-40 md:max-h-64 text-primary-d md:mb-6 mb-5"
+          />
           <BlockTitle
-            title={data.main_title}
-            sub={data.main_titleamsll}
-            center
-            className="!mb-4 text-center"
-            titleStyle={{ color: textColor }}
-            subStyle={{ color: textColor }}
+            title={text(data.main_title)}
+            sub={text(data.main_titleamsll)}
+            jocer={booleanValue(data.has_jocer_image)}
+            className="!mx-0"
+            level2Class="text-center"
+            subStyle={textStyle}
+            titleStyle={textStyle}
           />
-
-          {data.btn_txt && (
-            <ActionBtn
-              text={data.btn_txt}
-              href={btnUrl}
-              dataStyle={btnStyle}
-              color={useCustomColors ? data.background_color : 'var(--color-primary)'}
-              backgroundColor={useCustomColors ? data.text_color : '#ffffff'}
-              icon
-              className="!w-fit mt-2"
-            />
-          )}
+          <ActionBtn
+            text={text(data.btn_txt)}
+            href={linkUrl(data.btn_url)}
+            dataStyle={optionValue(data.btn_sselector)}
+            color={custom ? text(data.background_color) : 'var(--color-primary)'}
+            backgroundColor={custom ? text(data.text_color) : '#fff'}
+            icon
+            className="!w-fit"
+          />
         </div>
       </div>
 
-      {/* Decorative bottom end lines */}
-      <div className="flex flex-col absolute bottom-10 end-0 max-w-1/4 w-full gap-5 pointer-events-none z-0">
-        <span className="h-2 rounded-full" style={lineStyle1} />
-        <div className="flex items-center justify-between gap-4 w-4/5">
-          <span className="w-1/4 h-2 rounded-full" style={lineStyle1} />
-          <span className="h-2 w-full rounded-full" style={lineStyle2} />
+      <div className="flex flex-col absolute bottom-10 right-0 max-w-1/4 w-full gap-5 pointer-events-none z-0">
+        <span className="h-2 rounded-full line-anim" style={line(3, primaryBorder)} />
+        <div className="center-between gap-4 w-4/5">
+          <span className="w-1/4 h-2 rounded-full line-anim" style={line(4, primaryBorder)} />
+          <span className="h-2 w-full rounded-full line-anim" style={line(5, secondaryBorder)} />
         </div>
       </div>
-
-      {/* Separator */}
-      {(saprator === 'solid' || saprator === 'star') && (
-        <div
-          className={`relative w-full py-6 ${data.merge_with_adjacent ? '-my-6' : 'mt-3'} ${
-            saprator === 'solid' ? 'container' : ''
-          }`}
-        >
-          <div
-            className="h-px w-full"
-            style={{
-              backgroundColor:
-                useCustomColors && data.line_color ? data.line_color : 'var(--color-primary-light)',
-            }}
-          />
-          {saprator === 'star' && (
-            <div
-              className="absolute top-1/2 -translate-y-1/2 z-10"
-              style={{
-                left: `${data.star_position_x ?? 50}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <svg width="48" height="57" viewBox="0 0 48 57" fill="none">
-                <path
-                  d="M24.2847 0.870117L19.0863 22.72L0.569443 28.8541L19.0863 34.9883L24.2847 56.8382L29.4832 34.9883L48 28.8541L29.4832 22.72L24.2847 0.870117Z"
-                  fill={
-                    useCustomColors && data.star_color ? data.star_color : 'var(--color-primary-light)'
-                  }
-                />
-              </svg>
-            </div>
-          )}
-        </div>
-      )}
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} />
+    </section>
   );
 });

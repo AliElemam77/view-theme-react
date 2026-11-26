@@ -1,33 +1,41 @@
 import type { ReactNode } from 'react';
-import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
-import { render, waitFor, act, fireEvent } from '@testing-library/react';
-import { resetWishlistStore } from '@salla.sa/twilight-theme-engine/hooks/useWishlist';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+import { render, cleanup } from '@testing-library/react';
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
 import { ProductDetails } from '../../../app/components/product/ProductDetails';
 
+const settings = vi.hoisted(() => ({ value: {} as Record<string, unknown> }));
+const translations = vi.hoisted(() => ({ value: {} as Record<string, string> }));
+
 vi.mock('@salla.sa/twilight-theme-engine/i18n', () => ({
-  useTranslation: () => ({
-    locale: 'ar',
-    t: (key: string) => key,
+  useTranslation: () => ({ locale: 'ar', t: (key: string) => translations.value[key] ?? key }),
+}));
+vi.mock('@salla.sa/twilight-theme-engine/providers', () => ({
+  useTwilight: () => ({
+    theme: { settings: settings.value },
+    store: { logo: 'https://cdn.example/store.png', name: 'Store' },
   }),
 }));
-
+vi.mock('@salla.sa/twilight-theme-engine/hooks/useTheme', () => ({
+  useTheme: () => ({ settings: settings.value }),
+}));
+vi.mock('@salla.sa/twilight-theme-engine/hooks/useMoney', () => ({
+  useMoney: () => ({ format: (v: unknown) => `SAR ${v}` }),
+}));
+vi.mock('@salla.sa/twilight-theme-engine/hooks/useWishlist', () => ({
+  useWishlist: () => ({ has: () => false, toggle: vi.fn() }),
+}));
 vi.mock('@salla.sa/twilight-theme-engine/hooks', () => ({
   HookSlot: ({ name }: { name: string }) => <div data-hook-slot={name} />,
 }));
-
-// The real `Image`, but a plain `<a>` for `Link`, which needs the router's LinkProvider.
-vi.mock('@salla.sa/twilight-theme-engine/common', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@salla.sa/twilight-theme-engine/common')>()),
-  Link: ({ to, children, className }: { to: string; children?: ReactNode; className?: string }) => (
+vi.mock('@salla.sa/twilight-theme-engine/common', () => ({
+  Link: ({ to, children, className }: { to?: string; children?: ReactNode; className?: string }) => (
     <a href={to} className={className}>
       {children}
     </a>
   ),
 }));
 
-// jsdom has no IntersectionObserver; report every element as visible so the
-// deferred-hydration wrappers mount.
 beforeAll(() => {
   class VisibleObserver {
     constructor(private cb: IntersectionObserverCallback) {}
@@ -46,358 +54,126 @@ beforeAll(() => {
   window.IntersectionObserver = VisibleObserver as unknown as typeof IntersectionObserver;
 });
 
-const makeProduct = (overrides: Partial<Product> = {}): Product =>
+beforeEach(() => {
+  settings.value = {};
+  translations.value = {};
+  cleanup();
+});
+
+const makeProduct = (over: Partial<Product> = {}): Product =>
   ({
-    id: 266863684,
-    name: 'Product',
-    price: 500,
-    regular_price: 500,
-    sale_price: 0,
-    is_on_sale: false,
-    status: 'sale',
-    type: 'product',
-    ...overrides,
-  }) as Product;
+    id: 7,
+    name: 'Oud',
+    url: '/oud/p7',
+    price: 100,
+    regular_price: 120,
+    sale_price: 90,
+    is_on_sale: true,
+    quantity: 12,
+    sku: 'SKU-1',
+    is_taxable: true,
+    description: '<p>Rich&nbsp;oud</p>',
+    tags: [
+      { id: 1, name: 'new', url: '/t/new' },
+      { id: 2, name: 'gift', url: '/t/gift' },
+    ],
+    category: { name: 'Perfumes', url: '/perfumes' },
+    ...over,
+  }) as unknown as Product;
 
-const skuValue = (container: HTMLElement) =>
-  container.querySelector('.text-unicode')?.textContent ?? null;
-
-describe('ProductDetails SKU row', () => {
-  it('shows the product SKU when no live SKU is passed', async () => {
-    const { container } = render(<ProductDetails product={makeProduct({ sku: 'PARENT' })} />);
-
-    await waitFor(() => expect(skuValue(container)).toBe('PARENT'));
-  });
-
-  it('shows the selected variant SKU over the loader SKU', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ sku: 'PARENT' })} sku="VAR-1" />
-    );
-
-    await waitFor(() => expect(skuValue(container)).toBe('VAR-1'));
-  });
-
-  it('hides the row when the selected variant has no SKU', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ sku: 'PARENT' })} sku="" />
-    );
-
-    await waitFor(() => expect(container.querySelector('h1')).toBeTruthy());
-    expect(container.querySelector('.text-unicode')).toBeNull();
-  });
-});
-
-const barcodeValue = (container: HTMLElement) =>
-  [...container.querySelectorAll('.text-unicode')].find((el) =>
-    el.previousElementSibling?.textContent?.includes('pages.products.barcode')
-  )?.textContent ?? null;
-
-describe('ProductDetails barcode row', () => {
-  it('shows the product barcode when no live barcode is passed', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ barcode: 'PARENT-BC' })} />
-    );
-
-    await waitFor(() => expect(barcodeValue(container)).toBe('PARENT-BC'));
-  });
-
-  it('shows the selected variant barcode over the loader barcode', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ barcode: 'PARENT-BC' })} barcode="VAR-BC" />
-    );
-
-    await waitFor(() => expect(barcodeValue(container)).toBe('VAR-BC'));
-  });
-
-  it('hides the row when the selected variant has no barcode', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ barcode: 'PARENT-BC' })} barcode="" />
-    );
-
-    await waitFor(() => expect(container.querySelector('h1')).toBeTruthy());
-    expect(container.textContent).not.toContain('pages.products.barcode');
-  });
-});
-
-describe('ProductDetails select branch', () => {
-  const dispatch = vi.fn();
-
-  beforeEach(() => {
-    dispatch.mockClear();
-    (window as unknown as { salla: unknown }).salla = {
-      event: { on: vi.fn(), off: vi.fn(), dispatch },
-    };
-  });
-
-  afterEach(() => {
-    delete (window as unknown as { salla?: unknown }).salla;
-  });
-
-  const selectBranch = async (container: HTMLElement) =>
-    waitFor(() => {
-      const label = [...container.querySelectorAll('span')].find(
-        (span) => span.textContent === 'pages.products.select_branch'
-      );
-      expect(label).toBeTruthy();
-      return label!.parentElement!;
-    });
-
-  it('is a button that opens the branch picker without changing the URL', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ id: 42, show_availability: true })} />
-    );
-    const control = await selectBranch(container);
-
-    expect(control.tagName).toBe('BUTTON');
-    expect(control.getAttribute('type')).toBe('button');
-    expect(control.hasAttribute('href')).toBe(false);
-
-    fireEvent.click(control);
-    expect(dispatch).toHaveBeenCalledWith('scopes::open', {
-      mode: 'availability',
-      product_id: '42',
-    });
-  });
-
-  it('points its arrow forward in both directions, after the text', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ show_availability: true })} />
-    );
-    const control = await selectBranch(container);
-    const arrow = control.querySelector('.sicon-keyboard_arrow_left')!;
-
-    // `ltr.scss` swaps the glyph to the right arrow under `.with-arrow`.
-    expect(control.classList.contains('with-arrow')).toBe(true);
-    expect(arrow.classList.contains('ms-2')).toBe(true);
-    expect(arrow.classList.contains('mr-2')).toBe(false);
-    // The hover nudge follows the arrow.
-    expect(arrow.classList.contains('rtl:group-hover:-translate-x-1')).toBe(true);
-    expect(arrow.classList.contains('ltr:group-hover:translate-x-1')).toBe(true);
-    expect(arrow.classList.contains('group-hover:-translate-x-1')).toBe(false);
-  });
-});
-
-describe('ProductDetails description hooks', () => {
-  it('renders .start and description once, and leaves .end to the page after the form (as in Twig)', async () => {
+describe('ProductDetails (base_content.twig imformation_base)', () => {
+  it('shows the store logo beside the title when the product has no brand', () => {
     const { container } = render(<ProductDetails product={makeProduct()} />);
-    const count = (name: string) => container.querySelectorAll(`[data-hook-slot="${name}"]`).length;
-    await waitFor(() => expect(count('product:single.description.start')).toBe(1));
-    expect(count('product:single.description')).toBe(1);
-    expect(count('product:single.description.end')).toBe(0);
+    const row = container.querySelector('h1')?.parentElement;
+    expect(row?.querySelector('img')?.getAttribute('src')).toBe('https://cdn.example/store.png');
+    expect(container.querySelector('h1')?.textContent).toBe('Oud');
   });
-});
 
-describe('ProductDetails wishlist heart', () => {
-  const onAdded: Array<(e: unknown, id: number) => void> = [];
+  it('shows the live SKU and the tax note in one row', () => {
+    const { container } = render(<ProductDetails product={makeProduct()} sku="LIVE-9" />);
+    expect(container.querySelector('.product-sku')?.textContent).toBe('LIVE-9');
+    expect(container.textContent).toContain('pages.products.tax_included');
+  });
 
-  beforeEach(() => {
-    resetWishlistStore();
-    localStorage.clear();
-    onAdded.length = 0;
-    (window as unknown as { salla: unknown }).salla = {
-      init: vi.fn(),
-      event: { on: vi.fn(), off: vi.fn() },
-      storage: { get: vi.fn(() => [111]) },
-      wishlist: {
-        toggle: vi.fn(),
-        event: {
-          onAdded: vi.fn((cb) => onAdded.push(cb)),
-          onRemoved: vi.fn(),
-        },
-      },
+  it('clips the description to 5.25rem, as Twig', () => {
+    const { container } = render(<ProductDetails product={makeProduct()} />);
+    const article = container.querySelector('#more-content') as HTMLElement;
+    expect(article.style.maxHeight).toBe('5.25rem');
+    expect(article.innerHTML).toContain('Rich\noud');
+  });
+
+  it('prints the sale price in the price colour with the struck regular price', () => {
+    const { container } = render(<ProductDetails product={makeProduct()} />);
+    expect(container.querySelector('.price_is_on_sale h2')?.className).toContain('text-price');
+    expect(container.querySelector('.price_is_on_sale span')?.textContent).toBe('SAR 120');
+  });
+
+  it('separates the tags with bars and shows the remained / sold row', () => {
+    const { container } = render(<ProductDetails product={makeProduct()} />);
+    const tags = [...container.querySelectorAll('a[href^="/t/"]')].map((a) => a.textContent);
+    expect(tags).toEqual(['new', 'gift']);
+    expect(container.textContent).toContain('pages.products.remained');
+    expect(container.textContent).toContain('pages.products.sold');
+  });
+
+  it('shows the "related products" button only when mini_category is off', () => {
+    settings.value = { mini_category: true };
+    const first = render(<ProductDetails product={makeProduct()} />);
+    expect(first.container.textContent).not.toContain('blocks.appBanner.related_products');
+    first.unmount();
+    settings.value = { mini_category: false };
+    const second = render(<ProductDetails product={makeProduct()} />);
+    expect(second.container.textContent).toContain('blocks.appBanner.related_products');
+  });
+
+  it('hides the tags with show_tags off', () => {
+    settings.value = { show_tags: false };
+    const { container } = render(<ProductDetails product={makeProduct()} showTags={false} />);
+    expect(container.querySelector('a[href^="/t/"]')).toBeNull();
+  });
+
+  it('formats Salla plural sold_times without exposing raw tags or placeholders', () => {
+    translations.value = {
+      'pages.products.sold': 'تم شراؤه',
+      'pages.products.sold_times':
+        '{1} <span>مرة واحدة</span>|{2} <span>مرتان</span>|[3,10] <span>:count</span> مرات|[11,*] <span>:count</span> مرة',
+      'pages.products.sold_zero': '0 مرات',
     };
+
+    const cases: Array<[number | undefined, string]> = [
+      [0, '0 مرات'],
+      [1, 'مرة واحدة'],
+      [2, 'مرتان'],
+      [5, '5 مرات'],
+      [15, '15 مرة'],
+    ];
+
+    for (const [sold_quantity, expected] of cases) {
+      const { container, unmount } = render(
+        <ProductDetails product={makeProduct({ sold_quantity } as Partial<Product>)} />
+      );
+      expect(container.textContent).toContain(`تم شراؤه ${expected}`);
+      expect(container.textContent).not.toContain('<span>');
+      expect(container.textContent).not.toContain('{1}');
+      unmount();
+    }
   });
 
-  afterEach(() => {
-    delete (window as unknown as { salla?: unknown }).salla;
-  });
-
-  const heart = (container: HTMLElement) =>
-    container.querySelector('.product-details__title-actions .btn--wishlist');
-
-  it('shows a saved product as added', async () => {
-    const { container } = render(<ProductDetails product={makeProduct({ id: 111 })} />);
-
-    await waitFor(() => expect(heart(container)?.className).toContain('is-added'));
-  });
-
-  it('labels the heart with the translated wishlist text', async () => {
-    const { container } = render(<ProductDetails product={makeProduct({ id: 111 })} />);
-
-    await waitFor(() =>
-      expect(heart(container)?.getAttribute('aria-label')).toBe('pages.products.add_to_wishlist')
-    );
-  });
-
-  it('marks the heart with the product id, as Twig does, so wishlist apps can find it', async () => {
-    const { container } = render(<ProductDetails product={makeProduct({ id: 111 })} />);
-
-    await waitFor(() => expect(heart(container)?.getAttribute('data-id')).toBe('111'));
-  });
-
-  it('switches to added when the SDK adds the product', async () => {
-    const { container } = render(<ProductDetails product={makeProduct({ id: 222 })} />);
-    await waitFor(() => expect(heart(container)?.className).toContain('not-added'));
-
-    act(() => onAdded.forEach((cb) => cb({}, 222)));
-
-    await waitFor(() => expect(heart(container)?.className).toContain('is-added'));
-  });
-
-  it('tells screen readers whether the product is saved, through the pressed state', async () => {
-    const { container } = render(<ProductDetails product={makeProduct({ id: 222 })} />);
-    await waitFor(() => expect(heart(container)?.getAttribute('aria-pressed')).toBe('false'));
-
-    act(() => onAdded.forEach((cb) => cb({}, 222)));
-
-    await waitFor(() => expect(heart(container)?.getAttribute('aria-pressed')).toBe('true'));
-    expect(heart(container)?.querySelector('i')?.getAttribute('aria-hidden')).toBe('true');
-  });
-});
-
-describe('ProductDetails price', () => {
-  afterEach(() => {
-    document.cookie = 's-curr=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-  });
-
-  it('labels the price in the currency the visitor chose, not the SAR the API reports', async () => {
-    document.cookie = 's-curr=EUR; path=/';
-    const { container } = render(
-      <ProductDetails product={makeProduct({ price: 118.66, currency: 'SAR' })} />
-    );
-
-    const price = () =>
-      [...container.querySelectorAll('p')].find((p) => p.textContent?.includes('118.66'));
-    await waitFor(() => expect(price()?.textContent).toContain('EUR'));
-    expect(price()?.querySelector('.sicon-sar')).toBeNull();
-  });
-});
-
-describe('ProductDetails remaining quantity', () => {
-  it('shows the remaining count for an out of stock product, as Twig does', async () => {
-    const { container } = render(
-      <ProductDetails
-        product={makeProduct({ status: 'out', can_show_remained_quantity: true, quantity: 0 })}
-      />
-    );
-
-    await waitFor(() => expect(container.textContent).toContain('pages.products.remained 0'));
-    expect(container.textContent).not.toContain('blocks.product.in_stock');
-  });
-
-  it('keeps the in stock row while quantity is left', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ can_show_remained_quantity: true, quantity: 19 })} />
-    );
-
-    await waitFor(() => expect(container.textContent).toContain('blocks.product.in_stock (19)'));
-    expect(container.textContent).not.toContain('pages.products.remained');
-  });
-
-  // The sold / remaining box (`mb-5 inline-flex text-sm`).
-  const quantityBox = (container: HTMLElement) =>
-    container.querySelector('div.mb-5.inline-flex.text-sm');
-
-  it('leaves no empty gap for a product that sold 0 with the remaining count hidden', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ sold_quantity: 0, can_show_remained_quantity: false })} />
-    );
-
-    await waitFor(() => expect(container.textContent).toContain('Product'));
-    expect(quantityBox(container)).toBeNull();
-  });
-
-  it('still shows the sold count once something has sold', async () => {
-    const { container } = render(
-      <ProductDetails product={makeProduct({ sold_quantity: 3, can_show_remained_quantity: false })} />
-    );
-
-    await waitFor(() => expect(quantityBox(container)?.textContent).toContain('pages.products.sold'));
-  });
-});
-
-describe('ProductDetails brand logo', () => {
-  it('contains the logo instead of cropping it with the Image default cover', async () => {
+  it('shows barcode without sku/taxable, preserves multi-word weight, and hides null quantity', () => {
     const { container } = render(
       <ProductDetails
         product={makeProduct({
-          brand: { id: 7, name: 'Brand', url: '/brand', logo: 'https://cdn.test/logo.png' },
+          sku: '',
+          is_taxable: false,
+          barcode: 'BAR-777',
+          weight: '250 g net',
+          quantity: undefined,
         } as Partial<Product>)}
       />
     );
-
-    const logo = await waitFor(() => {
-      const img = container.querySelector<HTMLImageElement>('.brand-logo img');
-      expect(img).toBeTruthy();
-      return img!;
-    });
-    expect(logo.classList.contains('object-contain')).toBe(true);
-    expect(logo.classList.contains('object-cover')).toBe(false);
-  });
-});
-
-describe('ProductDetails description embeds', () => {
-  it('loads iframes lazily unless the merchant set their own loading', async () => {
-    const description =
-      '<p>Intro</p><iframe class="ql-video" src="https://www.youtube.com/embed/x"></iframe>' +
-      '<iframe loading="eager" src="https://maps.test/embed"></iframe>' +
-      '<iframe loading = "eager" src="https://maps.test/spaced"></iframe>' +
-      '<iframe title="A > B" loading="eager" src="https://maps.test/quoted"></iframe>' +
-      '<iframe title="no loading=here" src="https://player.vimeo.com/video/1"></iframe>';
-    const { container } = render(<ProductDetails product={makeProduct({ description })} />);
-
-    const frames = () => [...container.querySelectorAll('.product__description iframe')];
-    await waitFor(() => expect(frames()).toHaveLength(5));
-    expect(frames().map((frame) => frame.getAttribute('loading'))).toEqual([
-      'lazy',
-      'eager',
-      'eager',
-      'eager',
-      'lazy',
-    ]);
-  });
-
-  it('shows a YouTube video as a thumbnail and loads the player only once it is played', async () => {
-    const description =
-      '<p>Intro</p><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>';
-    const { container } = render(<ProductDetails product={makeProduct({ description })} />);
-
-    const facade = await waitFor(() => {
-      const element = container.querySelector<HTMLButtonElement>('.product__description .video-facade');
-      expect(element).toBeTruthy();
-      return element!;
-    });
-    expect(container.querySelector('.product__description iframe')).toBeNull();
-    expect(facade.getAttribute('aria-label')).toBe('pages.products.play_video');
-
-    fireEvent.click(facade.querySelector('img')!);
-    const frame = container.querySelector('.product__description iframe');
-    expect(frame?.getAttribute('src')).toBe('https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1');
-    expect(container.querySelector('.video-facade')).toBeNull();
-  });
-});
-
-describe('ProductDetails read more', () => {
-  const longProduct = () =>
-    makeProduct({ description: '<p>Long text</p>', has_read_more: true } as Partial<Product>);
-
-  it('says what the button expands and whether it has', async () => {
-    const { container } = render(<ProductDetails product={longProduct()} />);
-    const button = await waitFor(() => container.querySelector<HTMLElement>('#btn-show-more')!);
-
-    expect(button.getAttribute('aria-controls')).toBe('more-content');
-    expect(button.getAttribute('aria-expanded')).toBe('false');
-    expect(button.hasAttribute('inert')).toBe(false);
-  });
-
-  it('moves focus to the revealed text, since the button fades out and leaves the tab order', async () => {
-    const { container } = render(<ProductDetails product={longProduct()} />);
-    const button = await waitFor(() => container.querySelector<HTMLElement>('#btn-show-more')!);
-    button.focus();
-
-    fireEvent.click(button);
-
-    expect(button.hasAttribute('inert')).toBe(true);
-    expect(document.activeElement).toBe(container.querySelector('#more-content'));
+    expect(container.querySelector('.product-barcode')?.textContent).toBe('BAR-777');
+    expect(container.textContent).toContain('250');
+    expect(container.textContent).toContain('g net');
+    expect(container.textContent).not.toContain('pages.products.remained');
   });
 });

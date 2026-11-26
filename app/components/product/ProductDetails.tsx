@@ -1,20 +1,131 @@
-import { Fragment, useRef, useState, type MouseEvent } from 'react';
-import { HookSlot } from '@salla.sa/twilight-theme-engine/hooks';
-import { HookName } from '@salla.sa/twilight-theme-engine/types/hooks';
-import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
-import { getActiveCurrency } from '@salla.sa/twilight-theme-engine/api/client';
-import { useWishlist } from '@salla.sa/twilight-theme-engine/hooks/useWishlist';
-import { CurrencySymbol, Link, Image } from '@salla.sa/twilight-theme-engine/common';
-import { formatSallaPlural } from '@salla.sa/twilight-theme-engine/utils';
-import type { Product } from '@salla.sa/twilight-theme-engine/types';
+/**
+ * Port of `pages/templates/base_content.twig` (`imformation_base`, `product_card_pic: main`)
+ * and the bits of `sub_content.twig` it includes: the countdown / wishlist / share row,
+ * brand (or store) logo with the title, subtitle, tax / SKU / barcode, the clipped
+ * description, price with the discount badge and rating, the weight / remained / sold
+ * row, tags, the "related products" button, installment and branch availability.
+ */
+import { useEffect, useState } from 'react';
+import { SallaButton } from '@salla.sa/twilight-components-react/button';
+import { SallaCountDown } from '@salla.sa/twilight-components-react/count-down';
+import { SallaInstallment } from '@salla.sa/twilight-components-react/installment';
 import { SallaRatingStars } from '@salla.sa/twilight-components-react/rating-stars';
 import { SallaSocialShare } from '@salla.sa/twilight-components-react/social-share';
-import { SallaInstallment } from '@salla.sa/twilight-components-react/installment';
-import { useHydrated } from '../../hooks/useHydrated';
-import { useMobileViewport } from '../../hooks/useMobileViewport';
-import { youtubeFacades } from '../../lib/descriptionVideos';
-import { ProductMetadata } from './ProductMetadata';
-import { WishlistHeartButton } from './WishlistHeartButton';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
+import { useMoney } from '@salla.sa/twilight-theme-engine/hooks/useMoney';
+import { useWishlist } from '@salla.sa/twilight-theme-engine/hooks/useWishlist';
+import { HookSlot } from '@salla.sa/twilight-theme-engine/hooks';
+import { Link } from '@salla.sa/twilight-theme-engine/common';
+import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
+import { formatSallaPlural } from '@salla.sa/twilight-theme-engine/utils';
+import type { Product } from '@salla.sa/twilight-theme-engine/types';
+import { ActionBtn } from '../common/ActionBtn';
+import { booleanValue, optionValue } from '../../lib/fieldValue';
+import { CATEGORY_ICON, REMAINED_ICON, SOLD_ICON, TAG_ICON, TAX_ICON, WEIGHT_ICON } from './productIcons';
+
+const Svg = ({ html }: { html: string }) => <span className="contents" dangerouslySetInnerHTML={{ __html: html }} />;
+
+/** `product::price.updated.failed` (product.js): the price row gives way to "out of stock". */
+export function usePriceFailed(): boolean {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const salla = window.salla as unknown as
+      | {
+          event?: { on?: (n: string, f: () => void) => void; off?: (n: string, f: () => void) => void };
+        }
+      | undefined;
+    const onFailed = () => setFailed(true);
+    const onUpdated = () => setFailed(false);
+    salla?.event?.on?.('product::price.updated.failed', onFailed);
+    salla?.event?.on?.('product::price.updated', onUpdated);
+    return () => {
+      salla?.event?.off?.('product::price.updated.failed', onFailed);
+      salla?.event?.off?.('product::price.updated', onUpdated);
+    };
+  }, []);
+  return failed;
+}
+
+/** `sub_content.twig` `price_bit` (`total` adds the classes product.js updates). */
+export function PriceBit({ product, total = false }: { product: Product; total?: boolean }) {
+  const { t } = useTranslation();
+  const { format } = useMoney();
+  const tc = (name: string) => (total ? `${name} ` : '');
+  return (
+    <div className={`flex whitespace-nowrap  ${total ? 'price-wrapper' : ''} gap-4 items-center`}>
+      <div
+        className={`${product.is_on_sale ? '' : 'hidden'} price_is_on_sale space-x-2 rtl:space-x-reverse whitespace-nowrap`}
+      >
+        <h2 className={`${tc('total-price')}text-price font-bold md:text-xl text-lg inline-block`}>
+          {format(product.sale_price ?? undefined)}
+        </h2>
+        <span className={`${tc('before-price')}text-mediumgray line-through opacity-85 font-semibold text-base`}>
+          {format(product.regular_price)}
+        </span>
+      </div>
+      <div className={`${tc('starting-or-normal-price')}gap-4 ${product.is_on_sale ? 'hidden' : 'flex'}`}>
+        {product.starting_price ? (
+          <span className={total ? 'starting-price-title' : undefined}>{t('pages.products.starting_price')}</span>
+        ) : null}
+        <h2 className={`${tc('total-price')}font-bold md:text-xl text-lg inline-block`}>
+          {format(product.starting_price || product.price)}
+        </h2>
+      </div>
+    </div>
+  );
+}
+
+/** `sub_content.twig` `social_bit`: the offer countdown, the category shortcut, wishlist and share. */
+function SocialBit({ product }: { product: Product }) {
+  const { t } = useTranslation();
+  const { theme } = useTwilight();
+  const wishlist = useWishlist();
+  const s = (theme?.settings ?? {}) as Record<string, unknown>;
+  const priceLight = optionValue(s.price_color_light) || '#F55157';
+  const inputDate = optionValue(s.input_date);
+  const date =
+    booleanValue(s.is_date, true) && inputDate
+      ? inputDate
+      : String((product as { discount_ends?: unknown }).discount_ends ?? '');
+  const inWishlist = wishlist.has(Number(product.id));
+
+  return (
+    <div className="flex items-center justify-between gap-2 flex-wrap md:flex-nowrap">
+      {booleanValue(s.show_counter, true) && (
+        <div
+          className="has-overlay flex-1 discount countersingl flex items-center justify-between text-sm relative  px-1.5 py-1 rounded-theme"
+          style={{ border: `1px solid ${priceLight}75` }}
+        >
+          <span className="z-2">{t('blocks.appBanner.discountssss')}</span>
+          <SallaCountDown className="offer-count relative z-2 flex-1" digits="en" size="sm" date={date} />
+        </div>
+      )}
+      <div className="items-center gap-1.5 flex  justify-between w-full md:w-auto">
+        {booleanValue(s.mini_category, false) && (
+          <Link
+            to={product.category?.url || '#'}
+            title={product.category?.name}
+            className="!m-0 inline-flex s-social-share-btn s-button-element s-button-icon s-button-outline s-button-light-outline s-button-loader-center"
+          >
+            <Svg html={CATEGORY_ICON} />
+          </Link>
+        )}
+        <SallaButton
+          className={`btn--wishlist animated inline-flex${inWishlist ? ' s-product-card-wishlist-added pulse-anime' : ''}`}
+          data-id={product.id}
+          onClick={() => wishlist.toggle(Number(product.id))}
+          shape="icon"
+          fill="outline"
+          color="light"
+          ariaLabel={t('pages.products.add_to_wishlist')}
+        >
+          <i className="sicon-heart"></i>
+        </SallaButton>
+        <SallaSocialShare className="inline-flex" aria-label={t('common.share', 'Share')} />
+      </div>
+    </div>
+  );
+}
 
 interface ProductDetailsProps {
   product: Product;
@@ -25,328 +136,208 @@ interface ProductDetailsProps {
   showTags?: boolean;
 }
 
-/**
- * Theme fork of the engine `ProductDetails`.
- *
- * Differs from the engine version: the data-column blocks (title, SKU row,
- * availability, sold / remaining quantity) render flat: no `bg-white`, no
- * `rounded`, no card padding. The `.product-form` `gap` / element `mb`
- * classes control the vertical rhythm. The brand logo passes `objectFit="contain"`
- * to `<Image>` rather than an `object-contain` class, which the component's own
- * `object-cover` default overrides. Upgrade notes: `FORKS.md`.
- */
-export function ProductDetails({
-  product,
-  sku = product.sku,
-  barcode = product.barcode,
-  showTags = true,
-}: ProductDetailsProps) {
+export function ProductDetails({ product, sku = product.sku, barcode = product.barcode, showTags }: ProductDetailsProps) {
   const { t } = useTranslation();
-  const hydrated = useHydrated();
-  const isMobile = useMobileViewport();
-
-  // Context for all product hooks - contains product data
-  const productHookContext = { product };
+  const { store, theme } = useTwilight();
+  const s = (theme?.settings ?? {}) as Record<string, unknown>;
+  const priceLight = optionValue(s.price_color_light) || '#F55157';
+  const p = product as Product & {
+    discount_percentage?: number;
+    is_taxable?: boolean;
+    sold_quantity?: number;
+    show_availability?: boolean;
+  };
+  const showBrand = booleanValue(s.show_brand, true);
+  const weight = String(product.weight ?? '').trim().split(/\s+/).filter(Boolean);
+  const showAvailable = booleanValue(s.isavi, true);
+  const showSold = booleanValue(s.howbuy, true);
+  const tagsOn = showTags ?? booleanValue(s.show_tags, true);
+  // Twig replaces `&nbsp;` with a newline before printing the description.
+  const description = (product.description ?? '').replace(/&nbsp;/g, '\n');
 
   return (
     <>
-      <HookSlot name={HookName.PRODUCT_DESCRIPTION_START} context={productHookContext} />
-
-      {product.brand?.name && (
-        <div className="product-brand mb-5 w-12">
-          <Link className="brand-logo" to={product.brand.url || '#'} title={product.brand.name}>
-            <Image
-              className="max-h-full"
-              objectFit="contain"
-              src={product.brand.logo}
-              title={product.brand.name}
-              alt={product.brand.name}
-              aspectRatio="1/1"
-            />
-          </Link>
-        </div>
-      )}
-
-      <div className="mb-2.5 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl md:text-2xl leading-10 font-bold text-gray-800">{product.name}</h1>
-          {product.subtitle && (
-            <h2 className="product-entry__sub-title text-sm text-gray-500 leading-6 font-normal">
-              {product.subtitle}
-            </h2>
-          )}
-        </div>
-
-        {/* share + wishlist, pulled up beside the title on the end side.
-            On mobile these move to the gallery overlay bar (`ProductGallery`),
-            so this copy is hidden — see `product.scss`. */}
-        <div className="product-details__title-actions flex shrink-0">
-          <SallaSocialShare className="inline-flex" aria-label="social share" />
-
-          <TitleWishlistButton productId={Number(product.id)} />
-        </div>
+      <SocialBit product={product} />
+      <div className="flex items-center gap-2 text-darkgray">
+        {product.brand?.name && showBrand ? (
+          <div className="product-brand w-12">
+            <Link className="brand-logo" to={product.brand.url || '#'} title={product.brand.name}>
+              <img
+                width={50}
+                height={50}
+                className="max-h-full object-contain"
+                src={product.brand.logo}
+                title={product.brand.name}
+                alt={product.brand.name}
+                loading="lazy"
+                decoding="async"
+              />
+            </Link>
+          </div>
+        ) : (
+          <img
+            width={50}
+            height={50}
+            className="max-h-full object-contain"
+            src={store?.logo}
+            title={store?.name}
+            alt={store?.name}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <h1 className="text-base md:text-2xl sm:text-xl  leading-6 font-bold flex-1">{product.name}</h1>
       </div>
 
-      {product.rating && (
-        <div className="product-details__rating">
-          <SallaRatingStars value={product.rating.stars} reviews={product.rating.count} />
+      {product.subtitle && (
+        <h2 className="product-entry__sub-title sm:text-sm text-xs text-mediumgray  leading-6">{product.subtitle}</h2>
+      )}
+      {(sku || barcode || p.is_taxable) && (
+        <div className="center-between">
+          {p.is_taxable && (
+            <span className="flex items-center gap-1 text-mediumgray">
+              <Svg html={TAX_ICON} />
+              <small className="font-semibold text-xxs sm:text-xs">{t('pages.products.tax_included')}</small>
+            </span>
+          )}
+          {sku && (
+            <div className="flex justify-between items-center sm:text-base text-xs gap-1 text-mediumgray">
+              <div className="flex items-center">{t('pages.products.sku')}:</div>
+              <div className="text-unicode text-primary product-sku">{sku}</div>
+            </div>
+          )}
+          {barcode && (
+            <div className="flex justify-between items-center sm:text-base text-xs gap-1 text-mediumgray">
+              <div className="flex items-center">
+                <i className="sicon-barcode mx-1"></i>
+                {t('pages.products.barcode')}:
+              </div>
+              <div className="text-unicode text-primary product-barcode">{barcode}</div>
+            </div>
+          )}
         </div>
       )}
+      <article
+        className="article article--main text-darkgray relative text-sm leading-8 overflow-hidden transition-all max-h-0 duration-200"
+        id="more-content"
+        style={{ maxHeight: '5.25rem' }}
+        // Merchant HTML, as Twig's `product_desc|raw`.
+        dangerouslySetInnerHTML={{ __html: description }}
+      />
 
-      {product.is_taxable && (
-        <small className="color-grey">{t('pages.products.tax_included')}</small>
+      <div className="flex items-center justify-between flex-wrap md:flex-nowrap gap-3">
+        <PriceBit product={product} />
+        {p.discount_percentage && booleanValue(s.show_custom_discount_price, true) ? (
+          <div
+            className="has-overlay discount relative text-price px-1.5 py-1 font-bold rounded-theme"
+            style={{ border: `1px solid ${priceLight}75` }}
+          >
+            {Number(p.discount_percentage).toFixed(1)}%
+          </div>
+        ) : null}
+        {product.rating && (
+          <div className="md:block flex justify-center w-full md:w-auto">
+            <SallaRatingStars value={product.rating.stars} reviews={product.rating.count} size="medium" />
+          </div>
+        )}
+      </div>
+
+      {(weight.length > 0 || showSold || (showAvailable && typeof product.quantity === 'number')) && (
+        <div className="flex justify-between items-center flex-wrap md:flex-nowrap gap-3 text-xs md:text-sm ">
+          {weight.length > 0 && (
+            <div
+              className={`whitespace-nowrap flex-1 inline-flex items-center justify-center text-darkgray gap-1.5  font-medium${
+                product.has_size_guide ? ' pb-5 border-b-[1px]' : ''
+              }`}
+            >
+              <Svg html={WEIGHT_ICON} />
+              <span>{t('pages.products.weight')}</span>
+              <span className="text-primary font-semibold">{weight[0]}</span>
+              {weight.length > 1 && <span>{weight.slice(1).join(' ')}</span>}
+            </div>
+          )}
+          {showAvailable && typeof product.quantity === 'number' && (
+            <>
+              {weight.length > 0 && <small className="opacity-30">|</small>}
+              <div className="md:block flex justify-center w-full md:w-auto flex-1 whitespace-nowrap">
+                <div className="text-darkgray px-1 rtl:even:border-r ltr:even:border-l even:border-gray-200 dark:even:border-mediumgray carbon:even:border-mediumgray  inline-flex items-center justify-center gap-1.5 font-medium">
+                  <Svg html={REMAINED_ICON} />
+                  {t('pages.products.remained')}
+                  <span className="text-primary font-semibold">{product.quantity}</span>
+                </div>
+              </div>
+            </>
+          )}
+          {showSold && (
+            <>
+              {(weight.length > 0 || (showAvailable && typeof product.quantity === 'number')) && <small className="opacity-30">|</small>}
+              <div className="md:block flex justify-center w-full md:w-auto flex-1 whitespace-nowrap">
+                <div className="px-1 inline-flex items-center justify-center text-darkgray gap-1.5 font-medium">
+                  <Svg html={SOLD_ICON} />
+                  {t('pages.products.sold')}{' '}
+                  <span className="text-primary font-semibold">
+                    {(p.sold_quantity ?? 0) > 0
+                      ? formatSallaPlural(t('pages.products.sold_times'), p.sold_quantity!)
+                      : t('pages.products.sold_zero')}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       )}
-
-      <ProductPrice product={product} />
-
-      <ProductDescription product={product} />
-
-      {/* Metadata / specs — mobile only. On `md`+ it renders under the gallery
-          slider instead (`ProductGallery`) — same hydration-gated mounting
-          there, so together the two never run two `<SallaMetadata>` instances
-          at once past first paint; see the comment on that copy. */}
-      {product.has_metadata && (!hydrated || isMobile) && (
-        <ProductMetadata className="mb-3 md:hidden" />
-      )}
-
-      {!!product.tags?.length && showTags && (
-        <div className="mb-3">
-          {product.tags.map((tag, index, tags) => (
-            <Fragment key={tag.name}>
+      {tagsOn && product.tags?.length ? (
+        <div className="">
+          {product.tags.map((tag, index) => (
+            <span key={tag.id ?? tag.name} className="contents">
               <Link
-                to={tag.url}
-                className="rtl:ml-2 ltr:mr-2 inline-flex text-gray-500 hover:text-primary underline text-sm mb-1"
+                to={tag.url || '#'}
+                className="inline-flex items-center justify-center text-mediumgray hover:text-primary underline text-sm sm:mb-1 mb-0.5"
               >
-                {tag.name}
+                <Svg html={TAG_ICON} />
+                <small>{tag.name}</small>
               </Link>
-              {index < tags.length - 1 && ','}
-            </Fragment>
+              {index < (product.tags?.length ?? 0) - 1 && <small className="opacity-45">|</small>}
+            </span>
           ))}
         </div>
+      ) : null}
+      {!booleanValue(s.mini_category, false) && (
+        <ActionBtn
+          text={t('blocks.appBanner.related_products')}
+          href={product.category?.url}
+          dataStyle="outline"
+          icon
+          color="var(--color-bg)"
+          backgroundColor="var(--color-primary)"
+        />
       )}
-
-      <ProductQuantityInfo product={product} />
-
-      {sku && (
-        <div className="mb-4 flex justify-between sm:grid sm:grid-cols-3">
-          <div className="flex items-center">
-            <i className="sicon-barcode mx-1"></i>
-            {t('pages.products.sku')}
-          </div>
-          <div className="text-unicode">{sku}</div>
-        </div>
-      )}
-
-      {barcode && (
-        <div className="mb-4 flex justify-between sm:grid sm:grid-cols-3">
-          <div className="flex items-center">
-            <i className="sicon-barcode mx-1"></i>
-            {t('pages.products.barcode')}
-          </div>
-          <div className="text-unicode">{barcode}</div>
-        </div>
-      )}
-
-      {product.show_availability && (
-        <section className="mb-5 last:mb-0">
+      <HookSlot name="product:single.description" context={{ product }} />
+      <SallaInstallment price={String(product.price ?? '')} />
+      {(product as { show_availability?: boolean }).show_availability && (
+        <section>
           <div className="center-between">
-            <span className="flex items-center text-base">
+            <label className="flex items-center text-base">
               <span className="sicon-location rtl:ml-1 ltr:mr-1"></span>
               <span className="inline-block">{t('pages.products.availability')}</span>
-            </span>
+            </label>
             <div className="mt-1 sm:mt-0 sm:col-span-2 text-end">
               <div className="flex rtl:space-x-reverse space-x-3">
-                {/* A button, not `href="#!"`: it opens the branch picker and leaves the URL
-                    and history alone. `with-arrow` turns the arrow to the right in LTR (`ltr.scss`). */}
                 <button
                   type="button"
-                  onClick={() =>
-                    window.salla?.event?.dispatch('scopes::open', {
-                      mode: 'availability',
-                      product_id: String(product.id),
-                    })
-                  }
-                  className="group with-arrow text-primary flex items-center justify-center"
+                  onClick={() => {
+                    window.salla?.event?.dispatch('scopes::open', { mode: 'availability', product_id: String(product.id) });
+                  }}
+                  className="with-arrow group text-primary flex items-center justify-center cursor-pointer bg-transparent border-0 p-0"
                 >
                   <span>{t('pages.products.select_branch')}</span>
-                  <span className="sicon-keyboard_arrow_left ms-2 transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"></span>
+                  <span className="sicon-keyboard_arrow_left ms-2 transition-all rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"></span>
                 </button>
               </div>
             </div>
           </div>
         </section>
       )}
-
-      <HookSlot name={HookName.PRODUCT_DESCRIPTION} context={productHookContext} />
-
-      <SallaInstallment
-        price={String(
-          typeof product.base_currency_price === 'object'
-            ? product.base_currency_price.amount
-            : product.base_currency_price
-        )}
-      />
     </>
-  );
-}
-
-function TitleWishlistButton({ productId }: { productId: number }) {
-  const { t } = useTranslation();
-  const wishlist = useWishlist();
-
-  return (
-    <WishlistHeartButton
-      productId={productId}
-      pressed={wishlist.has(productId)}
-      className={`btn--wishlist animated hidden sm:inline-flex ${wishlist.has(productId) ? 'is-added' : 'not-added'}`}
-      onClick={() => window.salla?.wishlist.toggle(productId)}
-      ariaLabel={t('pages.products.add_to_wishlist', 'Add to wishlist')}
-    />
-  );
-}
-
-function ProductPrice({ product }: { product: Product }) {
-  const { t } = useTranslation();
-  // The API converts the amounts but still labels them in the store's own currency.
-  const priceCurrency = getActiveCurrency(product.currency);
-
-  return (
-    <div className="flex whitespace-nowrap gap-4 items-center mb-2.5">
-      <div
-        className={`${product.is_on_sale ? '' : 'hidden'} space-x-2 rtl:space-x-reverse whitespace-nowrap`}
-      >
-        <p className="text-red-800 font-bold text-xl inline-block">
-          {product.sale_price} <CurrencySymbol currency={priceCurrency} />
-        </p>
-        <span className="text-gray-500 line-through">
-          {product.regular_price} <CurrencySymbol currency={priceCurrency} />
-        </span>
-      </div>
-      <div className={`gap-4 ${product.is_on_sale ? 'hidden' : 'flex'}`}>
-        {product.starting_price && <span>{t('pages.products.starting_price')}</span>}
-        <p className="font-bold text-xl inline-block">
-          {product.starting_price ?? product.price} <CurrencySymbol currency={priceCurrency} />
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/** An `<iframe>` start tag; quoted values may hold `>`. */
-const IFRAME_TAG = /<iframe\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
-
-/** Embedded players (YouTube, Vimeo, maps) load only when scrolled near, unless the merchant set `loading`. */
-function lazyIframes(html: string): string {
-  return html.replace(IFRAME_TAG, (tag) =>
-    /\sloading\s*=/i.test(tag.replace(/"[^"]*"|'[^']*'/g, '""'))
-      ? tag
-      : tag.replace(/^<iframe/i, '<iframe loading="lazy"')
-  );
-}
-
-function ProductDescription({ product }: { product: Product }) {
-  const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const articleRef = useRef<HTMLElement>(null);
-  // YouTube videos the shopper pressed play on; the rest stay thumbnails.
-  const [playingVideos, setPlayingVideos] = useState<ReadonlySet<number>>(() => new Set());
-
-  if (!product.description) return null;
-
-  const description = youtubeFacades(
-    lazyIframes(product.description.replace(/&nbsp;/g, '\n')),
-    playingVideos,
-    t('pages.products.play_video', 'Play video')
-  );
-
-  // One listener for every thumbnail in the merchant's HTML.
-  const playVideo = (event: MouseEvent<HTMLElement>) => {
-    const facade = (event.target as Element).closest?.('[data-video-index]');
-    if (!facade) return;
-    const index = Number(facade.getAttribute('data-video-index'));
-    setPlayingVideos((current) => new Set(current).add(index));
-  };
-
-  if (product.has_read_more) {
-    return (
-      <div className="product__description leading-7 mb-3">
-        <article
-          ref={articleRef}
-          className="article article--main relative leading-8 overflow-hidden transition-[max-height] duration-300 py-4 focus:outline-none"
-          id="more-content"
-          tabIndex={-1}
-          style={{ maxHeight: isExpanded ? 'none' : '5.25rem' }}
-          onClick={playVideo}
-          dangerouslySetInnerHTML={{ __html: description }}
-        />
-        {/* Fades out once used, so it is also `inert`; focus moves to the text it revealed
-            rather than dropping to the top of the page. */}
-        <button
-          type="button"
-          id="btn-show-more"
-          aria-expanded={isExpanded}
-          aria-controls="more-content"
-          inert={isExpanded}
-          className={`link--primary inline-block mt-2 cursor-pointer bg-transparent border-0 p-0 ${isExpanded ? 'is-expanded' : ''}`}
-          onClick={() => {
-            setIsExpanded(true);
-            articleRef.current?.focus({ preventScroll: true });
-          }}
-        >
-          {t('pages.products.read_more')}
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="product__description leading-7 mb-3">
-      <article
-        className="article--main pb-1"
-        onClick={playVideo}
-        dangerouslySetInnerHTML={{ __html: description }}
-      />
-    </div>
-  );
-}
-
-function ProductQuantityInfo({ product }: { product: Product }) {
-  const { t } = useTranslation();
-  // Like Twig's `{% if product.sold_quantity or product.can_show_remained_quantity %}`:
-  // a product that sold 0 has nothing to show either, and the `mb-5` box would be an empty gap.
-  if (!((product.sold_quantity ?? 0) > 0) && !product.can_show_remained_quantity) {
-    return null;
-  }
-
-  return (
-    <div className="mb-5 inline-flex text-sm">
-      {(product.sold_quantity ?? 0) > 0 && (
-        <div className="px-4 only:px-0 !text-red-800">
-          <i className="sicon-fire rtl:ml-1.5 ltr:mr-1.5"></i> {t('pages.products.sold')}{' '}
-          {/* Salla ships `sold_times` in Laravel plural format; resolve it for the count. */}
-          <span>{formatSallaPlural(t('pages.products.sold_times'), product.sold_quantity!)}</span>
-        </div>
-      )}
-      {product.can_show_remained_quantity &&
-        ((product.quantity ?? 0) > 0 ? (
-          <div className="inline-flex items-center gap-2 px-4 only:px-1 font-medium text-green-700">
-            {/* live "in stock" dot with pulsing waves */}
-            <span className="relative flex h-2.5 w-2.5 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
-              <span
-                className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-40"
-                style={{ animationDelay: '0.75s' }}
-              />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-600" />
-            </span>
-            {t('blocks.product.in_stock')} ({product.quantity})
-          </div>
-        ) : (
-          <div className="px-4 only:px-1 !text-red-800">
-            <i className="sicon-box-bankers rtl:ml-1.5 ltr:mr-1.5"></i>
-            {t('pages.products.remained')} <span>{product.quantity ?? 0}</span>
-          </div>
-        ))}
-    </div>
   );
 }

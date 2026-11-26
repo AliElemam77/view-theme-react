@@ -103,6 +103,9 @@ export function AddProductToast() {
   const [isPaused, setIsPaused] = useState(false);
 
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
   const remainingTimeRef = useRef(TOAST_DURATION);
 
   const clearTimers = useCallback(() => {
@@ -110,22 +113,30 @@ export function AddProductToast() {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
   }, []);
 
   const close = useCallback(() => {
     clearTimers();
     setIsVisible(false);
-    setTimeout(() => setProduct(null), 300);
+    closeTimeoutRef.current = setTimeout(() => {
+      closeTimeoutRef.current = null;
+      setProduct(null);
+    }, 300);
   }, [clearTimers]);
 
   const startAutoHideTimer = useCallback(() => {
     clearTimers();
+    isPausedRef.current = false;
     setIsPaused(false);
     remainingTimeRef.current = TOAST_DURATION;
     setProgressPercent(100);
 
     progressIntervalRef.current = setInterval(() => {
-      if (isPaused) return;
+      if (isPausedRef.current) return;
 
       remainingTimeRef.current = Math.max(0, remainingTimeRef.current - UPDATE_INTERVAL);
       const newProgress = (remainingTimeRef.current / TOAST_DURATION) * 100;
@@ -135,7 +146,7 @@ export function AddProductToast() {
         close();
       }
     }, UPDATE_INTERVAL);
-  }, [isPaused, clearTimers, close]);
+  }, [clearTimers, close]);
 
   const handleProductAdded = useCallback(
     async (cartItemId: string | number | undefined, productId: string) => {

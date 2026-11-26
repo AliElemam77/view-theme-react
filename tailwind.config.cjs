@@ -20,7 +20,7 @@ module.exports = {
     './node_modules/@salla.sa/twilight-components-react/dist/**/*.js',
   ],
   // `<Image objectFit>` builds these at runtime, out of the scanner's sight.
-  safelist: ['object-contain', 'object-cover', { pattern: /carbon:.+/ }],
+  safelist: ['object-contain', 'object-cover'],
   darkMode: 'class', // or 'media' or 'class'
   theme: {
     container: {
@@ -73,7 +73,7 @@ module.exports = {
         big: '40px',
         tiny: '3px',
         theme: 'var(--border-custom)',
-        DEFAULT: '16px',
+        DEFAULT: '.75rem',
       },
       fontSize: {
         'icon-lg': '33px',

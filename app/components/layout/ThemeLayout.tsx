@@ -1,26 +1,29 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { useRouterState } from '@tanstack/react-router';
 import themeTranslations from 'virtual:twilight/theme-translations';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useUser } from '@salla.sa/twilight-theme-engine/hooks/useUser';
-import { Footer } from './Footer';
-import { Header } from './Header';
-import { ImportantLinksSheet } from './ImportantLinksSheet';
-import { MobileAccountSheet } from './MobileAccountSheet';
-import { MobileBottomBar } from './MobileBottomBar';
-import { MobilePageTitleBar } from './MobilePageTitleBar';
+import { ViewFooter } from './ViewFooter';
+import { ViewHeader } from './ViewHeader';
+import { ViewDiscountBanner } from './ViewDiscountBanner';
+import { ViewProductModal } from '../product/ViewProductModal';
+import { useDocumentClass } from '@salla.sa/twilight-theme-engine/hooks/useDocumentClass';
+import { ViewThemeHead } from './ViewThemeHead';
+import {
+  useLineInView,
+  useRevealAnimation,
+  useSmoothScroll,
+  useSwalNotifier,
+} from '../../hooks/useViewGlobals';
+import { booleanValue } from '../../lib/fieldValue';
 import { fillComponentTranslations, type ComponentLang } from '../../lib/componentTranslations';
 
 /**
  * Theme layout — passed to `<TwilightProvider layout={ThemeLayout}>` in
- * `app/routes/__root.tsx` to swap in the rebuilt {@link Header} and the same
- * global modals (offer / login / scopes) as the engine's `MasterLayout`.
- *
- * `Footer` is a fork of the engine's (`./Footer`, see `FORKS.md`) for its contacts
- * column; `Header` is theme-owned since it's deeply specific to this theme's
- * nav/search/account UI.
+ * `app/routes/__root.tsx`: View's `layouts/master.twig` — {@link ViewHeader},
+ * the page, {@link ViewFooter}, the fixed discount coupon of `extentions.twig` —
+ * plus the same global modals (offer / login / scopes) as the engine's `MasterLayout`.
  */
 const SallaLoginModal = lazy(() =>
   import('@salla.sa/twilight-components-react/login-modal').then((m) => ({
@@ -75,7 +78,7 @@ function squarePhotosCover(raw: unknown): boolean {
  * language / currency switcher only when the store has more than one of
  * either, the login modal only for a guest, scopes only when the store has
  * one. Split out from {@link ThemeLayout} itself so that component stays
- * about the page structure (header, footer, bottom bar, sheets) rather than
+ * about the page structure (header, footer) rather than
  * also carrying every modal's own gating condition.
  */
 function GlobalModals() {
@@ -128,26 +131,6 @@ function GlobalModals() {
 
 export function ThemeLayout({ children }: ThemeLayoutProps) {
   const { theme } = useTwilight();
-  // Owned here so the header's nav drawer and the mobile bottom bar's Categories
-  // tab drive the same slide-in panel.
-  const [navOpen, setNavOpen] = useState(false);
-  // The mobile bottom bar's My Account tab opens this sheet (the customer's
-  // links, settings, contacts and the footer widgets, which the page footer
-  // doesn't show on mobile).
-  const [accountOpen, setAccountOpen] = useState(false);
-  // Its own "Important links" row opens this one in turn -- a second
-  // full-screen sheet for the footer menu, not a drill-in within the first.
-  const [importantLinksOpen, setImportantLinksOpen] = useState(false);
-
-  // Close every sheet/drawer on any route change — a bottom-bar tab (Home,
-  // Cart) or a link inside one of them navigates without touching their own
-  // state, so they would otherwise stay open over the new page.
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  useEffect(() => {
-    setNavOpen(false);
-    setAccountOpen(false);
-    setImportantLinksOpen(false);
-  }, [pathname]);
 
   // Fill the web components' strings the store's pack lacks from the theme's
   // locale files, each time a pack loads (`subscribe` also runs at once when one already has).
@@ -159,16 +142,20 @@ export function ThemeLayout({ children }: ThemeLayoutProps) {
     return lang.subscribe(() => fillComponentTranslations(lang, themeTranslations));
   }, []);
 
-  // Theme mode initialization (Light, Dark, Carbon)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mode = localStorage.getItem('theme:mode');
-    if (mode === 'carbon') {
-      document.documentElement.setAttribute('data-theme', 'carbon');
-    } else if (mode === 'dark') {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  // View's global app.js behaviours: Lenis, the has_animation reveal, Swal toasts.
+  const settings = theme?.settings as Record<string, unknown> | undefined;
+  useSmoothScroll();
+  useRevealAnimation(booleanValue(settings?.has_animation, true));
+  useSwalNotifier(booleanValue(settings?.enable_add_product_toast, true));
+  useLineInView();
+  // master.twig's <body class="overflow-x-hidden [longeer]">.
+  useDocumentClass({
+    body: {
+      class: ['overflow-x-hidden', booleanValue(settings?.lg_product, true) ? 'longeer' : null].filter(
+        Boolean
+      ) as string[],
+    },
+  });
 
   const imgRatio = productImageRatio(theme?.settings?.product_card_img_ratio);
   const squarePhotos = squarePhotosCover(theme?.settings?.squar_photo_bg_image_size)
@@ -177,41 +164,22 @@ export function ThemeLayout({ children }: ThemeLayoutProps) {
 
   return (
     <>
+      <ViewThemeHead />
       <div
         className={`app-inner flex flex-col min-h-full product-card-img--${imgRatio}${squarePhotos}`}
         suppressHydrationWarning
       >
-        <Header navOpen={navOpen} onNavOpenChange={setNavOpen} />
-        <MobilePageTitleBar />
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
+        {/* master.twig: header, page, footer, then extentions.twig. */}
+        <ViewHeader />
+        <main id="main-content">{children}</main>
         {/* Not in a Suspense boundary, so the footer hydrates with the page. App snippets run
             once the SDK is ready, which can be before a boundary hydrates, and some insert next
             to `.store-footer` (a "recently viewed" section on agran): inside a boundary still
             waiting, React found their nodes, failed to hydrate (React #418) and dropped them. */}
-        <Footer />
-        <MobileBottomBar
-          navOpen={navOpen}
-          onOpenNav={() => setNavOpen(true)}
-          onCloseNav={() => setNavOpen(false)}
-          accountOpen={accountOpen}
-          onAccountOpenChange={setAccountOpen}
-          secondSheetOpen={importantLinksOpen}
-          onCloseSecondSheet={() => setImportantLinksOpen(false)}
-        />
+        <ViewFooter />
+        <ViewDiscountBanner />
+        <ViewProductModal />
       </div>
-
-      <MobileAccountSheet
-        open={accountOpen}
-        onClose={() => setAccountOpen(false)}
-        onOpenImportantLinks={() => {
-          setAccountOpen(false);
-          setImportantLinksOpen(true);
-        }}
-      />
-
-      <ImportantLinksSheet open={importantLinksOpen} onClose={() => setImportantLinksOpen(false)} />
 
       <GlobalModals />
     </>

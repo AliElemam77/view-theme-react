@@ -1,16 +1,11 @@
 import { type ComponentRef, type RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { SallaSlider } from '@salla.sa/twilight-components-react/slider';
-import { SallaSocialShare } from '@salla.sa/twilight-components-react/social-share';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
-import { useWishlist } from '@salla.sa/twilight-theme-engine/hooks/useWishlist';
 import { Image } from '@salla.sa/twilight-theme-engine/common';
 import { isNativeApp } from '@salla.sa/twilight-theme-engine/native-app';
 import type { Product, ProductImage } from '@salla.sa/twilight-theme-engine/types';
-import { ArrowRightIcon } from '../icons';
-import { useHydrated } from '../../hooks/useHydrated';
-import { useMobileViewport } from '../../hooks/useMobileViewport';
-import { ProductMetadata } from './ProductMetadata';
+import { promoColorFor } from '../../lib/promoColors';
 
 export interface ProductGalleryProps {
   product: Product;
@@ -75,13 +70,10 @@ function sliderObjectFit(raw: unknown): ObjectFit {
  */
 export function ProductGallery({ product }: ProductGalleryProps) {
   const { t } = useTranslation();
-  const wishlist = useWishlist();
   const { theme } = useTwilight();
   const sliderId = `details-slider-${product.id}`;
   const sliderRef = useRef<ComponentRef<typeof SallaSlider>>(null);
   const objectFit = sliderObjectFit(theme.settings.slider_background_size);
-  const hydrated = useHydrated();
-  const isMobile = useMobileViewport();
   // `onAfterInit` fires once Swiper actually finishes laying the slider out —
   // later than `hydrated` (which only means React has mounted; the slider web
   // component upgrades and initializes on its own, separate timeline).
@@ -137,78 +129,55 @@ export function ProductGallery({ product }: ProductGalleryProps) {
     return true;
   };
 
-  return (
-    // Sticky only when there's nothing under the slider; with `<SallaMetadata>`
-    // below it the column is tall, so let it scroll with the page instead.
-    // `top-24` clears the sticky header once stuck — `md:` scoped to match
-    // `md:sticky`. Unscoped, `relative` (below) made `top` apply on mobile
-    // too, visually shifting the whole gallery down 96px while the content
-    // after it (ProductDetails' title / tags) still flowed right where the
-    // gallery would have sat unshifted — the two rendered on top of each other.
-    <div className={galleryClassName(product, images[0])}>
-      {/* Mobile: a floating bar over the top of the image — back on one side,
-          wishlist + share on the other. Hidden until hydrated, then slides
-          down into place instead of popping in wherever the page happens to
-          be mid-load. Styling: `04-components/product.scss`. */}
-      <div className={`product-gallery__bar md:hidden${hydrated ? ' is-visible' : ''}`}>
-        <button
-          type="button"
-          className="product-gallery__bar-btn"
-          onClick={() => {
-            if (window.history.length > 1) window.history.back();
-            else window.location.assign('/');
-          }}
-          aria-label={t('blocks.header.back', 'Back')}
-        >
-          <ArrowRightIcon aria-hidden="true" />
-        </button>
-        {/* Waits for the slider itself (`sliderReady`, not just `hydrated`) so
-            it doesn't slide in while the images underneath are still loading. */}
-        <div className={`product-gallery__bar-actions${sliderReady ? ' is-visible' : ''}`}>
-          <button
-            type="button"
-            className={`product-gallery__bar-btn btn--wishlist ${wishlist.has(Number(product.id)) ? 'is-added' : 'not-added'}`}
-            data-id={product.id}
-            onClick={() => window.salla?.wishlist?.toggle?.(product.id)}
-            aria-label={t('pages.products.add_to_wishlist', 'Add to wishlist')}
-            aria-pressed={wishlist.has(Number(product.id))}
-          >
-            <i className="sicon-heart" aria-hidden="true" />
-          </button>
-          <SallaSocialShare
-            className="product-gallery__bar-btn"
-            aria-label={t('blocks.header.share', 'Share')}
-          />
-        </div>
-      </div>
+  // product.js `V__Pagination`: "current / total" under the slider.
+  const [current, setCurrent] = useState(1);
+  const settings = (theme?.settings ?? {}) as Record<string, unknown>;
+  const arrows = settings.enable_arrow_navigation !== false;
+  const loop = settings.enable_loop === true;
+  const autoplay = settings.enable_autoplay === true;
+  const showThumbs = hasManyImages && settings.ishidden === false;
+  const promoColor = promoColorFor(product.id);
 
+  return (
+    <div className={galleryClassName(product, images[0])}>
       <SallaSlider
         ref={sliderRef}
         id={sliderId}
-        className="details-slider rounded image-slider"
+        className="details-slider rounded-theme image-slider"
         type="thumbs"
-        pagination
-        loop={false}
         autoHeight
         listenToThumbnailsOption
         showThumbsControls={false}
-        sliderConfig={{ watchOverflow: true, autoHeight: true }}
-        thumbsConfig={{ slidesPerView: 'auto', spaceBetween: 8 }}
+        showControls={false}
+        sliderConfig={{
+          ...(arrows
+            ? { navigation: { nextEl: `#${sliderId} .swiper-button-next`, prevEl: `#${sliderId} .swiper-button-prev` } }
+            : {}),
+          loop,
+          autoplay: autoplay ? { delay: 1500 } : false,
+          pagination: { el: '.main_slider.swiper-pagination', clickable: true },
+        }}
         onAfterInit={() => {
           setSliderReady(true);
           hidePoster();
+          const swiper = (
+            sliderRef.current?.querySelector('.swiper') as
+              | (HTMLElement & { swiper?: { realIndex: number; on: (e: string, f: () => void) => void } })
+              | null
+          )?.swiper;
+          swiper?.on('slideChange', () => setCurrent(swiper.realIndex + 1));
         }}
       >
         {product.promotion_title && (
-          <div className="promotion-title">{product.promotion_title}</div>
+          <div className="promotion-title" style={{ backgroundColor: promoColor }}>
+            {product.promotion_title}
+          </div>
         )}
 
         {product.calories && (
-          <div className="absolute z-[2] top-4 rtl:left-4 ltr:right-4 bg-white shadow-sm flex flex-col justify-center items-center rounded-full w-20 h-20 md:w-24 md:h-24">
+          <div className="absolute z-[2] top-4 rtl:left-4 ltr:right-4 bg-white dark:bg-darkgray carbon:bg-darkgray shadow-sm flex flex-col justify-center items-center rounded-full w-20 h-20 md:w-24 md:h-24">
             <span className="text-red-500 text-xl leading-none font-bold">{product.calories}</span>
-            <span className="text-xs text-gray-500">
-              {t('pages.products.calories', 'Calories')}
-            </span>
+            <span className="text-xs text-mediumgray">{t('pages.products.calories', 'Calories')}</span>
           </div>
         )}
 
@@ -226,13 +195,8 @@ export function ProductGallery({ product }: ProductGalleryProps) {
           ))}
         </div>
 
-        {hasManyImages && (
-          // `hidden md:block` on the slot itself (not just the `.s-slider-thumbs`
-          // wrapper Stencil renders after hydration, `04-components/slider.scss`)
-          // — before hydration this content is still plain unstyled light-DOM
-          // children of `salla-slider`, so it was briefly visible on mobile
-          // until Stencil moved/wrapped it and the vendor-class rule could apply.
-          <div slot="thumbs" className="hidden md:block">
+        {showThumbs && (
+          <div slot="thumbs">
             {images.map((image, index) => (
               <ThumbSlide
                 key={image.id ?? image.three_d_image_url ?? image.video_url ?? image.url}
@@ -242,6 +206,24 @@ export function ProductGallery({ product }: ProductGalleryProps) {
             ))}
           </div>
         )}
+
+        <div className="absolute z-10 left-5 bottom-2 center-between w-[90%] mx-2">
+          {arrows && (
+            <div className="flex-center gap-7">
+              <div className="swiper-button-prev"></div>
+              <div className="swiper-button-next"></div>
+            </div>
+          )}
+          <div className="custom-pagination-counter flex gap-1">
+            {sliderReady && (
+              <>
+                {current}
+                <strong style={{ fontSize: 22 }}>/</strong>
+                {images.length}
+              </>
+            )}
+          </div>
+        </div>
       </SallaSlider>
 
       {posterUrl && (
@@ -257,29 +239,16 @@ export function ProductGallery({ product }: ProductGalleryProps) {
           />
         </div>
       )}
-
-      {/* Product metadata / specs — on `md`+ it renders here, below the slider.
-          On mobile it moves to the end of the description in `ProductDetails`.
-          Both copies render until hydration completes (matches the pre-hydration
-          CSS-hidden state exactly, so no SSR/first-paint mismatch) — once
-          `hydrated`, only the copy the current viewport actually shows stays
-          mounted, so a `has_metadata` product doesn't run two full
-          `<SallaMetadata>` instances (each its own async spec fetch, its own
-          MutationObserver, its own click listener) for the rest of the page's
-          life on every load. */}
-      {product.has_metadata && (!hydrated || !isMobile) && (
-        <ProductMetadata className="mt-8 hidden md:block" />
-      )}
     </div>
   );
 }
 
+/** single.twig (`main`): beside the content column, sticky under the header from `lg`. */
 function galleryClassName(product: Product, first: ProductImage | undefined): string {
   return [
     'product-gallery',
     first?.three_d_image_url && 'product-gallery--model',
-    'sidebar relative md:top-24 w-full md:!w-2/4 rtl:ml-8 ltr:mr-8 pb-8 md:pb-16 overflow-hidden shrink-0',
-    !product.has_metadata && 'md:sticky',
+    'sidebar relative w-full lg:!w-2/4 lg:sticky top-24 overflow-hidden shrink-0',
   ]
     .filter(Boolean)
     .join(' ');
@@ -362,7 +331,7 @@ function ImageSlide({
       aria-label={product.name}
       className={`swiper-slide magnify-wrapper homeslider__slide ${image.video_url ? 'video-entry' : ''}`}
     >
-      <div className={`w-full ${loaded ? '' : 'aspect-square bg-gray-100 animate-pulse'}`}>
+      <div className={`w-full ${loaded ? '' : 'aspect-square bg-lightgray animate-pulse'}`}>
         <Image
           id={String(image.id)}
           src={image.url}
@@ -388,7 +357,7 @@ function ThumbSlide({ image, index }: { image: ProductImage; index: number }) {
       <Image
         src={image.url}
         alt={image.alt || ''}
-        className="object-cover w-full h-full bg-gray-100 rounded overflow-hidden"
+        className="object-cover w-full h-full bg-lightgray rounded overflow-hidden"
         title={image.alt}
         priority={index < 5}
         noWrapper

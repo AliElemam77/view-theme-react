@@ -25,6 +25,19 @@ vi.mock('@salla.sa/twilight-theme-engine/i18n', () => ({
   }),
 }));
 
+vi.mock('@salla.sa/twilight-theme-engine/providers', () => ({
+  useTwilight: () => ({ theme: { settings: {} }, store: { name: 'Store' } }),
+}));
+
+// V_countdown_banner renders `<salla-count-down size="md" boxed labeled>`, as the Twig does.
+vi.mock('@salla.sa/twilight-components-react/count-down', () => ({
+  SallaCountDown: ({ date }: { date?: string }) => <div data-testid="count-down" data-date={date} />,
+}));
+
+vi.mock('@salla.sa/twilight-theme-engine/hooks/useTheme', () => ({
+  useTheme: () => ({ isRTL: true, settings: {} }),
+}));
+
 describe('Custom View home components', () => {
   describe('VBannerLine', () => {
     it('renders main title and subtitle', () => {
@@ -56,7 +69,7 @@ describe('Custom View home components', () => {
         />
       );
       expect(screen.getByText('عروض الجمعة البيضاء')).toBeTruthy();
-      expect(screen.getByText('يوم')).toBeTruthy();
+      expect(screen.getByTestId('count-down')).toBeTruthy();
     });
   });
 
@@ -174,7 +187,8 @@ describe('Custom View home components', () => {
         />
       );
       expect(screen.getByText('شركاؤنا')).toBeTruthy();
-      expect(screen.getAllByAltText('Apple').length).toBeGreaterThan(0);
+      // custom/break.twig's alt: `{name} brand {standard|reverse} {position + 1}`.
+      expect(screen.getAllByAltText(/^Apple brand/).length).toBeGreaterThan(0);
     });
   });
 });

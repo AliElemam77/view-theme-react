@@ -14,101 +14,72 @@
   margin-top: 0;
 }
 
-/* `Footer` (`@salla.sa/twilight-theme-engine/layout`) owns its own structure
-   and colors (including footer_is_dark) via Tailwind classNames in the
-   component itself now -- nothing left to add there. What's left here is
-   just the handful of pieces rendered by web components Footer has no markup
-   of its own for, which it explicitly leaves to the consuming theme. */
+/* View's footer.scss (components/footer/*.twig, ported in ViewFooter). */
 .store-footer {
-  .social-link {
-    @apply flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-sm transition duration-300 hover:opacity-75;
+  @apply relative bg-[var(--color-footer-bg)] text-[var(--color-footer-text)] mt-8;
+
+  a {
+    @apply transition-opacity hover:opacity-75 font-medium;
   }
 
-  /* Footer menu — `<salla-menu source="footer">` renders a bare
-     `.s-menu-footer-list` of `.s-menu-footer-item` anchors (no list markup).
-     Two presentations, picked by the modifier class `Footer` adds:
-       `--stacked` (columns layout) — a single vertical column, however many
-       links there are;
-       `--inline`  (centered layout) — a single pipe-separated row. */
-  &__menu {
-    @apply block;
+  .s-menu-footer-item {
+    @apply text-xs flex items-center;
 
-    &--stacked {
-      .s-menu-footer-list {
-        @apply block;
-      }
-
-      .s-menu-footer-item {
-        @apply block text-[15px] leading-snug text-gray-600;
-        margin-bottom: 0.625rem;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-    }
-
-    &--inline {
-      .s-menu-footer-list {
-        @apply flex flex-wrap items-center justify-center gap-y-2;
-      }
-
-      .s-menu-footer-item {
-        @apply border-e border-gray-300 px-3 text-[15px] leading-none text-gray-600 mb-0;
-
-        &:first-child {
-          @apply ps-0;
-        }
-      }
+    &::before {
+      @apply w-3 h-3 rtl:ml-1.5 ltr:mr-1.5 inline-block bg-no-repeat bg-center bg-contain;
+      content: "\ea64";
     }
   }
 
-  .s-payments-list-item {
-    @apply w-16;
+  &__inner {
+    @apply border-b border-b-[var(--color-footer-text-ops)];
   }
-}
 
-/* Mobile: no page footer — its widgets live in the bottom bar's account sheet
-   (`MobileAccountSheet`, `.store-footer--sheet`). Same breakpoint as the bar.
-   Hidden with CSS rather than unmounted so the SSR'd footer (links, tax / SBC
-   details) stays in the document. Only the widgets are hidden: the
-   `footer:start` / `footer:end` hook output stays visible for apps. */
-@media (max-width: 767px) {
-  .store-footer:not(.store-footer--sheet) {
-    margin-top: 0;
+  h3 {
+    @apply text-lg font-bold mb-2.5;
+  }
 
-    > .store-footer__inner,
-    > .store-footer__bottom {
-      display: none;
+
+  .s-apps-icons-list {
+    @apply justify-between;
+  }
+
+  .s-user-menu-dropdown-item a {
+    @apply text-[var(--color-footer-text)] text-xs p-0 mb-1 px-0 py-1;
+
+    svg {
+      @apply fill-[var(--color-footer-text)];
+    }
+
+    &:hover {
+      @apply bg-transparent;
+    }
+  }
+
+  .contact-social {
+    @apply mt-5 pt-5 border-t border-[var(--color-footer-text-ops)];
+
+    ul {
+      @apply mb-0;
     }
   }
 }
 
-/* `footer_is_dark` darkens `.s-menu-footer-item`'s own border/text too -- the
-   one piece of dark-mode handling still theme-owned, since the two menu
-   variants above are. */
-body.footer-is-dark .store-footer {
-  &__menu--stacked .s-menu-footer-item {
-    @apply text-white;
-  }
-
-  &__menu--inline .s-menu-footer-item {
-    @apply border-white/10 text-white;
+.items-normal {
+  @media(max-width: 1024px) {
+    @apply items-center
   }
 }
 
-.group:hover .arrow-hover-launch {
-  animation: arrowHoverLaunch 0.7s ease-in-out infinite;
-  will-change: transform;
+.lineafter {
+  @apply w-px bg-[var(--color-footer-text-ops)];
 }
 
-.F__stack {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+
+.copyright-text p {
+  @apply text-[var(--color-footer-text)];
 }
+
 
 .V__fot_ac_i {
   &_h {
@@ -122,3 +93,70 @@ body.footer-is-dark .store-footer {
   }
 }
 
+.s-contacts {
+  &-title {
+    @apply hidden;
+  }
+
+  &-list {
+    @apply gap-1;
+  }
+
+  &-icon {
+    @apply border-none w-6 h-6;
+  }
+}
+
+.s-social {
+  &-list {
+    @apply justify-center mb-0 mt-5 flex-wrap;
+  }
+
+  &-link a {
+    @apply w-7 h-7;
+  }
+}
+
+
+
+.s-menu-footer-item {
+  @apply mb-1 py-1;
+
+  &::before {
+    @apply text-xxs rtl:ml-1.5 ltr:mr-1.5;
+    content: "\ed2c";
+    font-family: 'SallaIcons';
+  }
+}
+
+
+
+.F__stack {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+
+@keyframes arrowHoverLaunch {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(10px);
+  }
+  60% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.group:hover .arrow-hover-launch {
+  animation: arrowHoverLaunch 0.7s ease-in-out infinite;
+  will-change: transform;
+}

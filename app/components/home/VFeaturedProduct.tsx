@@ -1,9 +1,11 @@
 import { memo } from 'react';
 import type { CSSProperties } from 'react';
-import { SectionWrapper } from '../common/SectionWrapper';
+import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { ActionBtn } from '../common/ActionBtn';
 import { SectionSeparator } from '../common/SectionSeparator';
-import { linkUrl, optionValue } from '../../lib/fieldValue';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue, linkUrl } from '../../lib/fieldValue';
+import { collectionItems, cx, separatorProps, text, twigPosition, twigTruthy } from './ViewBlockUtils';
 
 export interface VFeatureItem {
   icon?: string;
@@ -24,20 +26,17 @@ export interface VFeaturedProductData {
   side_video?: string;
   side_iamge?: string;
   btn_url_one?: unknown;
-  // Second side
   bg_two_color?: string;
   text_color_two?: string;
   is_featured?: boolean;
   main_text?: string;
-  features?: VFeatureItem[];
+  features?: unknown;
   is_image_insted_icne?: boolean;
   invert_image_dark?: boolean;
-  // Non-featured alternative
   main_text_two?: string;
   sub_title_two?: string;
   btn_text_two?: string;
   btn_url_two?: unknown;
-  // Separator
   saprator?: unknown;
   use_custom_colors_sep?: boolean;
   line_color?: string;
@@ -46,153 +45,139 @@ export interface VFeaturedProductData {
   merge_with_adjacent?: boolean;
   position?: number;
   priority?: boolean;
+  [key: string]: unknown;
 }
 
-export const VFeaturedProduct = memo(function VFeaturedProduct({
-  data,
-}: {
-  data?: VFeaturedProductData;
-}) {
-  if (!data) return null;
+const PLACEHOLDER = '/images/placeholder.webp';
 
-  const useCustomColors = Boolean(data.use_custom_colors);
-  const bgOne = useCustomColors ? data.bg_one_color : undefined;
-  const textColorOne = useCustomColors ? data.text_color_one : 'var(--color-primary-dark)';
-  const bgTwo = useCustomColors ? data.bg_two_color : 'var(--color-primary-ops)';
-  const textColorTwo = useCustomColors ? data.text_color_two : 'var(--color-primary-dark)';
+/**
+ * Port of `V_featured_product.twig`: a media side (image or video, linked) next
+ * to a content side that is either a feature list or a title, text and button.
+ */
+export const VFeaturedProduct = memo(function VFeaturedProduct({ data = {} }: { data?: VFeaturedProductData }) {
+  const { reveal, spacing } = useViewSettings();
+  const position = twigPosition(data);
+  const custom = booleanValue(data.use_custom_colors);
+  const featured = booleanValue(data.is_featured);
+  const isVideo = booleanValue(data.is_video);
+  const useImages = booleanValue(data.is_image_insted_icne);
+  const invert = booleanValue(data.invert_image_dark);
+  const features = collectionItems<VFeatureItem>(data.features, 'features');
+  const mainTextOne = text(data.main_text_one);
+  const mainText = text(data.main_text);
 
-  const side1Style: CSSProperties = {
-    background: bgOne,
-    backdropFilter: !useCustomColors ? 'contrast(0.9)' : undefined,
-    color: textColorOne,
+  const mediaStyle: CSSProperties = custom
+    ? { background: text(data.bg_one_color), color: text(data.text_color_one) }
+    : { backdropFilter: 'contrast(0.9)', color: 'var(--color-primary-dark)' };
+  const contentStyle: CSSProperties = {
+    backgroundColor: custom ? text(data.bg_two_color) : 'var(--color-primary-ops)',
+    color: custom ? text(data.text_color_two) : 'var(--color-primary-dark)',
   };
-
-  const side2Style: CSSProperties = {
-    backgroundColor: bgTwo,
-    color: textColorTwo,
-  };
-
-  const features = Array.isArray(data.features) ? data.features : [];
+  // `role` is forwarded to the anchor by the Link adapter.
+  const mediaAttrs = { role: 'img' };
 
   return (
-    <SectionWrapper
-      id={`V_featured_product-${data.position ?? 0}`}
-      ariaLabel="Section V_featured_product"
-      className="V__featured_product"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V__featured_product', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_featured_product-${position}`}
+      id={`V_featured_product-${position}`}
     >
-      <div className={data.has_container ? 'container' : ''}>
-        <div
-          className={`flex items-stretch justify-center ${
-            data.is_toggled ? 'flex-row-reverse' : ''
-          }`}
-        >
-          {/* Side 1 (Media) */}
-          <a
-            href={linkUrl(data.btn_url_one) || '#'}
+      <div className={booleanValue(data.has_container) ? 'container' : ''}>
+        <div className={cx('flex items-stretch justify-center', booleanValue(data.is_toggled) && 'flex-row-reverse')}>
+          <Link
+            to={linkUrl(data.btn_url_one) || '#'}
             className="relative w-1/2 h-auto overflow-hidden flex flex-col justify-evenly items-center md:p-6 p-2 md:gap-8 gap-4"
-            role="img"
-            aria-label={data.is_video ? 'Background Video' : 'Background Image'}
-            style={side1Style}
+            aria-label={isVideo ? 'Background Video' : 'Background Image'}
+            style={mediaStyle}
+            {...mediaAttrs}
           >
-            {data.main_text_one && (
-              <h2 className="font-medium lg:text-4xl md:text-2xl text-base text-center">
-                {data.main_text_one}
+            {mainTextOne && (
+              <h2 className={cx('font-medium lg:text-4xl md:text-2xl text-base text-center', reveal)}>
+                {mainTextOne}
               </h2>
             )}
-            {data.is_video && data.side_video ? (
+            {isVideo ? (
               <video
                 autoPlay
                 muted
                 loop
                 playsInline
-                className="object-contain max-w-3/4"
+                webkit-playsinline=""
+                className={cx('object-contain max-w-3/4', reveal)}
               >
-                <source src={data.side_video} />
+                <source src={text(data.side_video) || undefined} />
+                Your browser does not support the video tag.
               </video>
             ) : (
               <img
-                src={data.side_iamge || '/images/placeholder.webp'}
-                alt=""
-                className="object-contain max-w-3/4"
+                src={text(data.side_iamge) || PLACEHOLDER}
+                alt={mainTextOne || mainText || ''}
+                className={cx('object-contain max-w-3/4', reveal)}
                 loading={data.priority ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchPriority={data.priority ? 'high' : 'auto'}
                 width={1200}
                 height={800}
               />
             )}
-          </a>
-
-          {/* Side 2 (Content) */}
+          </Link>
           <div
-            className={`sqer w-1/2 flex flex-col ${
-              data.is_featured
-                ? 'items-start gap-4'
-                : 'items-center md:gap-4 gap-1.5'
-            } justify-center h-auto p-4 md:p-8`}
-            style={side2Style}
+            className={cx(
+              'sqer w-1/2 flex flex-col',
+              featured ? 'items-start gap-4' : 'items-center md:gap-4 gap-1.5',
+              'justify-center h-auto'
+            )}
+            style={contentStyle}
           >
-            {data.is_featured ? (
+            {featured ? (
               <>
-                {data.main_text && (
-                  <h1
-                    id="section-title"
+                {mainText && (
+                  <h2
                     className="font-semibold my-2 lg:leading-5 leading-4"
-                    style={{
-                      fontSize: 'clamp(1.125rem, 0.8185rem + 1.4013vw, 2.5rem)',
-                    }}
+                    style={{ fontSize: 'clamp(1.125rem, 0.8185rem + 1.4013vw, 2.5rem)' }}
                   >
-                    {data.main_text}
-                  </h1>
+                    {mainText}
+                  </h2>
                 )}
-                <ul
-                  className="flex flex-col justify-between lg:gap-4 gap-2 w-full rtl:md:pr-8 rtl:pr-2 ltr:md:pl-8 ltr:pl-2 md:py-8 py-2"
-                  role="list"
-                >
+                <ul className="flex flex-col justify-between lg:gap-4 gap-2 w-full rtl:md:pr-8 rtl:pr-2 ltr:md:pl-8 ltr:pl-2 md:py-8 py-2">
                   {features.map((el, idx) => (
+                    // A settings list without ids.
+                    // react-doctor-disable-next-line react-doctor/no-array-index-as-key
                     <li
                       key={idx}
-                      className="flex items-center justify-between md:gap-4 gap-1.5 lg:pb-4"
-                      role="listitem"
+                      className={cx('center-between md:gap-4 gap-1.5 lg:pb-4', reveal)}
                     >
-                      <div className="md:max-w-[72px] md:max-h-[72px] max-h-9 max-w-9 shrink-0">
-                        {data.is_image_insted_icne && el.icon_image ? (
+                      <div className="md:max-w-[72px] md:max-h-[72px] max-h-9 max-w-9">
+                        {useImages ? (
                           <img
-                            className={`aspect-square object-contain w-full h-full ${
-                              data.invert_image_dark ? 'dark:invert carbon:invert' : ''
-                            }`}
-                            src={el.icon_image}
-                            alt=""
+                            className={cx(
+                              'aspect-square object-contain w-full h-full',
+                              invert && 'dark:invert carbon:invert'
+                            )}
+                            src={text(el.icon_image) || PLACEHOLDER}
                             loading="lazy"
-                            style={{
-                              width: 'clamp(2rem, 1.0873rem + 4.0007vw, 4.688rem)',
-                            }}
+                            decoding="async"
+                            fetchPriority="auto"
+                            alt=""
+                            aria-hidden="true"
+                            style={{ width: 'clamp(2rem, 1.0873rem + 4.0007vw, 4.688rem)' }}
                           />
                         ) : (
-                          <i
-                            className={`${el.icon || 'sicon-check'} md:text-4xl text-2xl`}
-                            aria-hidden="true"
-                          />
+                          <i className={cx(text(el.icon), 'md:text-4xl text-2xl')} aria-hidden="true" />
                         )}
                       </div>
                       <div className="flex-1">
-                        <h2
+                        <h3
                           className="font-medium lg:leading-5 leading-none my-1"
-                          style={{
-                            fontSize: 'clamp(0.625rem, 0.5135rem + 0.5096vw, 1.125rem)',
-                          }}
+                          style={{ fontSize: 'clamp(0.625rem, 0.5135rem + 0.5096vw, 1.125rem)' }}
                         >
-                          {el.f_title}
-                        </h2>
+                          {text(el.f_title)}
+                        </h3>
                         <p
-                          className={`font-light lg:leading-5 leading-3 ${
-                            !useCustomColors ? 'text-primary' : ''
-                          }`}
-                          style={{
-                            fontSize: 'clamp(0.5rem, 0.3885rem + 0.5096vw, 1rem)',
-                          }}
+                          className={cx('font-light lg:leading-5 leading-3', !custom && 'text-primary')}
+                          style={{ fontSize: 'clamp(0.5rem, 0.3885rem + 0.5096vw, 1rem)' }}
                         >
-                          {el.f_sub_title}
+                          {text(el.f_sub_title)}
                         </p>
                       </div>
                     </li>
@@ -201,46 +186,34 @@ export const VFeaturedProduct = memo(function VFeaturedProduct({
               </>
             ) : (
               <>
-                {data.main_text_two && (
-                  <h1 className="text-center font-medium lg:text-4xl md:text-2xl text-base">
-                    {data.main_text_two}
-                  </h1>
-                )}
-                {data.sub_title_two && (
-                  <p
-                    className="text-center"
-                    style={{
-                      fontSize: 'clamp(0.75rem, 0.5828rem + 0.7643vw, 1.5rem)',
-                      lineHeight: 'clamp(1rem, 0.6789rem + 1.4679vw, 2rem)',
-                    }}
-                  >
-                    {data.sub_title_two}
-                  </p>
-                )}
-                {data.btn_text_two && (
-                  <ActionBtn
-                    text={data.btn_text_two}
-                    href={linkUrl(data.btn_url_two)}
-                    dataStyle="filled"
-                    color={data.bg_two_color}
-                    backgroundColor={data.text_color_two}
-                    icon
-                  />
-                )}
+                <h2
+                  className={cx('text-center font-medium lg:text-4xl md:text-2xl text-base', reveal)}
+                >
+                  {text(data.main_text_two)}
+                </h2>
+                <p
+                  className={cx('text-center', reveal)}
+                  style={{
+                    fontSize: 'clamp(0.75rem, 0.5828rem + 0.7643vw, 1.5rem)',
+                    lineHeight: 'clamp(1rem, 0.6789rem + 1.4679vw, 2rem)',
+                  }}
+                >
+                  {text(data.sub_title_two)}
+                </p>
+                <ActionBtn
+                  text={text(data.btn_text_two)}
+                  href={linkUrl(data.btn_url_two)}
+                  dataStyle="filled"
+                  color={text(data.bg_two_color)}
+                  backgroundColor={text(data.text_color_two)}
+                  icon
+                />
               </>
             )}
           </div>
         </div>
       </div>
-
-      <SectionSeparator
-        saprator={optionValue(data.saprator)}
-        merge_with_adjacent={Boolean(data.merge_with_adjacent)}
-        use_custom_colors={Boolean(data.use_custom_colors_sep ?? data.use_custom_colors)}
-        line_color={data.line_color}
-        star_color={data.star_color}
-        star_position_x={data.star_position_x}
-      />
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} use_custom_colors={twigTruthy(data.use_custom_colors_sep)} />
+    </section>
   );
 });

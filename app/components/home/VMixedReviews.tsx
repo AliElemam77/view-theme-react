@@ -1,10 +1,13 @@
 import { memo } from 'react';
+import { SallaSlider } from '@salla.sa/twilight-components-react/slider';
+import { SallaRatingStars } from '@salla.sa/twilight-components-react/rating-stars';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
-import { SectionWrapper } from '../common/SectionWrapper';
 import { BlockTitle } from '../common/BlockTitle';
 import { CouponPill } from '../common/CouponPill';
 import { SectionSeparator } from '../common/SectionSeparator';
-import { optionValue } from '../../lib/fieldValue';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue } from '../../lib/fieldValue';
+import { collectionItems, cx, separatorProps, text, twigPosition, twigTruthy } from './ViewBlockUtils';
 
 export interface VMixedReviewItem {
   rating?: number | string;
@@ -12,6 +15,7 @@ export interface VMixedReviewItem {
   main_image?: string;
   name?: string;
   jop_title?: string;
+  ar?: { name?: string; jop_title?: string };
 }
 
 export interface VMixedReviewsData {
@@ -21,7 +25,7 @@ export interface VMixedReviewsData {
   sub_title?: string;
   has_jocer_image?: boolean;
   show_more_testimonials?: boolean;
-  customers_rev?: VMixedReviewItem[];
+  customers_rev?: unknown;
   reviews_count?: number;
   has_discount_code?: boolean;
   discount_code?: string;
@@ -33,187 +37,179 @@ export interface VMixedReviewsData {
   star_position_x?: number;
   merge_with_adjacent?: boolean;
   position?: number;
+  [key: string]: unknown;
 }
 
-export const VMixedReviews = memo(function VMixedReviews({
-  data,
-}: {
-  data?: VMixedReviewsData;
-}) {
+const QUOTES = 'https://cdn.salla.sa/form-builder/H27W3MSZUYy7fH294mp27NxXwjUI4yCNnTZUoy2B.webp';
+const AVATAR = 'https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp';
+
+const num = (value: unknown) => Number(value) || 0;
+
+/**
+ * Twig's `avg|number_format(1, ',', '')`: one decimal, a comma as the separator.
+ * `<salla-rating-stars value="4,5">` reads that attribute with `parseFloat`, so the
+ * stars get the whole part only; `stars` keeps that.
+ */
+function formatAverage(avg: number) {
+  const label = avg.toFixed(1).replace('.', ',');
+  return { label, stars: parseFloat(label) || 0 };
+}
+
+/**
+ * Port of `V_mixed_reviews.twig`: the average rating (a bar under `lg`, a side
+ * column from `lg`) with the optional coupon, beside a `type="thumbs"` slider of
+ * review cards (1 / 1.6 / 2 / 3 per view at 0 / 480 / 767 / 1024) with prev/next
+ * and a progress-bar pagination row.
+ */
+export const VMixedReviews = memo(function VMixedReviews({ data = {} }: { data?: VMixedReviewsData }) {
   const { t } = useTranslation();
-  if (!data) return null;
+  const { reveal, spacing } = useViewSettings();
+  const position = twigPosition(data);
+  const items = collectionItems<VMixedReviewItem>(data.customers_rev, 'customers_rev');
+  const hasContainer = booleanValue(data.has_container, true);
 
-  const items = Array.isArray(data.customers_rev) ? data.customers_rev : [];
-  if (!items.length) return null;
-
-  const totalRating = items.reduce((acc, cur) => {
-    const r = parseFloat(String(cur.rating || '5')) || 5;
-    return acc + r;
-  }, 0);
-  const avgRating = (totalRating / items.length).toFixed(1);
-  const count = data.reviews_count || items.length;
-
-  const { discount_code: discountCode, discount_title: discountTitle } = data;
+  const total = items.reduce((sum, item) => sum + num(item.rating ?? 0), 0);
+  const count = data.reviews_count ?? items.length;
+  const avg = items.length > 0 ? total / items.length : 0;
+  const { label, stars } = formatAverage(avg);
+  const coupon = booleanValue(data.has_discount_code) && twigTruthy(data.discount_code);
+  const code = text(data.discount_code);
+  const couponLabel = text(data.discount_title);
 
   return (
-    <SectionWrapper
-      id={`V_mixed_reviews-${data.position ?? 0}`}
-      ariaLabel="Section V_mixed_reviews"
-      className="V__mixed_reviews"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V__mixed_reviews', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_mixed_reviews-${position}`}
+      id={`V_mixed_reviews-${position}`}
     >
-      <div className={data.has_container !== false ? 'container' : ''}>
+      <div className={hasContainer ? 'container' : ''}>
         <BlockTitle
-          title={data.main_title}
-          sub={data.sub_title}
-          jocer={data.has_jocer_image}
-          more={Boolean(data.show_more_testimonials)}
+          title={text(data.main_title)}
+          sub={text(data.sub_title)}
+          jocer={booleanValue(data.has_jocer_image)}
+          more={booleanValue(data.show_more_testimonials)}
+          moreAlt={t('blocks.header.allviw')}
           moreUrl="/testimonials"
-          moreAlt={t('blocks.header.allviw', 'عرض الكل')}
         />
-
-        {/* Mobile rating banner */}
-        <div className="rating lg:hidden mb-6 flex items-center justify-between rounded-theme bg-primaryops md:p-4 sm:p-3 p-3">
-          <div className="flex items-baseline gap-1">
-            <span className="sm:text-2xl text-lg font-bold text-darkgray">
-              {avgRating}
-            </span>
-            <span className="text-sm text-mediumgray">/5</span>
-          </div>
-
-          <div className="flex items-center text-primary text-sm">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <i
-                key={i}
-                className={`sicon-star2 ${
-                  i < Math.round(parseFloat(avgRating))
-                    ? 'text-primary'
-                    : 'text-gray-300'
-                }`}
-              />
-            ))}
-          </div>
-
-          <div className="sm:text-sm text-xs text-mediumgray">
-            {count} {t('blocks.header.rating', 'تقييم')}
-          </div>
-
-          {data.has_discount_code && discountCode && (
-            <CouponPill code={discountCode} label={discountTitle} />
+        <div
+          className={cx(
+            'rating lg:hidden mb-6 flex items-center justify-between rounded-theme bg-primaryops md:p-4 sm:p-3 p-2',
+            reveal
           )}
+        >
+          <div className="flex items-baseline gap-1">
+            <span className="sm:text-2xl text-lg font-bold text-darkgray">{label}</span>
+            <span className="text-sm text-mediumgray ">/5</span>
+          </div>
+          <SallaRatingStars value={stars} size="mini" />
+          <div className="sm:text-sm text-xs text-mediumgray ">
+            {count} {t('blocks.header.rating')}
+          </div>
+          {coupon && <CouponPill code={code} label={couponLabel} />}
         </div>
-
-        {/* Main reviews content */}
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Desktop rating sidebar */}
-          <aside className="rating hidden lg:flex flex-col items-center justify-between text-center rounded-theme bg-primaryops p-6 w-1/4 shrink-0">
-            <div className="flex flex-col items-center justify-center text-center">
+          <aside
+            className={cx(
+              'rating hidden lg:flex flex-1 flex-col items-center justify-between text-center rounded-theme bg-primaryops p-4',
+              reveal
+            )}
+          >
+            <div className="flex-col items-center justify-center text-center">
               <div className="text-6xl font-extrabold text-primary-d">
-                {avgRating}
+                {label}
                 <span className="text-2xl align-top">/5</span>
               </div>
-
-              <div className="flex items-center text-primary text-xl my-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <i
-                    key={i}
-                    className={`sicon-star2 ${
-                      i < Math.round(parseFloat(avgRating))
-                        ? 'text-primary'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-2 text-sm text-primary-d font-medium">
-                {count} {t('blocks.header.rating', 'تقييم')}
+              <SallaRatingStars value={stars} size="medium" />
+              <div className="mt-2 text-sm text-primary-d">
+                {count} {t('blocks.header.rating')}
               </div>
             </div>
-
-            {data.has_discount_code && discountCode && (
-              <div className="mt-6 w-full">
-                <CouponPill
-                  code={discountCode}
-                  label={discountTitle}
-                />
-              </div>
-            )}
+            {coupon && <CouponPill code={code} label={couponLabel} />}
           </aside>
-
-          {/* Reviews cards carousel / scroller */}
-          <div className="block lg:w-3/4 w-full overflow-x-auto pb-4">
-            <div className="flex gap-4 items-stretch flex-nowrap">
-              {items.map((tItem, idx) => {
-                const itemRating = parseFloat(String(tItem.rating || '5')) || 5;
-
-                return (
+          <div className="block lg:w-3/4 w-full">
+            <SallaSlider
+              id={`thumbs_mixed_reviews-${position}`}
+              className="thumbs_mixed_reviews"
+              autoHeight
+              showControls={false}
+              type="thumbs"
+              sliderConfig={{
+                loop: false,
+                spaceBetween: 16,
+                grabCursor: true,
+                keyboard: { enabled: true },
+                a11y: { enabled: true },
+                navigation: {
+                  nextEl: `#thumbs_mixed_reviews-${position} .swiper-button-next`,
+                  prevEl: `#thumbs_mixed_reviews-${position} .swiper-button-prev`,
+                },
+                pagination: { el: `#thumbs_mixed_reviews-${position} .swiper-pagination`, type: 'progressbar' },
+                breakpoints: {
+                  0: { slidesPerView: 1 },
+                  480: { slidesPerView: 1.6 },
+                  767: { slidesPerView: 2 },
+                  1024: { slidesPerView: 3 },
+                },
+              }}
+            >
+              <div slot="items">
+                {items.map((item, index) => (
+                  // A settings list without ids.
+                  // react-doctor-disable-next-line react-doctor/no-array-index-as-key
                   <article
-                    key={idx}
-                    className="backdrop-invert-[0.05] bg-bgcolor border border-lightgray rounded-theme p-5 flex flex-col justify-between gap-4 w-[280px] md:w-[320px] shrink-0 shadow-sm"
+                    key={index}
+                    className={cx(
+                      'backdrop-invert-[0.05] rounded-theme !h-full p-5 flex flex-col gap-2 justify-between',
+                      reveal
+                    )}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-primary text-sm">
-                        {Array.from({ length: 5 }).map((_, sIdx) => (
-                          <i
-                            key={sIdx}
-                            className={`sicon-star2 ${
-                              sIdx < Math.round(itemRating)
-                                ? 'text-primary'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-3xl text-primary opacity-30 font-serif leading-none">
-                        "
-                      </span>
-                    </div>
-
-                    <p className="text-mediumgray md:text-base text-sm line-clamp-4">
-                      {tItem.text_area}
-                    </p>
-
-                    <div className="mt-auto flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <div className="center-between">
+                      <SallaRatingStars value={num(item.rating)} size="medium" />
                       <img
-                        src={
-                          tItem.main_image ||
-                          'https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp'
-                        }
-                        alt={tItem.name || ''}
-                        className="w-10 h-10 rounded-full object-cover shrink-0"
+                        src={QUOTES}
+                        alt="Quotes"
+                        className="aspect-square lazy"
+                        width={50}
+                        height={50}
                         loading="lazy"
+                        decoding="async"
+                        fetchPriority="auto"
+                      />
+                    </div>
+                    <p className="text-mediumgray  md:text-base text-sm">{text(item.text_area)}</p>
+                    <div className="mt-auto flex gap-3">
+                      <img
+                        src={text(item.main_image) || AVATAR}
+                        alt={text(item.name)}
+                        className="w-10 h-10 rounded-full object-contain lazy"
                         width={40}
                         height={40}
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="auto"
                       />
                       <div>
-                        <div className="font-semibold text-darkgray text-sm">
-                          {tItem.name}
+                        <div className="font-semibold text-darkgray">{text(item.name ?? item.ar?.name ?? '')}</div>
+                        <div className="text-sm text-mediumgray ">
+                          {text(item.jop_title ?? item.ar?.jop_title ?? '')}
                         </div>
-                        {tItem.jop_title && (
-                          <div className="text-xs text-mediumgray">
-                            {tItem.jop_title}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </article>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+              <div className="absolute left-0 bottom-0 flex items-center justify-between z-2 w-full flex-1">
+                <div className="flex items-center md:gap-2 gap-1">
+                  <div className="swiper-button-prev" />
+                  <div className="swiper-button-next" />
+                </div>
+                <div className="swiper-pagination flex-1 !flex" />
+              </div>
+            </SallaSlider>
           </div>
         </div>
       </div>
-
-      <SectionSeparator
-        saprator={optionValue(data.saprator)}
-        merge_with_adjacent={Boolean(data.merge_with_adjacent)}
-        use_custom_colors={Boolean(data.use_custom_colors)}
-        line_color={data.line_color}
-        star_color={data.star_color}
-        star_position_x={data.star_position_x}
-      />
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} />
+    </section>
   );
 });

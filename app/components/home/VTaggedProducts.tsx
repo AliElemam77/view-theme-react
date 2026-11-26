@@ -1,10 +1,11 @@
 import { memo } from 'react';
 import type { CSSProperties } from 'react';
-import { SectionWrapper } from '../common/SectionWrapper';
 import { BlockTitle } from '../common/BlockTitle';
 import { ActionBtn } from '../common/ActionBtn';
 import { SectionSeparator } from '../common/SectionSeparator';
-import { linkUrl, optionValue } from '../../lib/fieldValue';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue, linkUrl, optionValue } from '../../lib/fieldValue';
+import { cx, separatorProps, text, twigPosition, twigTruthy } from './ViewBlockUtils';
 
 export interface VTaggedProductsData {
   has_container?: boolean;
@@ -26,7 +27,6 @@ export interface VTaggedProductsData {
   text_color_one?: string;
   btn_background_color?: string;
   bg_one_color?: string;
-  // Separator
   saprator?: unknown;
   use_custom_colors_sep?: boolean;
   line_color?: string;
@@ -35,105 +35,89 @@ export interface VTaggedProductsData {
   merge_with_adjacent?: boolean;
   position?: number;
   priority?: boolean;
+  [key: string]: unknown;
 }
 
-export const VTaggedProducts = memo(function VTaggedProducts({
-  data,
-}: {
-  data?: VTaggedProductsData;
-}) {
-  if (!data) return null;
+const PLACEHOLDER = '/images/placeholder.webp';
 
-  const useCustomColors = Boolean(data.use_custom_colors);
+/**
+ * Port of `V_tagged_products.twig`: one or two decor images around a small
+ * title, the custom title and a button.
+ */
+export const VTaggedProducts = memo(function VTaggedProducts({ data = {} }: { data?: VTaggedProductsData }) {
+  const { reveal, spacing } = useViewSettings();
+  const position = twigPosition(data);
+  const custom = booleanValue(data.use_custom_colors);
   const isDouble = optionValue(data.image_layout_option) === 'double_with_text';
-  const btnStyle = optionValue(data.btn_style) || 'filled';
-  const btnColor = useCustomColors ? data.text_color_one : 'var(--color-bg)';
-  const btnBg = useCustomColors
-    ? data.btn_background_color || data.bg_one_color
-    : 'var(--color-primary)';
+  const bgImage = text(data.background_pattern_image);
 
-  const innerStyle: CSSProperties =
-    data.enable_component_background && data.background_pattern_image
-      ? {
-          backgroundImage: `url(${data.background_pattern_image})`,
-          backgroundSize: 'cover',
-        }
-      : {};
+  const innerStyle: CSSProperties | undefined =
+    booleanValue(data.enable_component_background) && bgImage
+      ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover' }
+      : undefined;
 
   return (
-    <SectionWrapper
-      id={`V_tagged_products-${data.position ?? 0}`}
-      ariaLabel="Section V_tagged_products"
-      className="V_tagged_products"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V_tagged_products', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_tagged_products-${position}`}
+      id={`V_tagged_products-${position}`}
     >
-      <div className={data.has_container !== false ? 'container' : ''}>
+      <div className={booleanValue(data.has_container) ? 'container' : ''}>
         <section
-          className={`py-9 text-center relative overflow-hidden flex ${
-            data.toggle_content_switch
-              ? 'flex-col-reverse sm:flex-row-reverse'
-              : 'flex-col sm:flex-row'
-          } items-stretch justify-center`}
+          className={cx(
+            'py-9 text-center relative overflow-hidden flex',
+            booleanValue(data.toggle_content_switch) ? 'flex-col-reverse sm:flex-row-reverse' : 'flex-col sm:flex-row',
+            'items-stretch justify-center'
+          )}
           style={innerStyle}
         >
-          {data.main_image_first && (
-            <div className="h-auto flex items-center justify-center aspect-square shrink-0">
-              <img
-                src={data.main_image_first}
-                alt=""
-                className="object-contain max-h-72"
-                loading={data.priority ? 'eager' : 'lazy'}
-                fetchPriority={data.priority ? 'high' : 'auto'}
-              />
-            </div>
-          )}
-
-          <div className="flex items-center justify-center flex-col relative flex-1 md:space-y-4 space-y-3 px-4">
-            {data.main_titleamsll && (
-              <p className="text-sm text-mediumgray">{data.main_titleamsll}</p>
-            )}
+          <div className={cx('h-auto flex-center aspect-square', reveal)}>
+            <img
+              src={text(data.main_image_first) || PLACEHOLDER}
+              alt="left decor"
+              className="object-contain"
+              loading={data.priority ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={data.priority ? 'high' : 'auto'}
+            />
+          </div>
+          <div className="flex-center flex-col relative flex-1 md:space-y-4 space-y-3">
+            <p className={cx('text-sm text-mediumgray', reveal)}>{text(data.main_titleamsll)}</p>
+            {/* Twig passes `classone_level` twice; the later value wins. */}
             <BlockTitle
-              title={data.main_title}
-              sub={data.sub_title}
-              jocer={data.has_jocer_image}
-              center
+              title={text(data.main_title)}
+              sub={text(data.sub_title)}
+              jocer={booleanValue(data.has_jocer_image)}
               className="!mb-0"
+              levelClass="md:space-y-4 space-y-3"
               level2Class="!justify-center"
             />
-            {data.btn_fqa && (
-              <ActionBtn
-                text={data.btn_fqa}
-                href={linkUrl(data.btn_url)}
-                dataStyle={btnStyle}
-                color={btnColor}
-                backgroundColor={btnBg}
-                icon
-              />
-            )}
+            <ActionBtn
+              text={text(data.btn_fqa)}
+              href={linkUrl(data.btn_url)}
+              dataStyle={optionValue(data.btn_style)}
+              color={custom ? text(data.text_color_one) : 'var(--color-bg)'}
+              backgroundColor={
+                custom ? text(data.btn_background_color) || text(data.bg_one_color) : 'var(--color-primary)'
+              }
+              icon
+            />
           </div>
-
-          {isDouble && data.main_image_second && (
-            <div className="h-auto flex items-center justify-center aspect-square shrink-0">
+          {isDouble && (
+            <div className={cx('h-auto flex-center aspect-square', reveal)}>
               <img
-                src={data.main_image_second}
-                alt=""
-                className="object-contain max-h-72"
+                src={text(data.main_image_second) || PLACEHOLDER}
+                alt="right decor"
+                className="object-contain"
                 loading="lazy"
+                decoding="async"
+                fetchPriority="auto"
               />
             </div>
           )}
         </section>
       </div>
-
-      <SectionSeparator
-        saprator={optionValue(data.saprator)}
-        merge_with_adjacent={Boolean(data.merge_with_adjacent)}
-        use_custom_colors={Boolean(data.use_custom_colors_sep ?? data.use_custom_colors)}
-        line_color={data.line_color}
-        star_color={data.star_color}
-        star_position_x={data.star_position_x}
-      />
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} use_custom_colors={twigTruthy(data.use_custom_colors_sep)} />
+    </section>
   );
 });

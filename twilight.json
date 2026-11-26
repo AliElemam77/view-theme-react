@@ -2411,9 +2411,9 @@
           "icon": "sicon-keyboard_arrow_down",
           "selected": [
             {
-              "label": "صانع بنرات ثابتة",
-              "value": "component_banner",
-              "key": "c1a2b3d4-e5f6-47a8-91c2-345d6789a111"
+              "label": "صانع سلايدر احترافي متعدد",
+              "value": "component_slider",
+              "key": "d2b3c4e5-f6a7-48b9-82d3-456e7890b222"
             }
           ],
           "options": [
@@ -2934,9 +2934,9 @@
           "icon": "sicon-keyboard_arrow_down",
           "selected": [
             {
-              "label": "سلايدر (slide)",
-              "value": "slide",
-              "key": "2b8a0ef7-ad98-458b-9251-ceb969c230fd"
+              "label": "coverflow",
+              "value": "coverflow",
+              "key": "bf6070c9-76be-403e-9d6e-46ef7c44c0c6"
             }
           ],
           "options": [
@@ -2989,116 +2989,78 @@
           "icon": "sicon-list-add",
           "value": [
             {
-              "cards_slider.flower": [
-                "flower13"
-              ],
-              "cards_slider.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers",
-              "cards_slider.obj_con": false,
-              "cards_slider.image_bg": "https://cdn.salla.sa/form-builder/D1KUd8PjHzmVpj1BDKL4S4C98vL1FWPWKSClX6CD.webp",
-              "cards_slider.video_ur": "",
-              "cards_slider.btn_color": "#ffffff",
-              "cards_slider.is_video_bg": false,
-              "cards_slider.title_color": "#ffffff",
-              "cards_slider.btn_bg_color": "#5e6d5a",
-              "cards_slider.mockup_image": "https://cdn.salla.sa/form-builder/tNuK6fG6mHjGqjWnaIEKi5Zn4oZvHdTGouj1Mhqm.webp",
               "cards_slider.slider_style": [
-                "style_flower"
+                "style_mockup"
               ],
-              "cards_slider.btn_sselector": [
-                "outline"
-              ],
+              "cards_slider.flower": [],
               "cards_slider.has_container": true,
+              "cards_slider.obj_con": false,
+              "cards_slider.is_video_bg": false,
+              "cards_slider.enable_overlay_layer": true,
+              "cards_slider.enable_decorative_icon": true,
+              "cards_slider.decorative_icon_color": "#213721",
+              "cards_slider.is_product_mockup": true,
+              "cards_slider.video_ur": "",
+              "cards_slider.mockup_image": "https://cdn.salla.sa/form-builder/tNuK6fG6mHjGqjWnaIEKi5Zn4oZvHdTGouj1Mhqm.webp",
+              "cards_slider.image_bg": "https://cdn.salla.sa/form-builder/D1KUd8PjHzmVpj1BDKL4S4C98vL1FWPWKSClX6CD.webp",
+              "cards_slider.image_bg_mobile": "",
+              "cards_slider.main_title": "مكونات طبيعية… جمال طبيعي",
+              "cards_slider.sub_title": "منتجاتنا بخلاصات طبيعية تمنح بشرتك تغذية عميقة ولمعان صحي يدوم",
+              "cards_slider.btn_txt": "تسوقِ الآن",
+              "cards_slider.btn_url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/offers",
+              "cards_slider.btn_sselector": [
+                "filled"
+              ],
+              "cards_slider.banner_font_weight": [
+                "weight-600"
+              ],
+              "cards_slider.content_position": [],
               "cards_slider.hajm_khat_sura": [
                 "large"
               ],
               "cards_slider.slide_bg_color": "#899f87",
-              "cards_slider.image_bg_mobile": "",
-              "cards_slider.content_position": [
-                "center-left"
-              ],
-              "cards_slider.sub_slider_color": "#ffffff",
-              "cards_slider.is_product_mockup": true,
-              "cards_slider.banner_font_weight": [],
-              "cards_slider.enable_overlay_layer": true,
-              "cards_slider.btn_txt": "تسوقِ الآن",
-              "cards_slider.sub_title": "منتجاتنا بخلاصات طبيعية تمنح بشرتك تغذية عميقة ولمعان صحي يدوم",
-              "cards_slider.main_title": "مكونات طبيعية… جمال طبيعي"
+              "cards_slider.btn_color": "#ffffff",
+              "cards_slider.btn_bg_color": "#5e6d5a",
+              "cards_slider.title_color": "#ffffff",
+              "cards_slider.sub_slider_color": "#ffffff"
             },
             {
-              "cards_slider.flower": [
-                "flower3"
-              ],
-              "cards_slider.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers",
-              "cards_slider.obj_con": true,
-              "cards_slider.image_bg": "https://cdn.salla.sa/form-builder/J5DGR3mmPXgjkeSDQvEAcS44y6RYzVJr3ObGaBf1.webp",
-              "cards_slider.video_ur": "",
-              "cards_slider.btn_color": "#ffffff",
-              "cards_slider.is_video_bg": false,
-              "cards_slider.title_color": "#ffffff",
-              "cards_slider.btn_bg_color": "#444d42",
-              "cards_slider.mockup_image": "https://cdn.salla.sa/form-builder/kUxCerXJvJmvh0JWfwse70uXYqKZuHZAWnLoN2ez.webp",
               "cards_slider.slider_style": [
-                "style_mockup"
+                "style_flower"
               ],
-              "cards_slider.btn_sselector": [
-                "outline"
+              "cards_slider.flower": [
+                "flower13"
               ],
               "cards_slider.has_container": true,
-              "cards_slider.hajm_khat_sura": [
-                "x-large"
-              ],
-              "cards_slider.slide_bg_color": "#899f87",
-              "cards_slider.image_bg_mobile": "",
-              "cards_slider.content_position": [
-                "center-left"
-              ],
-              "cards_slider.sub_slider_color": "#ffffff",
-              "cards_slider.is_product_mockup": true,
-              "cards_slider.banner_font_weight": [
-                "weight-700"
-              ],
-              "cards_slider.enable_overlay_layer": true,
-              "cards_slider.btn_txt": "اكتشفي المزيد",
-              "cards_slider.sub_title": "ابدئي يومك ببشرة ناعمة ومنتعشة مع منتجاتنا المختارة خصيصًا لتناسب جميع أنواع البشرة.",
-              "cards_slider.main_title": "مكونات طبيعية… جمال طبيعي"
-            },
-            {
-              "cards_slider.flower": [
-                "flower5"
-              ],
-              "cards_slider.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/redirect/categories/2061446592",
-              "cards_slider.obj_con": true,
-              "cards_slider.image_bg": "https://cdn.salla.sa/form-builder/1tvvWwipVnjyIYy0TpB57GlzjBwT2u3XGniCgGiF.webp",
-              "cards_slider.video_ur": "",
-              "cards_slider.btn_color": "#ffffff",
+              "cards_slider.obj_con": false,
               "cards_slider.is_video_bg": false,
-              "cards_slider.title_color": "#ffffff",
-              "cards_slider.btn_bg_color": "#ffffff",
-              "cards_slider.mockup_image": "https://cdn.salla.sa/form-builder/dpOMaIoQttjpjZPb7clvPpKsieY1HEXy2mZPSx3H.webp",
-              "cards_slider.slider_style": [
-                "style_layers"
-              ],
+              "cards_slider.enable_overlay_layer": true,
+              "cards_slider.enable_decorative_icon": true,
+              "cards_slider.decorative_icon_color": "#213721",
+              "cards_slider.is_product_mockup": true,
+              "cards_slider.video_ur": "",
+              "cards_slider.mockup_image": "https://cdn.salla.sa/form-builder/kUxCerXJvJmvh0JWfwse70uXYqKZuHZAWnLoN2ez.webp",
+              "cards_slider.image_bg": "https://cdn.salla.sa/form-builder/J5DGR3mmPXgjkeSDQvEAcS44y6RYzVJr3ObGaBf1.webp",
+              "cards_slider.image_bg_mobile": "",
+              "cards_slider.main_title": "مكونات طبيعية… جمال طبيعي",
+              "cards_slider.sub_title": "ابدئي يومك ببشرة ناعمة ومنتعشة مع منتجاتنا المختارة خصيصًا لتناسب جميع أنواع البشرة.",
+              "cards_slider.btn_txt": "اكتشفي المزيد",
+              "cards_slider.btn_url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/p961061544",
               "cards_slider.btn_sselector": [
                 "outline"
               ],
-              "cards_slider.has_container": false,
-              "cards_slider.hajm_khat_sura": [
-                "x-large"
-              ],
-              "cards_slider.slide_bg_color": "#899f87",
-              "cards_slider.image_bg_mobile": "",
-              "cards_slider.content_position": [
-                "center-left"
-              ],
-              "cards_slider.sub_slider_color": "#ffffff",
-              "cards_slider.is_product_mockup": true,
               "cards_slider.banner_font_weight": [
                 "weight-500"
               ],
-              "cards_slider.enable_overlay_layer": true,
-              "cards_slider.btn_txt": "جرّبي الآن",
-              "cards_slider.sub_title": "ابدئي روتينك ببشرة ناعمة ومشرقة تدوم طول اليوم.",
-              "cards_slider.main_title": "عناية يومية لبشرتك كل صباح"
+              "cards_slider.content_position": [],
+              "cards_slider.hajm_khat_sura": [
+                "x-large"
+              ],
+              "cards_slider.slide_bg_color": "#899f87",
+              "cards_slider.btn_color": "#ffffff",
+              "cards_slider.btn_bg_color": "#444d42",
+              "cards_slider.title_color": "#ffffff",
+              "cards_slider.sub_slider_color": "#ffffff"
             }
           ],
           "fields": [
@@ -4065,7 +4027,7 @@
           "label": "تـشـغـيـل تـلـقـائـي",
           "description": "تمكين التمرير التلقائي للعناصر.",
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": true,
           "required": false,
           "conditions": [
@@ -4101,7 +4063,7 @@
           "label": "إضـافـة نـقـاط الـتـنـقـل",
           "description": "إظهار نقاط للتنقل بين العناصر.",
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false,
           "conditions": [
@@ -4244,27 +4206,33 @@
           "value": [
             {
               "custom_categories.name": "الأدوات والمجموعات",
-              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/lQGvMMWLZDl0fgCJsvbwHMmPpARw3ub7OgneGN9L.webp"
+              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/lQGvMMWLZDl0fgCJsvbwHMmPpARw3ub7OgneGN9L.webp",
+              "custom_categories.url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
             },
             {
               "custom_categories.name": "عطور",
-              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/dGt67yvjLciW2whKbxsLViFGpkzzxfHzArfWByv6.webp"
+              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/dGt67yvjLciW2whKbxsLViFGpkzzxfHzArfWByv6.webp",
+              "custom_categories.url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1033018733"
             },
             {
               "custom_categories.name": "العناية بالبشرة",
-              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/xxdVOvr1jnX5ze4dgjLpcDv1o6g1X2ZikDDguvqf.webp"
+              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/xxdVOvr1jnX5ze4dgjLpcDv1o6g1X2ZikDDguvqf.webp",
+              "custom_categories.url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1595273158"
             },
             {
               "custom_categories.name": "المكياج",
-              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/2d49OBLgAp9lyDdufyLN2vcOo8vKfyFZvPKKXSY8.webp"
+              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/2d49OBLgAp9lyDdufyLN2vcOo8vKfyFZvPKKXSY8.webp",
+              "custom_categories.url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c300900195"
             },
             {
               "custom_categories.name": "العناية بالجسم",
-              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/lv9bILqpGYz5jIDxNCQd8Mqny61q1iSBAccGY3hW.webp"
+              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/lv9bILqpGYz5jIDxNCQd8Mqny61q1iSBAccGY3hW.webp",
+              "custom_categories.url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c222871749"
             },
             {
               "custom_categories.name": "العناية",
-              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/ELmP5EZmOzite84gFpcaVQJNsDLXjpEEiliwZdpu.webp"
+              "custom_categories.category_image": "https://cdn.salla.sa/form-builder/ELmP5EZmOzite84gFpcaVQJNsDLXjpEEiliwZdpu.webp",
+              "custom_categories.url": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1672773228"
             }
           ],
           "fields": [
@@ -4510,7 +4478,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 86,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -4724,7 +4692,12 @@
           "icon": "sicon-link",
           "label": "رابط الصورة في النصف الأول من البانر",
           "id": "btn_url_one",
-          "value": null,
+          "value": [
+            {
+              "label": "#",
+              "value": "#"
+            }
+          ],
           "placeholder": "مثال: https://example.com",
           "description": "أضف الرابط الذي سيتم توجيه المستخدمين إليه عند النقر على الصورة في النصف الأول من البانر. تأكد من أن الرابط صالح وموجه لصفحة ذات صلة بالمحتوى.",
           "required": false,
@@ -4781,6 +4754,12 @@
               "label": "رابط خارجي",
               "key": "custom",
               "value": "custom"
+            }
+          ],
+          "selected": [
+            {
+              "label": "#",
+              "value": "#"
             }
           ]
         },
@@ -5156,7 +5135,7 @@
           "description": "قم بتفعيل هذا الخيار لدمج هذا العنصر بصريًا مع المكون السابق والتالي لعرض سلس ومترابط.",
           "labelHTML": null,
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false,
           "conditions": [
@@ -5243,7 +5222,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 6,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -5349,12 +5328,38 @@
           "description": "اختر المنتجات التي سيتم تضمينها داخل الباكدج. يمكنك تحديد أكثر من منتج.",
           "labelHTML": null,
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [],
+          "selected": [
+            {
+              "label": "كريم ترطيب مكثف بتركيبة غنية بالفيتامينات، 50 مل",
+              "value": 961061544
+            },
+            {
+              "label": "كريم ترطيب وتجديد للبشرة الحساسة، 50 مل",
+              "value": 45907110
+            },
+            {
+              "label": "كريم ترطيب طويل الأمد مع تركيبة فعّالة، 50 مل",
+              "value": 1411463004
+            }
+          ],
           "source": "products",
           "multichoice": true,
           "searchable": true,
           "required": false,
-          "value": []
+          "value": [
+            {
+              "label": "كريم ترطيب مكثف بتركيبة غنية بالفيتامينات، 50 مل",
+              "value": 961061544
+            },
+            {
+              "label": "كريم ترطيب وتجديد للبشرة الحساسة، 50 مل",
+              "value": 45907110
+            },
+            {
+              "label": "كريم ترطيب طويل الأمد مع تركيبة فعّالة، 50 مل",
+              "value": 1411463004
+            }
+          ]
         },
         {
           "id": "main_title",
@@ -5517,7 +5522,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 100,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -5801,7 +5806,12 @@
           "type": "items",
           "icon": "sicon-link",
           "label": "رابط الزر",
-          "value": null,
+          "value": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
+            }
+          ],
           "placeholder": "مثال: https://example.com",
           "description": "أضف الرابط الذي سيتم توجيه المستخدم إليه عند النقر .",
           "required": false,
@@ -5866,6 +5876,12 @@
               "operation": "=",
               "value": "classic"
             }
+          ],
+          "selected": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
+            }
           ]
         },
         {
@@ -5909,7 +5925,7 @@
           "labelHTML": null,
           "placeholder": "Your text here",
           "icon": "sicon-typography",
-          "value": "فيلفيتي شركة محلية متخصصة في تصنيع وتطوير منتجات العناية بالبشرة باستخدام الخصائص الطبية للصيدلة التقليدية لشعوب الأمم الأولى، مع حرص على التنمية المستدامة.\n\nتقدم المنتجات التي تم تأكيد فوائدها علميًا وهي طبيعية 100% وتسمح لك بالعناية بجسدك وعقلك: شاي مهدئ، منقوعات منشطة، زيوت عطرية مضادة للالتهاب، صوابين وكريمات مضادة للشيخوخة وغيرها.",
+          "value": "فيو شركة محلية متخصصة في تصنيع وتطوير منتجات العناية بالبشرة باستخدام الخصائص الطبية للصيدلة التقليدية لشعوب الأمم الأولى، مع حرص على التنمية المستدامة.\n\nتقدم المنتجات التي تم تأكيد فوائدها علميًا وهي طبيعية 100% وتسمح لك بالعناية بجسدك وعقلك: شاي مهدئ، منقوعات منشطة، زيوت عطرية مضادة للالتهاب، صوابين وكريمات مضادة للشيخوخة وغيرها.",
           "multilanguage": true,
           "required": false,
           "minLength": 20,
@@ -5975,9 +5991,9 @@
           "icon": "sicon-keyboard_arrow_down",
           "selected": [
             {
-              "label": "فاصل مميز بنجمة – لمسة فاخرة",
-              "value": "star",
-              "key": "1dc5c9e3-0f62-4117-a1fb-551630be6e1f"
+              "label": "فاصل بسيط – أسلوب كلاسيكي أنيق",
+              "value": "solid",
+              "key": "9646f195-4965-43d8-8423-c2eba990afd5"
             }
           ],
           "options": [
@@ -6138,7 +6154,7 @@
           "label": "إزالة المسافة السفلية",
           "description": "تمكين هذا الخيار سيؤدي إلى إزالة المسافة السفلية للمكون.",
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false
         },
@@ -6252,12 +6268,71 @@
           "label": "الماركات التجارية",
           "format": "dropdown-list",
           "description": "اختر ماركة أو أكثر من القائمة",
-          "selected": [],
+          "selected": [
+            {
+              "label": "WSJ",
+              "value": "wsj/brand-1400791999"
+            },
+            {
+              "label": "DAILY BEAST",
+              "value": "daily-beast/brand-26297534"
+            },
+            {
+              "label": "VOGUE",
+              "value": "vogue/brand-934553021"
+            },
+            {
+              "label": "BYRDIE",
+              "value": "byrdie/brand-1710163644"
+            },
+            {
+              "label": "VANITY FAIR",
+              "value": "vanity-fair/brand-1042667698"
+            },
+            {
+              "label": "Newsweek",
+              "value": "newsweek/brand-1743213742"
+            },
+            {
+              "label": "Wallpaper*",
+              "value": "wallpaper/brand-478931106"
+            }
+          ],
           "options": [],
           "required": true,
           "multichoice": true,
           "searchable": true,
-          "source": "brands"
+          "source": "brands",
+          "value": [
+            {
+              "label": "WSJ",
+              "value": "wsj/brand-1400791999"
+            },
+            {
+              "label": "DAILY BEAST",
+              "value": "daily-beast/brand-26297534"
+            },
+            {
+              "label": "VOGUE",
+              "value": "vogue/brand-934553021"
+            },
+            {
+              "label": "BYRDIE",
+              "value": "byrdie/brand-1710163644"
+            },
+            {
+              "label": "VANITY FAIR",
+              "value": "vanity-fair/brand-1042667698"
+            },
+            {
+              "label": "Newsweek",
+              "value": "newsweek/brand-1743213742"
+            },
+            {
+              "label": "Wallpaper*",
+              "value": "wallpaper/brand-478931106"
+            }
+          ]
         },
         {
           "id": "saprator",
@@ -6455,7 +6530,7 @@
           "description": null,
           "labelHTML": null,
           "icon": "sicon-toggle-off",
-          "value": true,
+          "value": false,
           "selected": true,
           "required": false
         },
@@ -6491,7 +6566,13 @@
           "description": "حدد ما إذا كنت تريد استخدام صورة واحدة أو صورتين مع النصوص.",
           "labelHTML": null,
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [],
+          "selected": [
+            {
+              "label": "صورتان مع النصوص",
+              "value": "double_with_text",
+              "key": "5028824f-3129-4df2-bc51-ba3a599101e5"
+            }
+          ],
           "options": [
             {
               "label": "صورة واحدة مع النصوص",
@@ -6723,9 +6804,8 @@
           "description": "أدخـل الـرابـط الـذي سـيـتـوجـه إلـيـه الـمـسـتـخـدم عـنـد الـنـقـر عـلى زر 'الـمـزيـد'.",
           "value": [
             {
-              "label": "الـتـخـفـيـضـات",
-              "key": "offers_link",
-              "value": "offers_link"
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
             }
           ],
           "required": false,
@@ -6791,6 +6871,12 @@
               "value_index": ".",
               "value": true,
               "collection_id": "features"
+            }
+          ],
+          "selected": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
             }
           ]
         },
@@ -6925,7 +7011,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 65,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -6967,7 +7053,7 @@
           "label": "إزالة المسافة السفلية",
           "description": "تمكين هذا الخيار سيؤدي إلى إزالة المسافة السفلية للمكون.",
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false
         },
@@ -6990,7 +7076,7 @@
           "description": "يتيح لك هذا الخيار عرض صورة أيقونة مميزة بجوار العنوان الرئيسي لإضافة طابع بصري ملفت.",
           "labelHTML": null,
           "icon": "sicon-toggle-off",
-          "value": true,
+          "value": false,
           "selected": true,
           "required": false
         },
@@ -7002,7 +7088,7 @@
           "description": "قم بتفعيل هذا الخيار للتحكم في الألوان يدويًا بعيدًا عن ألوان الهوية البصرية.",
           "labelHTML": null,
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false
         },
@@ -7120,7 +7206,7 @@
           "label": "تاريخ ووقت نهاية العرض",
           "description": "حدد اليوم والساعة التي ينتهي فيها العرض (سيظهر العداد بناءً على هذا التوقيت).",
           "icon": "sicon-calendar-time",
-          "value": "2026-10-01T15:23",
+          "value": "2026-10-01 15:23:00",
           "required": false,
           "conditions": [
             {
@@ -7182,7 +7268,12 @@
           "id": "btn_url",
           "label": "لـيـنـك الـزر",
           "description": "أدخـل الـرابـط الـذي سـيـتـوجـه إلـيـه الـمـسـتـخـدم عـنـد الـنـقـر عـلى زر 'الـمـزيـد'.",
-          "value": [],
+          "value": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/p45907110",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/p45907110"
+            }
+          ],
           "required": false,
           "format": "variable-list",
           "searchable": true,
@@ -7246,6 +7337,12 @@
               "value_index": ".",
               "value": true,
               "collection_id": "features"
+            }
+          ],
+          "selected": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/p45907110",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/p45907110"
             }
           ]
         },
@@ -7350,7 +7447,7 @@
           "label": "لون الوهج",
           "description": "اختر لون الوهج للخلفية (يظهر فقط إذا اخترت لون كخلفية).",
           "icon": "sicon-format-fill",
-          "value": "#004956",
+          "value": "#ffffff",
           "required": false,
           "conditions": [
             {
@@ -7387,9 +7484,9 @@
           "icon": "sicon-keyboard_arrow_down",
           "selected": [
             {
-              "label": "فاصل مميز بنجمة – لمسة فاخرة",
-              "value": "star",
-              "key": "1dc5c9e3-0f62-4117-a1fb-551630be6e1f"
+              "label": "بدون فاصل – لمسة نظافة وأناقة",
+              "value": "none",
+              "key": "58b621f3-4eaa-45ce-93a7-d076e3e4220f"
             }
           ],
           "options": [
@@ -7655,7 +7752,44 @@
               "maxLength": "50"
             }
           ],
-          "value": [],
+          "value": [
+            {
+              "customers_rev.product": [
+                961061544
+              ],
+              "customers_rev.pro_title": "كريم ترطيب مكثف بتركيبة غنية بالفيتامينات، 50 مل",
+              "customers_rev.rating": 5,
+              "customers_rev.text_area": "كنت أعاني من جفاف شديد في بشرتي، فجربت سيروم الترطيب من هولوسينا. النتيجة فاقت توقعاتي! بشرتي صارت ناعمة ومشرقة بشكل رائع",
+              "customers_rev.name": "لجين الغامدي"
+            },
+            {
+              "customers_rev.product": [
+                45907110
+              ],
+              "customers_rev.pro_title": "كريم ترطيب وتجديد للبشرة الحساسة، 50 مل",
+              "customers_rev.rating": 5,
+              "customers_rev.text_area": "كانت بشرتي باهتة وتعاني من الجفاف لفترة طويلة، لكن بعد ما جربت كريم الترطيب من هولوسينا لاحظت فرق كبير من أول أسبوع. النعومة والترطيب اللي حصلت عليه ما شفتهم مع أي منتج ثاني",
+              "customers_rev.name": "ريم الشمري"
+            },
+            {
+              "customers_rev.product": [
+                1411463004
+              ],
+              "customers_rev.pro_title": "كريم ترطيب طويل الأمد مع تركيبة فعّالة، 50 مل",
+              "customers_rev.rating": 5,
+              "customers_rev.text_area": "من فترة وأنا أبحث عن روتين عناية حقيقي لبشرتي، وجربت مجموعة هولوسينا الكاملة. النتيجة فاقت كل توقعاتي، بشرتي صارت أنعم، لونها متجانس، والإحساس بالنظافة والترطيب يدوم طول اليوم",
+              "customers_rev.name": "سارة القحطاني"
+            },
+            {
+              "customers_rev.product": [
+                213240656
+              ],
+              "customers_rev.pro_title": "كريم مغذي للبشرة الجافة بتركيبة مزدوجة، 50 مل",
+              "customers_rev.rating": 5,
+              "customers_rev.text_area": "كنت أشوف بشرتي مجهدة وتفتقر للحيوية، فقررت أعطي فرصة لمنتجات هولوسينا. بعد الاستخدام المنتظم، لاحظت إشراقة واضحة وملمس ناعم كأني رجعت من جلسة عناية احترافية.",
+              "customers_rev.name": "نورة العتيبي"
+            }
+          ],
           "minLength": 1,
           "maxLength": 50
         },
@@ -7928,52 +8062,56 @@
           "icon": "sicon-list-add",
           "value": [
             {
-              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers",
-              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.add_button": true,
+              "features.icon": "sicon-store",
               "features.add_image": "https://cdn.salla.sa/form-builder/Rska3JTPDlKuwI22kb0gSveXVWhLDIoILiohpv7N.webp",
-              "features.btn_style": [
-                "outline"
-              ],
-              "features.add_button": true,
-              "features.text": "عشقي بشرتكِ... ونحن نكافئ حبكِ!",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
               "features.title": "برنامج الولاء",
-              "features.btn_fqa": "سجّلي الآن"
+              "features.text": "عشقي بشرتكِ... ونحن نكافئ حبكِ!",
+              "features.btn_fqa": "سجّلي الآن",
+              "features.btn_style": [
+                "outline"
+              ],
+              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers"
             },
             {
-              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers",
-              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.add_button": true,
+              "features.icon": "sicon-store",
               "features.add_image": "https://cdn.salla.sa/form-builder/kGhiYqJiHFMdBT8xrLg97BQpVGCtMi216zZeYcb4.webp",
-              "features.btn_style": [
-                "outline"
-              ],
-              "features.add_button": true,
-              "features.text": "هل تعرفين أحداً يستحق بشرة سعيدة؟",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
               "features.title": "الجمال العضوي يُشارك بفرح",
-              "features.btn_fqa": "ادعُ صديقة"
+              "features.text": "هل تعرفين أحداً يستحق بشرة سعيدة؟",
+              "features.btn_fqa": "ادعُ صديقة",
+              "features.btn_style": [
+                "outline"
+              ],
+              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers"
             },
             {
-              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers",
-              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.add_button": true,
+              "features.icon": "sicon-store",
               "features.add_image": "https://cdn.salla.sa/form-builder/U8LeCJ2xXS2ICIGj6s7P4K67vXVPCnVZsQYmeg9f.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "استمتعي بجوّ من العناية الرائعة",
+              "features.text": "أشعّي كشمس ظهيرة... بلمسة من ميزون",
+              "features.btn_fqa": "احجزي موعدكِ الآن",
               "features.btn_style": [
                 "outline"
               ],
-              "features.add_button": true,
-              "features.text": "أشعّي كشمس ظهيرة... بلمسة من ميزون",
-              "features.title": "استمتعي بجوّ من العناية الرائعة",
-              "features.btn_fqa": "احجزي موعدكِ الآن"
+              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers"
             },
             {
-              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers",
-              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.add_button": true,
+              "features.icon": "sicon-store",
               "features.add_image": "https://cdn.salla.sa/form-builder/HFr6TnDQGXt38FfSqcJ3Gdm5pvTSuUg9eZ7OUhHA.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "استمتعي بجوّ من الاسترخاء الفاخ",
+              "features.text": "الجمال العضوي يُشارك بفرح",
+              "features.btn_fqa": "احجزي جلسة سبا",
               "features.btn_style": [
                 "outline"
               ],
-              "features.add_button": true,
-              "features.text": "الجمال العضوي يُشارك بفرح",
-              "features.title": "استمتعي بجوّ من الاسترخاء الفاخ",
-              "features.btn_fqa": "احجزي جلسة سبا"
+              "features.btn_url": "https://salla.design/ar/dev-fljujdrithw8rlgp/offers"
             }
           ],
           "fields": [
@@ -8345,7 +8483,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 61,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -8387,7 +8525,7 @@
           "label": "إزالة المسافة السفلية للمكون",
           "description": "عند تفعيل هذا الخيار، سيتم إزالة الفراغ الموجود أسفل المكون، ليصبح ملتصقًا بالمكون الذي يليه.",
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false
         },
@@ -8421,7 +8559,7 @@
           "label": "عرض المنتجات في شبكة",
           "description": "تفعيل عرض المنتجات داخل قائمة شبكية بدلاً من سلايدر.",
           "icon": "sicon-toggle-off",
-          "value": true,
+          "value": false,
           "selected": false,
           "required": false
         },
@@ -8451,7 +8589,7 @@
           "description": null,
           "labelHTML": null,
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false
         },
@@ -8462,7 +8600,7 @@
           "label": "عرض زر المزيد من المنتجات",
           "description": "عند تفعيل هذا الخيار، سيتم عرض زر 'المزيد من المنتجات' أسفل قسم الأسئلة الشائعة لعرض المزيد منها عند الضغط عليه.",
           "icon": "sicon-toggle-on",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false
         },
@@ -8588,9 +8726,9 @@
           "required": true,
           "selected": [
             {
-              "key": "latest",
-              "label": "أحدث المنتجات",
-              "value": "latest"
+              "key": "selected",
+              "label": "منتجات مختارة",
+              "value": "selected"
             }
           ],
           "description": "تحكم في نوعية المنتجات المعروضة داخل المكوّن باختيار المصدر المناسب مثل التصنيفات، المبيعات، الأحدث، أو التاجات.",
@@ -8602,7 +8740,12 @@
           "icon": "sicon-link",
           "label": "رابط عرض المزيد",
           "id": "btn_url_one",
-          "value": null,
+          "value": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/offers",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/offers"
+            }
+          ],
           "placeholder": null,
           "required": false,
           "format": "variable-list",
@@ -8659,6 +8802,12 @@
               "key": "custom",
               "value": "custom"
             }
+          ],
+          "selected": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/offers",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/offers"
+            }
           ]
         },
         {
@@ -8709,7 +8858,32 @@
           "label": "حدد المنتجات",
           "labelHTML": null,
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [],
+          "selected": [
+            {
+              "label": "كريم ترطيب مكثف بتركيبة غنية بالفيتامينات، 50 مل",
+              "value": 961061544
+            },
+            {
+              "label": "كريم ترطيب وتجديد للبشرة الحساسة، 50 مل",
+              "value": 45907110
+            },
+            {
+              "label": "كريم ترطيب طويل الأمد مع تركيبة فعّالة، 50 مل",
+              "value": 1411463004
+            },
+            {
+              "label": "كريم مغذي للبشرة الجافة بتركيبة مزدوجة، 50 مل",
+              "value": 213240656
+            },
+            {
+              "label": "كريم ترطيب مكثف بتركيبة غنية بالفيتامينات، 50 مل",
+              "value": 1126833191
+            },
+            {
+              "label": "كريم ترطيب البشرة العميق بتركيبة مزدوجة الفعالية، ٥٠ مل",
+              "value": 1627622742
+            }
+          ],
           "options": [],
           "source": "products",
           "multichoice": true,
@@ -8720,6 +8894,32 @@
               "id": "type",
               "operation": "=",
               "value": "selected"
+            }
+          ],
+          "value": [
+            {
+              "label": "كريم ترطيب مكثف بتركيبة غنية بالفيتامينات، 50 مل",
+              "value": 961061544
+            },
+            {
+              "label": "كريم ترطيب وتجديد للبشرة الحساسة، 50 مل",
+              "value": 45907110
+            },
+            {
+              "label": "كريم ترطيب طويل الأمد مع تركيبة فعّالة، 50 مل",
+              "value": 1411463004
+            },
+            {
+              "label": "كريم مغذي للبشرة الجافة بتركيبة مزدوجة، 50 مل",
+              "value": 213240656
+            },
+            {
+              "label": "كريم ترطيب مكثف بتركيبة غنية بالفيتامينات، 50 مل",
+              "value": 1126833191
+            },
+            {
+              "label": "كريم ترطيب البشرة العميق بتركيبة مزدوجة الفعالية، ٥٠ مل",
+              "value": 1627622742
             }
           ]
         },
@@ -8994,7 +9194,7 @@
           "description": "اختر لون الخلفية الأساسي لقسم الكوليكشن.",
           "labelHTML": null,
           "icon": "sicon-format-fill",
-          "value": "#e4ece0",
+          "value": "#e5ece0",
           "required": false
         },
         {
@@ -9035,13 +9235,39 @@
           "description": "اختر المنتجات التي سيتم عرضها في الكوليكشن. يمكنك تحديد أكثر من منتج.",
           "labelHTML": null,
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [],
+          "selected": [
+            {
+              "label": "كريم ما بعد الحلاقة",
+              "value": 1436270372
+            },
+            {
+              "label": "الشفرة الكلاسيكية للحلاقة",
+              "value": 1544245977
+            },
+            {
+              "label": "زيت اللحية",
+              "value": 36582360
+            }
+          ],
           "options": [],
           "source": "products",
           "multichoice": true,
           "searchable": true,
           "required": false,
-          "value": []
+          "value": [
+            {
+              "label": "كريم ما بعد الحلاقة",
+              "value": 1436270372
+            },
+            {
+              "label": "الشفرة الكلاسيكية للحلاقة",
+              "value": 1544245977
+            },
+            {
+              "label": "زيت اللحية",
+              "value": 36582360
+            }
+          ]
         },
         {
           "id": "collection_features",
@@ -9239,7 +9465,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 77,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -9362,7 +9588,7 @@
           "description": null,
           "labelHTML": null,
           "icon": "sicon-toggle-off",
-          "value": true,
+          "value": false,
           "selected": true,
           "required": false
         },
@@ -9381,7 +9607,7 @@
           "labelHTML": null,
           "placeholder": "مثال: عنوان رئيسي ...",
           "icon": "sicon-format-text-alt",
-          "value": "ابدئي يومك بجمال يليق بكِ",
+          "value": "",
           "multilanguage": true,
           "required": false,
           "minLength": 0,
@@ -9396,7 +9622,7 @@
           "labelHTML": null,
           "placeholder": "مثال: نص توضيحي ...",
           "icon": "sicon-format-text-alt",
-          "value": "اكتشفي أفضل منتجات العناية اللي تناسب بشرتك وشعرك",
+          "value": "",
           "multilanguage": true,
           "required": false,
           "minLength": 0,
@@ -9449,13 +9675,23 @@
           "label": "اختر المنتج",
           "description": "حدد المنتج الذي سيتم إبراز المميزات البصرية عليه.",
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [],
+          "selected": [
+            {
+              "label": "كريم ترطيب طويل الأمد مع تركيبة فعّالة، 50 مل",
+              "value": 1411463004
+            }
+          ],
           "options": [],
           "source": "products",
           "multichoice": false,
           "searchable": true,
           "required": false,
-          "value": []
+          "value": [
+            {
+              "label": "كريم ترطيب طويل الأمد مع تركيبة فعّالة، 50 مل",
+              "value": 1411463004
+            }
+          ]
         },
         {
           "id": "marquee_effect_items",
@@ -9495,26 +9731,12 @@
             }
           ],
           "value": [
-            {
-              "marquee_effect_items.text": "WDT45",
-              "marquee_effect_items.discount_value": 20
-            },
-            {
-              "marquee_effect_items.text": "GUSA742",
-              "marquee_effect_items.discount_value": 10
-            },
-            {
-              "marquee_effect_items.text": "4ASD56",
-              "marquee_effect_items.discount_value": 20
-            },
-            {
-              "marquee_effect_items.text": "SHAHIN584",
-              "marquee_effect_items.discount_value": 10
-            },
-            {
-              "marquee_effect_items.text": "25FASH",
-              "marquee_effect_items.discount_value": 20
-            }
+            {},
+            {},
+            {},
+            {},
+            {},
+            {}
           ],
           "minLength": 1,
           "maxLength": 50
@@ -9528,9 +9750,9 @@
           "icon": "sicon-keyboard_arrow_down",
           "selected": [
             {
-              "label": "فاصل مميز بنجمة – لمسة فاخرة",
-              "value": "star",
-              "key": "1dc5c9e3-0f62-4117-a1fb-551630be6e1f"
+              "label": "بدون فاصل – لمسة نظافة وأناقة",
+              "value": "none",
+              "key": "58b621f3-4eaa-45ce-93a7-d076e3e4220f"
             }
           ],
           "options": [
@@ -9762,7 +9984,12 @@
           "id": "btn_url",
           "label": "لـيـنـك الـزر",
           "description": "أدخـل الـرابـط الـذي سـيـتـوجـه إلـيـه الـمـسـتـخـدم عـنـد الـنـقـر عـلى زر 'الـمـزيـد'.",
-          "value": [],
+          "value": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
+            }
+          ],
           "required": false,
           "format": "variable-list",
           "searchable": true,
@@ -9817,6 +10044,12 @@
               "label": "رابـط خـارجـي",
               "key": "custom",
               "value": "custom"
+            }
+          ],
+          "selected": [
+            {
+              "label": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146",
+              "value": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
             }
           ]
         },
@@ -9898,25 +10131,32 @@
           "icon": "sicon-list-add",
           "value": [
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/CBNUkIm0IaajP5KznsnRgzzK3s3Qbmamb8nCfwKj.png"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/CBNUkIm0IaajP5KznsnRgzzK3s3Qbmamb8nCfwKj.png",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1140994146"
             },
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/EZagia66CGbH6dQ2eM4Ux3I7RS9GChjyRVTPsYnR.png"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/EZagia66CGbH6dQ2eM4Ux3I7RS9GChjyRVTPsYnR.png",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c300900195"
             },
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/pQIQR20QDgYlmpeFU5v4wtggPghcdtlpikya8DHj.png"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/pQIQR20QDgYlmpeFU5v4wtggPghcdtlpikya8DHj.png",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c2061446592"
             },
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/71dLP8UVZ5Rbb17pGIuBipTKg3ZzNQw4P1ewmetQ.png"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/71dLP8UVZ5Rbb17pGIuBipTKg3ZzNQw4P1ewmetQ.png",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1672773228"
             },
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/6ImWnHtObNe9qmPDv7wTE1BPuJfW1lOnqlXtapXt.png"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/6ImWnHtObNe9qmPDv7wTE1BPuJfW1lOnqlXtapXt.png",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1033018733"
             },
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/RTkhZhzo22Q5wmibv9JI6cjDIYdWIYW1GwmcVhiv.png"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/RTkhZhzo22Q5wmibv9JI6cjDIYdWIYW1GwmcVhiv.png",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c222871749"
             },
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/7iAPfUgRe7wcSnRbRoeieWS4by7OBSdSHYCuF2fv.png"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/7iAPfUgRe7wcSnRbRoeieWS4by7OBSdSHYCuF2fv.png",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/c1636205307"
             }
           ],
           "fields": [
@@ -10132,7 +10372,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 0,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -10408,34 +10648,37 @@
           ],
           "value": [
             {
-              "collection.ns_alzr": "تسوقِ الآن",
-              "collection.text_area": "يتحكم في البكتيريا المسببة للرائحة%%يقلل من حساسية منطقة الإبط%%حماية طويلة الأمد ضد التعرق",
-              "collection.icon_picker": "sicon-check-circle2",
               "collection.alns_alreesa": "سبراي مزيل العرق للجسم",
               "collection.lon_alkhlfeh_alaol": "#eef2ec",
               "collection.lon_alkhlfeh_althana": "#abbba8",
               "collection.sorh_almntg_ao_mgmoaah_mntgat": "https://cdn.salla.sa/form-builder/KpQi7PZTN04kDkP7gHsr8O7e2LZGRiEH0cvfwO47.webp",
-              "collection.tsgher_alsorh_ala_annsf_fa_aldes_tob": true
+              "collection.tsgher_alsorh_ala_annsf_fa_aldes_tob": true,
+              "collection.icon_picker": "sicon-check-circle2",
+              "collection.text_area": "يتحكم في البكتيريا المسببة للرائحة%%يقلل من حساسية منطقة الإبط%%حماية طويلة الأمد ضد التعرق",
+              "collection.ns_alzr": "تسوقِ الآن",
+              "collection.btn_url": "#"
             },
             {
-              "collection.ns_alzr": "تسوقِ الآن",
-              "collection.text_area": "يمنع التعرق الزائد%%يقضي على البكتيريا المسببة للرائحة%%لطيف على البشرة ويقلل من حساسية الإبط",
-              "collection.icon_picker": "sicon-check-circle2",
               "collection.alns_alreesa": "سبراي مزيل العرق للجسم",
               "collection.lon_alkhlfeh_alaol": "#eef2ec",
               "collection.lon_alkhlfeh_althana": "#abbba8",
               "collection.sorh_almntg_ao_mgmoaah_mntgat": "https://cdn.salla.sa/form-builder/ufp4l06KOtWdxswzHq5SoIwlXRnxaMixxAWqySqQ.webp",
-              "collection.tsgher_alsorh_ala_annsf_fa_aldes_tob": true
+              "collection.tsgher_alsorh_ala_annsf_fa_aldes_tob": true,
+              "collection.icon_picker": "sicon-check-circle2",
+              "collection.text_area": "يمنع التعرق الزائد%%يقضي على البكتيريا المسببة للرائحة%%لطيف على البشرة ويقلل من حساسية الإبط",
+              "collection.ns_alzr": "تسوقِ الآن",
+              "collection.btn_url": "#"
             },
             {
-              "collection.ns_alzr": "تسوقِ الآن",
-              "collection.text_area": "يمنع التعرق بشكل فعّال%%يقضي على البكتيريا المسببة للروائح%%يقلل من تهيج البشرة في منطقة الإبط",
-              "collection.icon_picker": "sicon-check-circle2",
               "collection.alns_alreesa": "سبراي مزيل العرق للجسم",
               "collection.lon_alkhlfeh_alaol": "#eef2ec",
               "collection.lon_alkhlfeh_althana": "#abbba8",
               "collection.sorh_almntg_ao_mgmoaah_mntgat": "https://cdn.salla.sa/form-builder/hT1zT4B9WT6SfpiX3cx6YZpYw19UMbJ4iAsO067J.webp",
-              "collection.tsgher_alsorh_ala_annsf_fa_aldes_tob": false
+              "collection.tsgher_alsorh_ala_annsf_fa_aldes_tob": false,
+              "collection.icon_picker": "sicon-check-circle2",
+              "collection.text_area": "يمنع التعرق بشكل فعّال%%يقضي على البكتيريا المسببة للروائح%%يقلل من تهيج البشرة في منطقة الإبط",
+              "collection.ns_alzr": "تسوقِ الآن",
+              "collection.btn_url": "#"
             }
           ]
         },
@@ -10448,9 +10691,9 @@
           "icon": "sicon-keyboard_arrow_down",
           "selected": [
             {
-              "label": "فاصل مميز بنجمة – لمسة فاخرة",
-              "value": "star",
-              "key": "1dc5c9e3-0f62-4117-a1fb-551630be6e1f"
+              "label": "بدون فاصل – لمسة نظافة وأناقة",
+              "value": "none",
+              "key": "58b621f3-4eaa-45ce-93a7-d076e3e4220f"
             }
           ],
           "options": [
@@ -10634,7 +10877,7 @@
           "description": "يعكس ألوان الصور تلقائيًا عند تفعيل الوضع الداكن (مثل: الأسود ⇄ الأبيض) لتحسين وضوح العناصر.",
           "format": "switch",
           "required": false,
-          "value": true,
+          "value": false,
           "selected": false
         },
         {
@@ -10658,7 +10901,7 @@
           "description": "اختر لون الخلفية الأساسي لقسم  سلايدر المنتجات المميزه يفضل ان تكون مفرغه بالكاامل.",
           "labelHTML": null,
           "icon": "sicon-format-fill",
-          "value": "#e4ece0",
+          "value": "#e5ece0",
           "required": false,
           "conditions": [
             {
@@ -10685,10 +10928,12 @@
           "icon": "sicon-list-add",
           "value": [
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/DqRgN2QwaoVPYt81BUG3zaM8Z5JHVL5u5Szd3uJE.webp"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/DqRgN2QwaoVPYt81BUG3zaM8Z5JHVL5u5Szd3uJE.webp",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/p961061544"
             },
             {
-              "custom_content.main_image": "https://cdn.salla.sa/form-builder/rkeFBIc3JtrTwNLsZ0LPMjV1E1ZU7D3AoadcXnVj.webp"
+              "custom_content.main_image": "https://cdn.salla.sa/form-builder/rkeFBIc3JtrTwNLsZ0LPMjV1E1ZU7D3AoadcXnVj.webp",
+              "custom_content.button_link": "https://demostore.salla.sa/ar/dev-fljujdrithw8rlgp/-/p1411463004"
             }
           ],
           "fields": [
@@ -10819,24 +11064,46 @@
           "icon": "sicon-list-add",
           "value": [
             {
-              "features.add_image": "https://cdn.salla.sa/form-builder/Rska3JTPDlKuwI22kb0gSveXVWhLDIoILiohpv7N.webp",
-              "features.text": "عشقي بشرتكِ... ونحن نكافئ حبكِ!",
-              "features.title": "برنامج الولاء"
+              "features.icon": "sicon-store",
+              "features.add_image": "https://cdn.salla.sa/form-builder/vgtTcYZ0BDYWpRy2xeCyiXSb2L2spjCLIbTMTMSB.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "مضاد شيخوخة البشرة",
+              "features.text": "يساعد على تقليل التجاعيد وعلامات التقدم في السن"
             },
             {
-              "features.add_image": "https://cdn.salla.sa/form-builder/kGhiYqJiHFMdBT8xrLg97BQpVGCtMi216zZeYcb4.webp",
-              "features.text": "هل تعرفين أحداً يستحق بشرة سعيدة؟",
-              "features.title": "الجمال العضوي يُشارك بفرح"
+              "features.icon": "sicon-store",
+              "features.add_image": "https://cdn.salla.sa/form-builder/cfbRztSTscSpLmsG9j4I9dTYex8t7FXJZpqCmuaE.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "مغذي البشرة",
+              "features.text": "تركيبة غنية بالفيتامينات والعناصر المغذية"
             },
             {
-              "features.add_image": "https://cdn.salla.sa/form-builder/U8LeCJ2xXS2ICIGj6s7P4K67vXVPCnVZsQYmeg9f.webp",
-              "features.text": "أشعّي كشمس ظهيرة... بلمسة من ميزون",
-              "features.title": "استمتعي بجوّ من العناية الرائعة"
+              "features.icon": "sicon-store",
+              "features.add_image": "https://cdn.salla.sa/form-builder/ElMnFAt2rEIyeZZHJ6KTljHIHIW3VNSC9fewhYqY.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "تعزيز الإشراق",
+              "features.text": "لزيادة نقاء البشرة وإشراقها الطبيعي"
             },
             {
-              "features.add_image": "https://cdn.salla.sa/form-builder/HFr6TnDQGXt38FfSqcJ3Gdm5pvTSuUg9eZ7OUhHA.webp",
-              "features.text": "الجمال العضوي يُشارك بفرح",
-              "features.title": "استمتعي بجوّ من الاسترخاء الفاخ"
+              "features.icon": "sicon-store",
+              "features.add_image": "https://cdn.salla.sa/form-builder/rj46VOZVvjvCkQTVM8t3c6awtP19L51RaxsC8wxI.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "ترطيب عميق",
+              "features.text": "تركيبة ثورية تحبس الرطوبة في أعماق بشرتك"
+            },
+            {
+              "features.icon": "sicon-store",
+              "features.add_image": "https://cdn.salla.sa/form-builder/oFND2gPgmmIV0rLUlzfDi7wB8cQOl4blajjoLbYT.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "مهدئ البشرة",
+              "features.text": "لتقليل الالتهابات وتهدئة الحساسية الجلدية"
+            },
+            {
+              "features.icon": "sicon-store",
+              "features.add_image": "https://cdn.salla.sa/form-builder/3zW5v78ux4U8G8VYprzRtLIAuER6eeqrhAj6rIIf.webp",
+              "features.lord_ur": "https://cdn.lordicon.com/fqbvgezn.json",
+              "features.title": "مبيّض البشرة",
+              "features.text": "مُخصّص للبشرة التي تعاني من البقع والاسمرار"
             }
           ],
           "fields": [
@@ -11060,7 +11327,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 28,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -11243,44 +11510,44 @@
           "icon": "sicon-list-add",
           "value": [
             {
+              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.rating": 5,
               "customers_rev.text_area": "من معاناة التركيبات الفاشلة إلى إبهار العملاء بمنتجاتنا الجديدة!خبرة ٤ سنوات علمتنا: الشريك المناسب يوصلك للقمة بدون مخاطرة!",
-              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.name": "سارة العتيبي",
               "customers_rev.jop_title": "مصممة أزياء"
             },
             {
+              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.rating": 5,
               "customers_rev.text_area": "كنت متخوفة أطلب مكياج أونلاين بسبب موضوع الأصالة، لكن كوزماتكس غيروا رأيي تمامًا. كل المنتجات أصلية ومختومة، وحسيت بأمان وأنا أتعامل معهم. أكيد مو آخر مرة أطلب منهم.",
-              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.name": "نوف القحطاني",
               "customers_rev.jop_title": "طبيبة جلدية"
             },
             {
+              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.rating": 5,
               "customers_rev.text_area": "كوزماتكس وفر علي وقت وجهد، لقيت كل مستلزمات العناية بالبشرة والمكياج في مكان واحد. حتى المنتجات النادرة اللي ما ألقاها بسهولة كانت متوفرة عندهم. التوصيل سريع والأسعار مناسبة مقابل الجودة العالية",
-              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.name": "ريم الشهري",
               "customers_rev.jop_title": "مديرة مبيعات"
             },
             {
+              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.rating": 3,
               "customers_rev.text_area": "جربت أطلب عطر من كوزماتكس، ووصلني التغليف فاخر وكأنه هدية. الريحة كانت فخمة وثابتة طول اليوم، حتى زميلاتي في العمل سألوني عنه. أعجبني اهتمامهم بتجربة العميل من أول ما يفتح الموقع إلى لحظة استلام الطلب",
-              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.name": "لجين الحربي",
               "customers_rev.jop_title": "مهندسة معمارية"
             },
             {
+              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.rating": 4,
               "customers_rev.text_area": "من فترة كنت أبحث عن أساس مكياج بدرجة تناسب بشرتي، وتواصلت مع خدمة العملاء في كوزماتكس. تجاوبهم كان سريع وساعدوني أختار الدرجة المثالية، ووصلني الطلب خلال يومين فقط. النتيجة كانت أكثر من رائعة، والمكياج ثابت طول اليوم",
-              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.name": "هاجر الزهراني",
               "customers_rev.jop_title": "معلمة لغة إنجليزية"
             },
             {
+              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.rating": 3,
               "customers_rev.text_area": "طلبت من كوزماتكس كريم ترطيب وسيروم فيتامين سي بعد ما سمعت مدح كثير عنهم. التغليف كان أنيق جدًا، وكل منتج مغلف بطريقة تحافظ على جودته. أول ما جربت السيروم حسيت بفرق في ملمس بشرتي من أول أسبوع، وبصراحة صاروا وجهتي الأساسية لكل منتجات العناية.",
-              "customers_rev.main_image": "https://cdn.salla.sa/form-builder/6an3WnWlBeJBkBfu0hpS8HVKERWvmtQ2in4iKVSp.webp",
               "customers_rev.name": "منى المطيري",
               "customers_rev.jop_title": "أخصائية تسويق رقمي"
             }
@@ -11367,13 +11634,7 @@
           "label": "أنماط الفاصل السفلي",
           "description": "اختر النمط الذي يضفي لمسة جمالية مميزة على تصميمك.",
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [
-            {
-              "label": "فاصل مميز بنجمة – لمسة فاخرة",
-              "value": "star",
-              "key": "1dc5c9e3-0f62-4117-a1fb-551630be6e1f"
-            }
-          ],
+          "selected": [],
           "options": [
             {
               "label": "بدون فاصل – لمسة نظافة وأناقة",
@@ -11769,37 +12030,37 @@
           ],
           "value": [
             {
-              "questions.answer": "نعم، نحن نحرص على تقديم منتجات تناسب مختلف أنواع البشرة، بما في ذلك البشرة الحساسة. تتميز تركيبتنا بأنها لطيفة وخالية من المواد القاسية، ونحرص دائمًا على توضيح نوع البشرة الأنسب لكل منتج داخل وصفه لتسهيل اختيارك.",
-              "questions.question": "هل المنتجات مناسبة لجميع أنواع البشرة بما فيها الحساسة؟"
+              "questions.question": "هل المنتجات مناسبة لجميع أنواع البشرة بما فيها الحساسة؟",
+              "questions.answer": "نعم، نحن نحرص على تقديم منتجات تناسب مختلف أنواع البشرة، بما في ذلك البشرة الحساسة. تتميز تركيبتنا بأنها لطيفة وخالية من المواد القاسية، ونحرص دائمًا على توضيح نوع البشرة الأنسب لكل منتج داخل وصفه لتسهيل اختيارك."
             },
             {
-              "questions.answer": "نعتمد في وصف كل منتج على تفاصيل دقيقة توضح فوائده، وطريقة الاستخدام، ونوع البشرة أو الشعر المناسب له. إذا كنتِ غير متأكدة، فريق خدمة العملاء متواجد لمساعدتك وتوجيهك نحو أفضل خيار يناسب احتياجاتك الخاصة.",
-              "questions.question": "كيف أختار المنتج المناسب لبشرتي أو شعري؟"
+              "questions.question": "كيف أختار المنتج المناسب لبشرتي أو شعري؟",
+              "questions.answer": "نعتمد في وصف كل منتج على تفاصيل دقيقة توضح فوائده، وطريقة الاستخدام، ونوع البشرة أو الشعر المناسب له. إذا كنتِ غير متأكدة، فريق خدمة العملاء متواجد لمساعدتك وتوجيهك نحو أفضل خيار يناسب احتياجاتك الخاصة."
             },
             {
-              "questions.answer": "نعم، في بعض العروض والمواسم الخاصة، نقوم بإضافة عينات مجانية مع الطلبات – حسب التوفر. نهدف من ذلك إلى مساعدتك في تجربة منتجات جديدة قبل شرائها، مما يضمن لكِ تجربة أكثر رضا وثقة.",
-              "questions.question": "هل تقدمون عينات مجانية مع الطلبات؟"
+              "questions.question": "هل تقدمون عينات مجانية مع الطلبات؟",
+              "questions.answer": "نعم، في بعض العروض والمواسم الخاصة، نقوم بإضافة عينات مجانية مع الطلبات – حسب التوفر. نهدف من ذلك إلى مساعدتك في تجربة منتجات جديدة قبل شرائها، مما يضمن لكِ تجربة أكثر رضا وثقة."
             },
             {
-              "questions.answer": "نوفر عدة خيارات دفع مريحة وآمنة، تشمل: الدفع عند الاستلام، التحويل البنكي، والدفع الإلكتروني عبر مدى، فيزا، وماستركارد. نحن نحرص على تسهيل تجربة التسوق لكِ بكل مرونة وثقة.",
-              "questions.question": "ما هي طرق الدفع المتاحة لديكم؟"
+              "questions.question": "ما هي طرق الدفع المتاحة لديكم؟",
+              "questions.answer": "نوفر عدة خيارات دفع مريحة وآمنة، تشمل: الدفع عند الاستلام، التحويل البنكي، والدفع الإلكتروني عبر مدى، فيزا، وماستركارد. نحن نحرص على تسهيل تجربة التسوق لكِ بكل مرونة وثقة."
             },
             {
-              "questions.answer": "نعم بالتأكيد، نحن نوفر سياسة استرجاع واستبدال مرنة خلال 7 أيام من تاريخ الاستلام، بشرط أن يكون المنتج غير مستخدم وبحالته الأصلية مع التغليف. هدفنا هو رضاكِ التام عن تجربتك معنا.",
-              "questions.question": "هل يمكنني استرجاع أو استبدال المنتج إذا لم يناسبني؟"
+              "questions.question": "هل يمكنني استرجاع أو استبدال المنتج إذا لم يناسبني؟",
+              "questions.answer": "نعم بالتأكيد، نحن نوفر سياسة استرجاع واستبدال مرنة خلال 7 أيام من تاريخ الاستلام، بشرط أن يكون المنتج غير مستخدم وبحالته الأصلية مع التغليف. هدفنا هو رضاكِ التام عن تجربتك معنا."
             },
             {
-              "add_button": false,
-              "questions.answer": "يمكنك تتبع طلبك من خلال صفحة \"طلباتي\" بعد تسجيل الدخول، أو من خلال رابط التتبع الذي يتم إرساله لك عبر البريد الإلكتروني أو الرسائل النصية.",
-              "questions.question": "كيف يمكنني تتبع طلبي بعد الشراء؟"
+              "questions.add_button": false,
+              "questions.question": "كيف يمكنني تتبع طلبي بعد الشراء؟",
+              "questions.answer": "يمكنك تتبع طلبك من خلال صفحة \"طلباتي\" بعد تسجيل الدخول، أو من خلال رابط التتبع الذي يتم إرساله لك عبر البريد الإلكتروني أو الرسائل النصية."
             },
             {
-              "questions.answer": "نعم، يمكنك إرجاع أو استبدال المنتج خلال 7 أيام من تاريخ الاستلام بشرط أن يكون بحالته الأصلية وغير مستخدم. راجع سياسة الإرجاع لمزيد من التفاصيل.",
-              "questions.question": "هل يمكنني إرجاع أو استبدال المنتج؟"
+              "questions.question": "هل يمكنني إرجاع أو استبدال المنتج؟",
+              "questions.answer": "نعم، يمكنك إرجاع أو استبدال المنتج خلال 7 أيام من تاريخ الاستلام بشرط أن يكون بحالته الأصلية وغير مستخدم. راجع سياسة الإرجاع لمزيد من التفاصيل."
             },
             {
-              "questions.answer": "يعتمد وقت التوصيل على موقعك، ولكن عادةً ما يتم توصيل الطلبات خلال 2 إلى 5 أيام عمل داخل المملكة.",
-              "questions.question": "كم يستغرق توصيل الطلب؟"
+              "questions.question": "كم يستغرق توصيل الطلب؟",
+              "questions.answer": "يعتمد وقت التوصيل على موقعك، ولكن عادةً ما يتم توصيل الطلبات خلال 2 إلى 5 أيام عمل داخل المملكة."
             }
           ],
           "minLength": 1,
@@ -11812,13 +12073,7 @@
           "label": "أنماط الفاصل السفلي",
           "description": "اختر النمط الذي يضفي لمسة جمالية مميزة على تصميمك.",
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [
-            {
-              "label": "فاصل مميز بنجمة – لمسة فاخرة",
-              "value": "star",
-              "key": "1dc5c9e3-0f62-4117-a1fb-551630be6e1f"
-            }
-          ],
+          "selected": [],
           "options": [
             {
               "label": "بدون فاصل – لمسة نظافة وأناقة",
@@ -12059,13 +12314,47 @@
           "description": "حدد المقالات اللي تبي تعرضها",
           "labelHTML": null,
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [],
+          "selected": [
+            {
+              "label": "كيف تختارين منتجات العناية المناسبة لطفلك؟",
+              "value": "-/a-2139701091"
+            },
+            {
+              "label": "أفضل طرق العناية بالجسم لبشرة ناعمة وصحية طوال العام",
+              "value": "-/a-766251106"
+            },
+            {
+              "label": "أسرار العناية بالشعر: دليلك لحل مشاكل التساقط والتقصف والجفاف",
+              "value": "-/a-33215072"
+            },
+            {
+              "label": "كيف تختارين روتين العناية بالبشرة المناسب لنوع بشرتك؟",
+              "value": "-/a-1513133158"
+            }
+          ],
           "options": [],
           "source": "blog_articles",
           "multichoice": true,
           "searchable": true,
           "required": false,
-          "value": []
+          "value": [
+            {
+              "label": "كيف تختارين منتجات العناية المناسبة لطفلك؟",
+              "value": "-/a-2139701091"
+            },
+            {
+              "label": "أفضل طرق العناية بالجسم لبشرة ناعمة وصحية طوال العام",
+              "value": "-/a-766251106"
+            },
+            {
+              "label": "أسرار العناية بالشعر: دليلك لحل مشاكل التساقط والتقصف والجفاف",
+              "value": "-/a-33215072"
+            },
+            {
+              "label": "كيف تختارين روتين العناية بالبشرة المناسب لنوع بشرتك؟",
+              "value": "-/a-1513133158"
+            }
+          ]
         },
         {
           "id": "saprator",
@@ -12198,7 +12487,7 @@
           "description": "يمكنك تحريك النجمة للأعلى أو الأسفل على المحور افقي حسب الحاجة.",
           "labelHTML": null,
           "icon": "sicon-pin",
-          "value": 50,
+          "value": 82,
           "required": false,
           "step": "1",
           "minimum": "0",
@@ -12239,7 +12528,7 @@
           "label": "إزالة المسافة السفلية",
           "description": "تمكين هذا الخيار سيؤدي إلى إزالة المسافة السفلية للمكون.",
           "icon": "sicon-toggle-off",
-          "value": false,
+          "value": true,
           "selected": false,
           "required": false
         },
@@ -12269,7 +12558,7 @@
           "labelHTML": null,
           "placeholder": "Placeholder text ..",
           "icon": "sicon-format-text-alt",
-          "value": "elfsight-app-d6b9ab42-3cc0-467e-9e9a-e68ed3251585",
+          "value": "elfsight-app-e42f2bc9-a0c0-4a4e-a3b3-f737d31b9c2b",
           "multilanguage": true,
           "required": false,
           "minLength": 2,
@@ -12448,13 +12737,7 @@
           "label": "اخـتـر تـصـمـيـم ومـوقـع الـشـريـط الـمـتـحـرك",
           "description": null,
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [
-            {
-              "label": "شـريـط تـرويـجـى عادى يمكن ان يـحـتـوى عـلى زر ",
-              "value": "normal",
-              "key": "f5a427a6-fd45-4a35-a15c-e0beb4260237"
-            }
-          ],
+          "selected": [],
           "options": [
             {
               "label": "عـائـم ويـظـهـر أعـلـى الـشـاشـه بـخـلـفـيـه مـلـونـه",
@@ -12797,13 +13080,7 @@
           "label": "أنماط الفاصل السفلي",
           "description": "اختر النمط الذي يضفي لمسة جمالية مميزة على تصميمك.",
           "icon": "sicon-keyboard_arrow_down",
-          "selected": [
-            {
-              "label": "فاصل مميز بنجمة – لمسة فاخرة",
-              "value": "star",
-              "key": "1dc5c9e3-0f62-4117-a1fb-551630be6e1f"
-            }
-          ],
+          "selected": [],
           "options": [
             {
               "label": "بدون فاصل – لمسة نظافة وأناقة",

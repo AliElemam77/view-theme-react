@@ -1,0 +1,471 @@
+// View's single-product.scss. Twig loads it (product.css) only on product.index and
+// product.single, so it is scoped to those pages' body classes (the engine's route classes).
+body:is(.product-single, [class*='product-index']) {
+  .is-sticky-product-bar {
+    &.product-single {
+      @apply pb-16;
+    }
+  }
+
+  .s-button-light-outline {
+    @apply bg-transparent backdrop-invert-[0.05];
+  }
+
+  .product__description {
+
+    ul,
+    li {
+      list-style: inherit !important;
+    }
+
+    ul,
+    ol {
+      @apply px-6;
+    }
+
+    ol {
+      list-style: auto !important;
+    }
+
+    a {
+      @apply text-blue-700;
+    }
+  }
+
+  salla-slider {
+    @apply block;
+
+    &.details-slider {
+      .s-slider-container {
+        @apply bg-primary-reverse border rounded-theme;
+      }
+
+      .swiper-slide {
+        @apply relative rounded-theme bg-primary-reverse;
+      }
+
+      &.top_images {
+        .s-slider-container {
+          @apply max-w-116 border-none;
+        }
+      }
+
+
+      .s-slider-block__title-nav {
+        @apply hidden sm:flex;
+      }
+    }
+  }
+
+
+
+
+  .V__tabs {
+    @apply gap-1.5 md:gap-3;
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--color-primary);
+
+    &_content {
+      min-height: 200px;
+    }
+  }
+
+  .V__btn {
+    .i {
+      @apply sm:text-base text-xs;
+      position: relative;
+      color: var(--color-primary);
+      cursor: pointer;
+      font-weight: 500;
+      overflow: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
+
+      span {
+        @apply md:px-7 md:py-3 py-2 sm:px-3.5 p-1;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: var(--color-primary);
+        display: block;
+        position: relative;
+        z-index: 1;
+
+        &::before {
+          content: "";
+          position: absolute;
+          background: var(--color-primary);
+          transition: all 0.3s ease;
+          z-index: 0;
+          width: 1px;
+          height: 0;
+          top: 0;
+          left: 0;
+        }
+
+        &::after {
+          content: "";
+          position: absolute;
+          background: var(--color-primary);
+          transition: all 0.3s ease;
+          z-index: 0;
+          width: 1px;
+          height: 0;
+          top: 0;
+          right: 0;
+        }
+      }
+
+      &::before {
+        content: "";
+        position: absolute;
+        background: var(--color-primary);
+        transition: all 0.3s ease;
+        z-index: 0;
+        height: 1px;
+        width: 0;
+        left: 0;
+        top: 0;
+      }
+
+      &:hover {
+        &::before {
+          width: 100%;
+        }
+
+
+        span {
+          @apply font-bold text-primary-d tracking-tighter transition-all duration-200;
+
+          i {
+            @apply -translate-x-1;
+          }
+
+          &::before {
+            height: 100%;
+          }
+
+          &::after {
+            height: 100%;
+          }
+        }
+      }
+    }
+
+    .i.active {
+      &::before {
+        width: 100%;
+      }
+
+      span {
+        @apply font-bold text-primary-d;
+
+        &::before {
+          height: 100%;
+        }
+
+        &::after {
+          height: 100%;
+        }
+      }
+
+      color: var(--color-primary);
+    }
+  }
+
+
+
+
+  @keyframes slideInFromRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInFromLeft {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0%);
+      opacity: 1;
+    }
+  }
+
+  .V__tabs_content>div {
+    display: none;
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+  }
+
+  .V__tabs_content>div.active {
+    display: block;
+  }
+
+  .V__tabs_content>div.active.imformation {
+    @apply flex flex-col sm:gap-3 gap-1.5;
+  }
+
+  .countersingl,
+  .countersingl .s-count-down-item {
+    @apply text-price font-bold h-auto;
+  }
+
+  .countersingl .s-count-down-item::after {
+    @apply text-current;
+  }
+
+  .s-count-down {
+    &-list {
+      @apply m-0 p-0
+    }
+
+  }
+
+  .custom-product-view {
+    .s-button-primary.s-button-element .s-button-text {
+      @apply flex justify-center items-center;
+    }
+  }
+
+  .custom-product-view .s-button-primary.s-button-element {
+    border-color: white;
+    border-radius: var(--border-custom) !important;
+  }
+
+  .custom-product-view.opacity-100 {
+    opacity: 1;
+  }
+
+  .custom-product-view.translate-x-0 {
+    transform: translateY(0);
+  }
+
+
+  .closeStickyBtn {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    z-index: 3;
+    background: var(--color-primary);
+    box-shadow: none;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+
+    &:before,
+    &:after {
+      content: "";
+      position: absolute;
+      width: 60%;
+      height: 1px;
+      background-color: #fff;
+      transition: 0.3s ease-out;
+      left: 50%;
+      top: 50%;
+    }
+
+    &:after {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    &:before {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    &:hover,
+    &:focus {
+
+      &:before,
+      &:after {
+        transform: translate(-50%, -50%) rotate(180deg);
+      }
+    }
+  }
+
+
+  .container_table {
+    @apply overflow-hidden w-full table;
+    padding: 0 0 6em;
+
+    tr {
+      @apply rtl:text-right ltr:text-left;
+
+      th {
+        width: 27%;
+        font-weight: 600
+      }
+
+    }
+  }
+
+  .container_table tr:nth-child(odd) {
+    @apply bg-bgcolor;
+  }
+
+  .container_table tr:nth-child(2n) {
+    @apply bg-primary-reverse;
+  }
+
+
+  .custom-pagination-counter {
+    @apply text-primary-d text-base font-medium;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    @apply h-5;
+  }
+
+
+  .s-rating-stars-reviews {
+    @apply text-xxs;
+  }
+
+
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    @apply border-primary-l border relative top-0 m-0 flex items-center justify-center;
+    border-radius: var(--border-custom) !important;
+    inset: 0 !important;
+    padding: 0.8rem;
+    border-radius: 50px;
+    padding-block: 0;
+  }
+
+  .swiper-button-prev:after,
+  .swiper-button-next:after {
+    @apply text-sm text-primary #{!important};
+  }
+
+
+
+
+
+  .s-comments-placeholder span {
+    @apply bg-transparent;
+  }
+
+  .s-comments-product {
+    @apply bg-transparent;
+  }
+
+  .s-comment-form-input {
+    @apply bg-transparent rounded-theme border-mediumgray;
+  }
+
+  .s-filters-widget-title {
+    @apply border-b border-lightgray carbon:border-darkgray p-4;
+  }
+
+  .s-filters-widget-container {
+    @apply bg-transparent rounded-theme border border-lightgray carbon:border-darkgray p-0;
+  }
+
+  .s-filters-widget-values {
+    @apply p-4;
+  }
+
+  .s-filters-option-name {
+    @apply text-mediumgray;
+  }
+
+  salla-filters {
+    @apply flex flex-col;
+
+    input,
+    .s-filters-radio {
+      background-color: transparent !important;
+    }
+
+    .s-filters-radio {
+      @apply w-6 h-6;
+      border-radius: calc(var(--border-custom) + 6px);
+
+      appearance: none;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid theme('colors.darkgray');
+      outline: none;
+      transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+      z-index: 1;
+    }
+
+    .s-filters-radio:checked {
+      @apply bg-primary border-none;
+    }
+
+    .s-filters-radio:checked::before {
+      @apply text-bgcolor;
+      content: "\ea9d";
+      font-family: "sallaicons" !important;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 25px;
+      height: 25px;
+      font-size: 18px;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      animation: fade-in-icon 0.3s forwards;
+    }
+
+    .s-filters-radio:checked::after {
+      @apply bg-primary;
+      border-radius: calc(var(--border-custom) + 6px);
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 25px;
+      height: 25px;
+      z-index: -1;
+      animation: click-wave 0.1s ease-out;
+    }
+
+    @keyframes click-wave {
+      0% {
+        transform: scale(1);
+        opacity: 0.3;
+      }
+
+      100% {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fade-in-icon {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+
+  #page-main-title {
+    span {
+      @apply text-darkgray font-bold;
+    }
+  }
+
+  // .s-filters-footer {
+  //   order: -1;
+  // }
+}

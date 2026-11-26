@@ -1,45 +1,33 @@
 import { FiltersSkeleton, Pulse, ProductsListSkeleton } from '@salla.sa/twilight-components-react';
 
 /**
- * `pendingComponent` for the product-listing / offers routes.
+ * `pendingComponent` for the product-listing / offers routes: without one the
+ * router blanks the match on every sort, page or filter reload.
  *
- * Without one, TanStack Router blanks the whole route match on every
- * search-param-driven reload — a sort change, a page change, a filter apply —
- * since a route with no `pendingComponent` renders `null` while its loader
- * re-runs (`Match.js` → `renderPending`). That took `.s-catalog-toolbar` down
- * with it.
- *
- * Every element above the toolbar is built from the *exact* production
- * markup/classes, with a `Pulse` standing in only for the text/content, so
- * each one reserves the same box it does in the real page and nothing
- * shifts once the real content arrives:
- *  - the breadcrumb uses `.breadcrumbs` / `.s-breadcrumb-wrapper`
- *    (`04-components/breadcrumb.scss`) — a full-bleed tinted bar the vendor's
- *    generic `BreadcrumbSkeleton` doesn't match at all (wrong width, wrong
- *    padding, no background), which was the actual source of the jump;
- *  - the title uses `font-bold text-xl mb-4`, matching its line-height.
- * The toolbar itself is rendered plain — same classes as production, no
- * pulsing content inside — since `.s-catalog-toolbar`'s own `min-h-[3.25rem]`
- * already fixes its height.
+ * Mirrors `ProductListPage` (View's `product/index.twig`): breadcrumb, the
+ * `md:w-72` filters sidebar (from `lg`) and the bordered toolbar box with the
+ * title, so nothing shifts once the page arrives.
  */
 export function ProductListSkeleton({ hideFilters = false }: { hideFilters?: boolean }) {
   return (
-    <div className="container px-2.5 mb-10">
+    <div className="container px-2.5 ms:px-5 mb-10">
       <nav className="breadcrumbs w-full py-5" aria-hidden="true">
         <ol className="s-breadcrumb-wrapper">
           <Pulse className="h-4 w-64" />
         </ol>
       </nav>
-
-      <h1 className="font-bold text-xl mb-4">
-        <Pulse className="h-5 w-56" />
-      </h1>
-
-      <div className="s-catalog-toolbar" aria-hidden="true" />
-
-      <div className={hideFilters ? '' : 'md:grid md:grid-cols-[288px_1fr] gap-8'}>
-        {!hideFilters && <FiltersSkeleton className="hidden md:block" />}
-        <ProductsListSkeleton count={hideFilters ? 10 : 12} columns={hideFilters ? 5 : 3} />
+      <div className="flex items-start flex-col lg:flex-row" aria-hidden="true">
+        {!hideFilters && (
+          <div className="md:w-72 flex-none">
+            <FiltersSkeleton className="hidden lg:block" />
+          </div>
+        )}
+        <div className={`main-content flex-1 w-full${hideFilters ? '' : ' ltr:lg:ml-5 rtl:lg:mr-5'}`}>
+          <div className="mb-4 sm:mb-6 flex justify-between items-center border-lightgray rounded-theme border p-1.5 min-h-[3.25rem]">
+            <Pulse className="h-4 w-40" />
+          </div>
+          <ProductsListSkeleton count={12} columns={hideFilters ? 4 : 3} />
+        </div>
       </div>
     </div>
   );

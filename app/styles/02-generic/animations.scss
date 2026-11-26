@@ -108,252 +108,50 @@
   animation-iteration-count: 1;
 }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
+    @keyframes expandRinddg1 {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+        border-width: 2px;
+      }
 
-.animate-marquee {
-  animation: marquee 25s linear infinite;
-}
+      100% {
+        width: 400px;
+        height: 400px;
+        opacity: 0;
+        border-width: 0px;
+      }
+    }
 
-/* Expand ring ripple animations (VCountdownBanner) */
-@keyframes expandRinddg1 {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 1;
-    border-width: 2px;
-  }
-  100% {
-    width: 400px;
-    height: 400px;
-    opacity: 0;
-    border-width: 0px;
-  }
-}
+    @keyframes expandRinddg2 {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+        border-width: 2px;
+      }
 
-@keyframes expandRinddg2 {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 1;
-    border-width: 2px;
-  }
-  100% {
-    width: 600px;
-    height: 600px;
-    opacity: 0;
-    border-width: 0px;
-  }
-}
+      100% {
+        width: 600px;
+        height: 600px;
+        opacity: 0;
+        border-width: 0px;
+      }
+    }
 
-@keyframes expandRinddg3 {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 1;
-    border-width: 2px;
-  }
-  100% {
-    width: 800px;
-    height: 800px;
-    opacity: 0;
-    border-width: 0px;
-  }
-}
+    @keyframes expandRinddg3 {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+        border-width: 2px;
+      }
 
-/* Tab sliding transitions (ProductPage) */
-@keyframes slideInFromRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0%);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInFromLeft {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0%);
-    opacity: 1;
-  }
-}
-
-/* Modal and unfold animations */
-@keyframes unfoldIn {
-  0% {
-    transform: scaleY(0.005) scaleX(0);
-  }
-  50% {
-    transform: scaleY(0.005) scaleX(1);
-  }
-  100% {
-    transform: scaleY(1) scaleX(1);
-  }
-}
-
-@keyframes zoomIn {
-  0% {
-    transform: scale(0);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes unfoldOut {
-  0% {
-    transform: scaleY(1) scaleX(1);
-  }
-  50% {
-    transform: scaleY(0.005) scaleX(1);
-  }
-  100% {
-    transform: scaleY(0.005) scaleX(0);
-  }
-}
-
-@keyframes zoomOut {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
-  }
-}
-
-/* Tooltips */
-@keyframes tooltips-vert {
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@keyframes tooltips-horz {
-  to {
-    opacity: 1;
-    transform: translate(0, -50%);
-  }
-}
-
-/* Shine effect */
-@keyframes shine {
-  100% {
-    left: 125%;
-  }
-}
-
-/* Slide up */
-@keyframes slideUp {
-  to {
-    bottom: 0;
-  }
-}
-
-/* Float back */
-@keyframes floatBack {
-  from {
-    transform: translateY(16px);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(-8px);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Discount banner slides */
-@keyframes slideInRTL {
-  0% { right: -170px; }
-  70% { right: 10px; }
-  100% { right: 0; }
-}
-
-@keyframes slideOutRTL {
-  0% { right: 0; }
-  70% { right: -240px; }
-  100% { right: -170px; }
-}
-
-@keyframes slideInLTR {
-  0% { left: -240px; }
-  70% { left: 10px; }
-  100% { left: 4px; }
-}
-
-@keyframes slideOutLTR {
-  0% { left: 4px; }
-  70% { left: -260px; }
-  100% { left: -240px; }
-}
-
-/* Rotation spinner */
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Shrink width */
-@keyframes shrinkWidth {
-  to {
-    width: 0;
-    opacity: 0;
-    padding: 0;
-    margin: 0;
-  }
-}
-
-/* Arrow hover launch (footer / action buttons) */
-@keyframes arrowHoverLaunch {
-  0% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(10px);
-  }
-  60% {
-    transform: translateY(-20px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-/* Filter click wave & icon fade */
-@keyframes click-wave {
-  0% {
-    transform: scale(1);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
-}
-
-@keyframes fade-in-icon {
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+      100% {
+        width: 800px;
+        height: 800px;
+        opacity: 0;
+        border-width: 0px;
+      }
+    }
