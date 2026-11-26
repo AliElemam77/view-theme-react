@@ -15,6 +15,7 @@ let lenis: LenisInstance | null = null;
 export function useSmoothScroll() {
   useEffect(() => {
     let raf = 0;
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined;
     let cancelled = false;
     void import('lenis').then(({ default: Lenis }) => {
       if (cancelled) return;
@@ -27,10 +28,11 @@ export function useSmoothScroll() {
         raf = requestAnimationFrame(loop);
       };
       raf = requestAnimationFrame(loop);
-      setTimeout(() => lenis?.resize(), 1000);
+      resizeTimer = setTimeout(() => lenis?.resize(), 1000);
     });
     return () => {
       cancelled = true;
+      if (resizeTimer) clearTimeout(resizeTimer);
       cancelAnimationFrame(raf);
       lenis?.destroy();
       lenis = null;
@@ -66,6 +68,7 @@ export function useRevealAnimation(enabled: boolean) {
       return () => mo.disconnect();
     }
 
+    const controller = new AbortController();
     const seen = new WeakSet<Element>();
     const io = new IntersectionObserver(
       (entries) => {
@@ -75,13 +78,14 @@ export function useRevealAnimation(enabled: boolean) {
           seen.add(el);
           el.style.setProperty('--delay', `${(idx % 6) * 0.08}s`);
           requestAnimationFrame(() => {
+            if (controller.signal.aborted) return;
             el.dataset.reveal = 'animating';
             const onEnd = (e: AnimationEvent) => {
               if (e.target !== el) return;
               el.removeEventListener('animationend', onEnd);
               finish(el);
             };
-            el.addEventListener('animationend', onEnd);
+            el.addEventListener('animationend', onEnd, { signal: controller.signal });
           });
           io.unobserve(el);
         });
@@ -103,6 +107,7 @@ export function useRevealAnimation(enabled: boolean) {
     });
     mo.observe(document.body, { childList: true, subtree: true });
     return () => {
+      controller.abort();
       io.disconnect();
       mo.disconnect();
     };

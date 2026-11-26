@@ -42,12 +42,12 @@ describe('MainLinks', () => {
     expect(slider?.getAttribute('show-controls')).toBe('false');
   });
 
-  it('centers links that fit without scrolling instead of leaving them at the start edge', () => {
+  it('leaves links that fit at the start edge, as main-links.twig (no centring)', () => {
     const { container } = render(<MainLinks data={{ links: mockLinks }} />);
     const config = JSON.parse(
       container.querySelector('salla-slider')?.getAttribute('slider-config') ?? '{}'
     );
-    expect(config.centerInsufficientSlides).toBe(true);
+    expect(config.centerInsufficientSlides).toBeUndefined();
   });
 
   it('renders links with icon', () => {
@@ -56,24 +56,15 @@ describe('MainLinks', () => {
     expect(icon?.className).toBe('sicon-cat1');
   });
 
-  it("shows a link's image instead of its icon", () => {
+  it("shows a link's icon only, as main-links.twig (images are for categories)", () => {
     const { container } = render(
       <MainLinks
-        data={{
-          links: [
-            { url: '/perfume', icon: 'sicon-cat1', image: 'perfume.png', title: 'Perfume' },
-            { url: '/gifts', icon: 'sicon-gift', title: 'Gifts' },
-          ],
-        }}
+        data={{ links: [{ url: '/perfume', icon: 'sicon-cat1', image: 'perfume.png', title: 'Perfume' }] }}
       />
     );
-    const [withImage, withIcon] = Array.from(container.querySelectorAll('.slide--cat-entry'));
-    const img = withImage.querySelector('img');
-    expect(img?.getAttribute('src')).toBe('perfume.png');
-    expect(withImage.querySelector('i')).toBeNull();
-    // No image: the icon, as before.
-    expect(withIcon.querySelector('img')).toBeNull();
-    expect(withIcon.querySelector('i')?.className).toBe('sicon-gift');
+    const entry = container.querySelector('.slide--cat-entry')!;
+    expect(entry.querySelector('img')).toBeNull();
+    expect(entry.querySelector('i')?.className).toBe('sicon-cat1');
   });
 
   it('renders links with title', () => {
@@ -86,7 +77,7 @@ describe('MainLinks', () => {
     const { container } = render(
       <MainLinks data={{ categories: mockCategories, show_cats: true }} />
     );
-    const items = container.querySelectorAll('.slide--one-eighth');
+    const items = container.querySelectorAll('.slide--one-sixth');
     expect(items.length).toBe(2);
   });
 
@@ -96,16 +87,15 @@ describe('MainLinks', () => {
     );
     const img = container.querySelector('.slide--cat-entry img');
     expect(img?.getAttribute('src')).toBe('cat2.jpg');
+    expect(img?.className).toBe('w-16 h-16 object-cover rounded-full mb-2.5');
   });
 
-  it.each([
-    ['link', { links: [{ url: '/perfume', image: 'perfume.png', title: 'Perfume' }] }],
-    [
-      'category',
-      { categories: [{ url: '/perfume', image: 'perfume.png', name: 'Perfume' }], show_cats: true },
-    ],
-  ])('names a %s with an image once, by the title shown beside it', (_kind, data) => {
-    const { container } = render(<MainLinks data={data} />);
+  it('names a category with an image once, by the title shown beside it', () => {
+    const { container } = render(
+      <MainLinks
+        data={{ categories: [{ url: '/perfume', image: 'perfume.png', name: 'Perfume' }], show_cats: true }}
+      />
+    );
     const entry = container.querySelector('.slide--cat-entry')!;
     // An empty alt leaves the image out of the link's name ("Perfume", not "Perfume Perfume").
     expect(entry.querySelector('img')?.getAttribute('alt')).toBe('');

@@ -27,6 +27,7 @@ export function FooterCopyright() {
         <a
           href={linkUrl(settings.owner_website) ?? '#'}
           target="_blank"
+          rel="noopener noreferrer"
           tooltip={t('pages.cart.copyrights', 'المطور والمشغل الرسمي لهذا المتجر')}
         >
           © {owner}

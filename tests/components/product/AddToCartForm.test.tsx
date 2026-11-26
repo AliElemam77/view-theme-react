@@ -11,7 +11,11 @@ vi.mock('@salla.sa/twilight-theme-engine/i18n', () => ({
 }));
 
 vi.mock('@salla.sa/twilight-theme-engine/providers', () => ({
-  useTwilight: () => ({ store: { settings: {} } }),
+  useTwilight: () => ({ store: { settings: {} }, theme: { settings: {} } }),
+}));
+
+vi.mock('@salla.sa/twilight-theme-engine/hooks/useMoney', () => ({
+  useMoney: () => ({ format: (v: unknown) => `SAR ${v}` }),
 }));
 
 // jsdom has no IntersectionObserver; report every element as visible so the
@@ -209,27 +213,11 @@ describe('AddToCartForm add-to-cart button', () => {
   });
 });
 
-describe('AddToCartForm sticky bar when sold out', () => {
-  const bar = (container: HTMLElement) => container.querySelector('.sticky-product-bar')!;
-
-  it('marks the bar sold out, so phones show only the out-of-stock label', () => {
-    const { container } = render(
-      <AddToCartForm product={makeProduct({ is_out_of_stock: true, status: 'out' })} />
-    );
-    expect(bar(container).classList.contains('sticky-product-bar--sold-out')).toBe(true);
-    expect(container.querySelector('.out-of-stock:not(.hidden)')).toBeTruthy();
-  });
-
-  it('keeps the "notify me" button for an out-and-notify product', () => {
-    const { container } = render(
-      <AddToCartForm product={makeProduct({ is_out_of_stock: true, status: 'out-and-notify' })} />
-    );
-    expect(bar(container).classList.contains('sticky-product-bar--sold-out')).toBe(false);
-  });
-
-  it('leaves an in-stock product as it was', () => {
+describe('AddToCartForm price when sold out', () => {
+  it('shows the price row (base_content.twig) for an in-stock product', () => {
     const { container } = render(<AddToCartForm product={makeProduct()} />);
-    expect(bar(container).classList.contains('sticky-product-bar--sold-out')).toBe(false);
+    expect(container.querySelector('.price-wrapper')).toBeTruthy();
+    expect(container.querySelector('.out-of-stock.hidden')).toBeTruthy();
   });
 });
 

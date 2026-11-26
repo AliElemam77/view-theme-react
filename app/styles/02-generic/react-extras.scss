@@ -84,3 +84,8 @@ salla-localization-modal {
 .line-innercomponent[data-active] {
   transform: scaleX(1);
 }
+
+/* `rounded-cotm` appears in View's blog cards / marquee without a Tailwind token. */
+.rounded-cotm {
+  border-radius: var(--border-custom, 0.75rem);
+}

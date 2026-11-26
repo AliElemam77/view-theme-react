@@ -1,13 +1,14 @@
-// @auto-generated
 import { createFileRoute } from '@tanstack/react-router';
 import { OrderSingle } from '@salla.sa/twilight-theme-engine/routes/account/orders';
 import type { OrderSinglePageProps } from '@salla.sa/twilight-theme-engine/routes/account/orders';
+import { useDocumentClass } from '@salla.sa/twilight-theme-engine/hooks/useDocumentClass';
 import { CustomerPageSkeleton } from '@salla.sa/twilight-theme-engine/skeleton';
 import { withHead } from '@salla.sa/twilight-theme-engine/tanstack';
+import { OrderSinglePage } from '../components/account/order/OrderSinglePage';
 
 /**
- * OrderSingle route configuration.
- * Loads page data via loader and renders the OrderSingle component.
+ * Theme-owned order route: the engine's loader, head and skeleton, and the theme fork of its
+ * order page (`components/account/order/OrderSinglePage.tsx`, View's `single.twig`).
  */
 export const Route = createFileRoute('/{-$locale}/account/orders/$id')({
   loader: ({ params }): Promise<OrderSinglePageProps> =>
@@ -17,12 +18,11 @@ export const Route = createFileRoute('/{-$locale}/account/orders/$id')({
   component: OrderSingleComponent,
 });
 
-/**
- * OrderSingle page component.
- * Uses Route.useLoaderData() to access the data loaded by the route loader,
- * following React best practices for data fetching in route components.
- */
 function OrderSingleComponent() {
   const data: OrderSinglePageProps = Route.useLoaderData();
-  return <OrderSingle.Component {...data} />;
+  // Twig's `customer-orders-single` body class: the engine's route-class map only names the
+  // legacy `/order/$id` redirect. Scopes View's single-orders.scss, which Twig loads here.
+  useDocumentClass({ body: { class: 'customer-orders-single' } });
+  // A param-only navigation (order to order) reuses the component: remount per order.
+  return <OrderSinglePage key={data.order.id} {...data} />;
 }

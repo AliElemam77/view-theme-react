@@ -1,7 +1,8 @@
-import { memo, useEffect } from 'react';
-import { SectionWrapper } from '../common/SectionWrapper';
+import { memo, useEffect, useRef } from 'react';
 import { SectionSeparator } from '../common/SectionSeparator';
-import { optionValue } from '../../lib/fieldValue';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue } from '../../lib/fieldValue';
+import { cx, separatorProps, text, twigPosition } from './ViewBlockUtils';
 
 export interface VInstagramFeedData {
   has_container?: boolean;
@@ -14,48 +15,63 @@ export interface VInstagramFeedData {
   star_position_x?: number;
   merge_with_adjacent?: boolean;
   position?: number;
+  [key: string]: unknown;
 }
 
-export const VInstagramFeed = memo(function VInstagramFeed({
-  data,
-}: {
-  data?: VInstagramFeedData;
-}) {
-  if (!data) return null;
+const DEFAULT_APP = 'elfsight-app-d6b9ab42-3cc0-467e-9e9a-e68ed3251585';
+const PLATFORM_SRC = 'https://static.elfsight.com/platform/platform.js';
 
-  const appClass = data.class_name || 'elfsight-app-d6b9ab42-3cc0-467e-9e9a-e68ed3251585';
+/** The Elfsight parts the Twig script hides as they appear (branding, load more, toolbar). */
+const HIDDEN = [
+  'a[rel="noreferrer"]',
+  '.eapps-instagram-feed-posts-grid-load-more-container.eapps-instagram-feed-posts-grid-load-more-enabled',
+  '.eapps-widget-toolbar',
+];
+
+/**
+ * Port of `V_instagram_feed.twig` + its inline script: the Elfsight app `<div>`
+ * (class `class_name`, lazy) goes right before `#instaembd`, the platform script
+ * is loaded, and a MutationObserver on the widget hides the branding link, the
+ * load-more button and the widget toolbar whenever Elfsight renders them.
+ */
+export const VInstagramFeed = memo(function VInstagramFeed({ data = {} }: { data?: VInstagramFeedData }) {
+  const { spacing } = useViewSettings();
+  const appRef = useRef<HTMLDivElement>(null);
+  const position = twigPosition(data);
+  const className = text(data.class_name);
+  const appClass = className || DEFAULT_APP;
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const existingScript = document.querySelector('script[src*="static.elfsight.com/platform/platform.js"]');
-    if (!existingScript) {
+    const app = appRef.current;
+    if (!app) return;
+    if (!document.querySelector(`script[src="${PLATFORM_SRC}"]`)) {
       const script = document.createElement('script');
-      script.src = 'https://static.elfsight.com/platform/platform.js';
+      script.src = PLATFORM_SRC;
       script.async = true;
       document.body.appendChild(script);
     }
-  }, []);
+    // Third-party markup, outside React's tree: hide it the way the Twig script does.
+    const observer = new MutationObserver(() => {
+      HIDDEN.forEach((selector) => {
+        const el = app.querySelector<HTMLElement>(selector);
+        if (el) el.style.setProperty('display', 'none', 'important');
+      });
+    });
+    observer.observe(app, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [appClass]);
 
   return (
-    <SectionWrapper
-      id={`V_instagram_feed-${data.position ?? 0}`}
-      ariaLabel="Section V_instagram_feed"
-      className="V_instagram_feed"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V_instagram_feed', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_instagram_feed-${position}`}
+      id={`V_instagram_feed-${position}`}
     >
-      <div className={data.has_container !== false ? 'container' : ''}>
-        <div className={appClass} data-elfsight-app-lazy="" />
+      <div className={booleanValue(data.has_container) ? 'container' : ''}>
+        <div key={appClass} ref={appRef} className={appClass} data-elfsight-app-lazy="" />
+        <div id="instaembd" data-class={className} />
       </div>
-
-      <SectionSeparator
-        saprator={optionValue(data.saprator)}
-        merge_with_adjacent={Boolean(data.merge_with_adjacent)}
-        use_custom_colors={Boolean(data.use_custom_colors)}
-        line_color={data.line_color}
-        star_color={data.star_color}
-        star_position_x={data.star_position_x}
-      />
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} />
+    </section>
   );
 });

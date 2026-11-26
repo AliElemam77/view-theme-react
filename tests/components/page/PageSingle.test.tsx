@@ -8,9 +8,14 @@ vi.mock('@salla.sa/twilight-theme-engine/hooks/useComments', () => ({
 }));
 
 vi.mock('@salla.sa/twilight-theme-engine/common', () => ({
-  Breadcrumb: ({ page }: { page: { title: string } }) => (
-    <nav className="breadcrumb">{page.title}</nav>
+  Breadcrumb: ({ page, className }: { page: { title: string }; className?: string }) => (
+    <nav className={`breadcrumb ${className ?? ''}`}>{page.title}</nav>
   ),
+}));
+
+const themeSettings = vi.hoisted<Record<string, unknown>>(() => ({}));
+vi.mock('@salla.sa/twilight-theme-engine/providers', () => ({
+  useTwilight: () => ({ theme: { settings: themeSettings } }),
 }));
 
 // `<salla-comments>` loads its list once, when it is first attached, and does not
@@ -19,10 +24,10 @@ vi.mock('@salla.sa/twilight-theme-engine/common', () => ({
 const commentMounts = vi.hoisted<number[]>(() => []);
 
 vi.mock('@salla.sa/twilight-components-react/comments', () => ({
-  SallaComments: ({ itemId }: { itemId: number }) => {
+  SallaComments: ({ itemId, className }: { itemId: number; className?: string }) => {
     const [mountedFor] = React.useState(itemId);
     React.useEffect(() => void commentMounts.push(mountedFor), [mountedFor]);
-    return <div className="salla-comments" data-item-id={itemId} />;
+    return <div className={`salla-comments ${className ?? ''}`} data-item-id={itemId} />;
   },
 }));
 
@@ -81,23 +86,46 @@ describe('PageSingle', () => {
   });
 
   describe('ordinary pages', () => {
-    it('renders the breadcrumb, title, cleaned content and comments', () => {
+    it("renders page-single.twig's breadcrumb, ribbon band, content card and comments", () => {
       const { container } = render(<PageSingle page={makePage()} />);
 
       expect(container.querySelector('.block-hook-slot')).toBeNull();
-      expect(container.querySelector('.breadcrumb')?.textContent).toBe('About Us');
-      expect(container.querySelector('h1')?.textContent).toBe('About Us');
+      const crumb = container.querySelector('.breadcrumb');
+      expect(crumb?.textContent).toBe('About Us');
+      expect(crumb?.className).toContain('breadcrumbs w-full py-5 container');
+
+      const band = container.querySelector('.content--single-page');
+      expect(band?.className).toContain('bock_page has-overlay');
+      const h1 = band?.querySelector('h1');
+      expect(h1?.textContent).toBe('About Us');
+      expect(h1?.className).toContain('text-bgcolor ribbon bg-primary-d');
+      expect((h1 as HTMLElement).style.clipPath).toContain('polygon(');
 
       const content = container.querySelector('.content-entry');
+      expect(content?.className).toContain('rounded-theme bg-primary-reverse container p-4');
       expect(content?.innerHTML).toBe('<p>Hello world</p>');
 
+      // `<salla-comments class="container">` sits outside the content card.
       const comments = container.querySelector('.salla-comments');
       expect(comments?.getAttribute('data-item-id')).toBe('42');
+      expect(comments?.className).toContain('container');
+      expect(content?.contains(comments)).toBe(false);
     });
 
-    it('omits the content block when the page has no content', () => {
+    it('keeps the empty content card when the page has no content, as Twig does', () => {
       const { container } = render(<PageSingle page={makePage({ content: undefined })} />);
-      expect(container.querySelector('.content-entry')).toBeNull();
+      expect(container.querySelector('.content-entry')?.innerHTML).toBe('');
+    });
+
+    it('keeps an empty breadcrumb nav when breadcrumbs are off', () => {
+      themeSettings.is_breadcrumbs_enabled = false;
+      try {
+        const { container } = render(<PageSingle page={makePage()} />);
+        expect(container.querySelector('.breadcrumb')).toBeNull();
+        expect(container.querySelector('nav.breadcrumbs.container')?.textContent).toBe('');
+      } finally {
+        delete themeSettings.is_breadcrumbs_enabled;
+      }
     });
 
     it('omits comments when the page has no id', () => {

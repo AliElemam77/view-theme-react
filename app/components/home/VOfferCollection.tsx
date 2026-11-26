@@ -15,7 +15,7 @@ import {
   text,
   twigPosition,
   usePickedProducts,
-} from './viewBlockUtils';
+} from './ViewBlockUtils';
 
 export interface VOfferCollectionFeature {
   feature_icon?: string;
@@ -131,7 +131,7 @@ export const VOfferCollection = memo(function VOfferCollection({
     >
       <div className={data.has_container ? 'container' : ''}>
         <div className="flex flex-col lg:flex-row items-stretch justify-between gap-6 relative overflow-hidden">
-          <div className="w-full lg:w-1/2 gap-3 text-right flex justify-between h-auto flex-col">
+          <div className="w-full lg:w-1/2 gap-3 text-start flex justify-between h-auto flex-col">
             <BlockTitle
               title={text(data.main_title)}
               sub={text(data.sub_title)}
@@ -187,7 +187,6 @@ export const VOfferCollection = memo(function VOfferCollection({
                 icon
                 spinner={!ready}
                 className={busy ? 'is-loading' : ''}
-                href="#"
                 onClick={onGetGroup}
                 inject={
                   ready ? (
@@ -230,7 +229,7 @@ export const VOfferCollection = memo(function VOfferCollection({
               >
                 {ready && discount !== null && (
                   <div>
-                    {t('pages.products.discountma', 'خصم')}
+                    {t('blocks.header.discountma')}
                     <br />
                     {discount}%
                   </div>

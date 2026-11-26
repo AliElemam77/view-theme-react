@@ -1,12 +1,10 @@
+/* Swiper first, as in View: the web components inject it ahead of app.css, so Tailwind
+   utilities on a slide (`flex`, …) and every theme rule override it. */
+@import "./vendor/swiper.css";
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import "./app.scss";
-
-/* RTL-specific font */
-[dir="rtl"] {
-  --font-main: var(--font-ar);
-}
 
 /* Apply fonts from Salla SDK if available */
 body {

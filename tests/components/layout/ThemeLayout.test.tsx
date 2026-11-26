@@ -20,18 +20,10 @@ vi.mock('@salla.sa/twilight-theme-engine/i18n', () => ({
 vi.mock('@salla.sa/twilight-theme-engine/hooks/useUser', () => ({
   useUser: () => ({ isLoggedIn: true }),
 }));
-vi.mock('../../../app/components/layout/Footer', () => ({ Footer: () => <footer /> }));
-vi.mock('../../../app/components/layout/Header', () => ({ Header: () => null }));
-vi.mock('../../../app/components/layout/ImportantLinksSheet', () => ({
-  ImportantLinksSheet: () => null,
-}));
-vi.mock('../../../app/components/layout/MobileAccountSheet', () => ({
-  MobileAccountSheet: () => null,
-}));
-vi.mock('../../../app/components/layout/MobileBottomBar', () => ({ MobileBottomBar: () => null }));
-vi.mock('../../../app/components/layout/MobilePageTitleBar', () => ({
-  MobilePageTitleBar: () => null,
-}));
+vi.mock('../../../app/components/layout/ViewFooter', () => ({ ViewFooter: () => <footer /> }));
+vi.mock('../../../app/components/layout/ViewHeader', () => ({ ViewHeader: () => null }));
+vi.mock('../../../app/components/layout/ViewDiscountBanner', () => ({ ViewDiscountBanner: () => null }));
+vi.mock('../../../app/components/product/ViewProductModal', () => ({ ViewProductModal: () => null }));
 
 /**
  * A `salla.lang` stand-in. `subscribe` keeps the listener, as the SDK does, so

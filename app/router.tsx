@@ -10,17 +10,9 @@ import { SliderSkeleton } from '@salla.sa/twilight-components-react';
 import { routeTree } from './routeTree.gen';
 import {
   Brands,
-  CustomTestimonials,
-  EnhancedSlider,
-  FeaturedProducts,
-  featuredProductsConfig,
   FixedProducts,
   LatestProducts,
   MainLinks,
-  PhotosSlider,
-  ProductsSlider,
-  SliderProductsWithHeader,
-  EnhancedSquareBanners,
   VBannerLine,
   VCountdownBanner,
   VMarque,
@@ -44,14 +36,19 @@ import {
   VBlogPosts,
   VInstagramFeed,
 } from './components/home';
-import { Blog } from './components/home/Blog';
+import { ViewFeaturedProducts, viewFeaturedProductsConfig } from './components/home/ViewFeaturedProducts';
+import { ViewPhotosSlider, photosSliderConfig } from './components/home/ViewPhotosSlider';
 import {
-  FeaturedProductsSpecialOffer,
-  FeaturedProductsWithSpecialProduct,
-} from './components/home/FeaturedProducts';
-import { PhotosSliderWithText } from './components/home/PhotosSliderWithText';
+  SliderProductsWithHeader,
+  sliderProductsWithHeaderConfig,
+} from './components/home/SliderProductsWithHeader';
+import {
+  EnhancedSquareBanners,
+  enhancedSquareBannersConfig,
+} from './components/home/EnhancedSquareBanners';
 import { registerThemeHooks } from './hooks';
 import { ProductListSkeleton } from './components/product/ProductListSkeleton';
+import { ProductCard } from './components/product/ProductCard';
 
 const ProductListPage = lazy(() =>
   import('./components/product/ProductListPage').then((m) => ({ default: m.ProductListPage }))
@@ -61,44 +58,29 @@ const ProductListPage = lazy(() =>
 registerThemeHooks();
 
 registry.register('product:list-page', ProductListPage);
+// View's card (`product-card.js`) for every engine list too: register, then override.
+registry.register('product:card', ProductCard);
+registry.override('product:card', ProductCard);
 registry.register('product:list-skeleton', ProductListSkeleton);
 
+// View's home blocks (`src/views/components/home/*.twig`), by twilight.json path.
+// The renderer looks a block up as `key:<view_style>` before `key`, and the
+// spread defaults carry the engine's `featured-products:styleN`, so those are
+// bound too. Keys View's twilight.json doesn't offer keep the engine defaults.
 registerHomeComponents({
   ...DefaultHomeComponents,
   brands: Brands,
-  'enhanced-slider': EnhancedSlider,
-  'custom-testimonials': CustomTestimonials,
   'main-links': MainLinks,
-  'square-links': MainLinks,
-  // Replaces the engine Swiper with the theme's scroll carousel (home block +
-  // the product page's "similar products" `best-offers-<n>-slider`).
-  'products-slider': ProductsSlider,
-  // Replaces the engine Swiper with the theme's scroll carousel — same
-  // progress bar + arrows as testimonials/products, cards instead of a thin
-  // full-width banner strip.
-  'photos-slider': PhotosSlider,
-  'photos-slider-with-text': PhotosSliderWithText,
-  // The renderer checks `home:featured-products:<view_style>` before the bare
-  // key (theme-engine `HomePageRenderer.getComponentByPath`), and
-  // `...DefaultHomeComponents` above still has the engine's own component
-  // registered under the three literal `styleN` variants — leaving those out
-  // here would mean only view_style-less / unrecognised blocks ever reach
-  // this component, and every `style1`/`style2`/`style3` block keeps
-  // rendering the broken engine variants this fork exists to replace.
-  'featured-products': FeaturedProducts,
-  'featured-products:style1': FeaturedProducts,
-  'featured-products:style2': FeaturedProducts,
-  'featured-products:style3': FeaturedProducts,
-  // The block's other two layouts, each its own block.
-  'featured-products-special-offer': FeaturedProductsSpecialOffer,
-  'featured-products-special-product': FeaturedProductsWithSpecialProduct,
-  // Fork of the engine block so its grid renders the theme's ProductCard wrapper.
+  'photos-slider': ViewPhotosSlider,
+  'featured-products': ViewFeaturedProducts,
+  'featured-products:style1': ViewFeaturedProducts,
+  'featured-products:style2': ViewFeaturedProducts,
+  'featured-products:style3': ViewFeaturedProducts,
+  // Forks of the engine blocks so their grids render the theme's ProductCard.
   'fixed-products': FixedProducts,
-  // Fork of the engine's no-blocks fallback, for the same reason.
   'latest-products': LatestProducts,
   'slider-products-with-header': SliderProductsWithHeader,
   'enhanced-square-banners': EnhancedSquareBanners,
-  blog: Blog,
   // Custom View Components (22)
   V_banner_line: VBannerLine,
   'home.V_banner_line': VBannerLine,
@@ -146,65 +128,30 @@ registerHomeComponents({
   'home.V_instagram_feed': VInstagramFeed,
 });
 
-// Wrapper `<section>` classes for `featured-products` — the engine only styles
-// the literal `styleN` values; this covers the semantic `view_style`s too.
-// `custom-testimonials` gets `s-block--full-bg` so the gray band runs edge-to-edge.
+// Each Twig block opens its own `<section>`; the renderer's wrapper takes those classes.
 registerHomeComponentConfig({
-  'featured-products': featuredProductsConfig,
-  'featured-products-special-offer': featuredProductsConfig,
-  'featured-products-special-product': featuredProductsConfig,
-  // Gray band edge to edge; the height is a card plus the heading and controls.
-  blog: {
-    className: 's-block s-block--blog s-block--full-bg',
-    height: 'clamp(480px, 45vw, 660px)',
-  },
-  'custom-testimonials': {
-    className: 's-block s-block--custom-testimonials s-block--full-bg',
-  },
-  // Lazy placements (blocks 4+): reserve the loaded blocks' height and show the
-  // same SliderSkeleton the SSR path shows (sized in home-blocks.scss), not the
-  // engine's 400px/200px defaults with mismatched skeletons (CLS on scroll-in).
-  'enhanced-slider': {
-    height: 'calc(100vw / 2.4)', // the 12:5 slide ratio
-    placeholder: <SliderSkeleton />,
-    // The boxed variant (`in_container`) is capped at the container width, so
-    // its skeleton must be too (home-blocks.scss) or the reservation oversizes.
-    className: (data) =>
-      `s-block s-block--enhanced-slider${data.in_container ? ' s-block--enhanced-slider-boxed' : ''}`,
-  },
+  'featured-products': viewFeaturedProductsConfig,
+  'photos-slider': { ...photosSliderConfig, placeholder: <SliderSkeleton /> },
+  'slider-products-with-header': sliderProductsWithHeaderConfig,
+  'enhanced-square-banners': enhancedSquareBannersConfig,
   'main-links': {
     height: '112px',
     placeholder: <SliderSkeleton />,
-    // Keeps the engine entry's merge classes; theme config replaces, not merges.
+    // main-links.twig's field and wrapper (`s-block--categories`); `--main-links`
+    // stays for the pre-hydration rules in home-blocks.scss. The merge rule only
+    // matches right after a full-bg block (home.scss), so the first block never merges.
     className: (data) => {
-      const mergeWithTop = data.merge_links_with_top_component;
+      const mergeWithTop = data.merge_with_top_component;
       return [
         's-block',
+        's-block--categories',
         's-block--main-links',
-        mergeWithTop && data.position ? 'merge-with-top-component' : '',
+        mergeWithTop ? 'merge-with-top-component' : '',
         !data.title && mergeWithTop ? 'merged-has-no-title' : '',
       ]
         .filter(Boolean)
         .join(' ');
     },
-  },
-  'square-links': {
-    height: '144px', // .slide--cat-entry h-36 cards (square-links keeps the card look)
-    placeholder: <SliderSkeleton />,
-  },
-  // The centred banner (--stage-w in home-blocks.scss, at the usual 1.7 shape)
-  // plus its pager, so the real content doesn't shift the page on load.
-  'photos-slider': {
-    height: 'calc(min(1260px, 100vw - 3rem, max(18rem, (100vh - 14rem) * 1.7)) / 1.7 + 3.25rem)',
-    placeholder: <SliderSkeleton />,
-    className: (data) =>
-      `s-block s-block--photos-slider${data.is_repeated ? ' repeated-block' : ''}`,
-  },
-  'photos-slider-with-text': {
-    height: 'clamp(300px, 36vw, 470px)', // a card plus the controls row
-    placeholder: <SliderSkeleton />,
-    className: (data) =>
-      `s-block s-block--photos-slider-with-text${data.in_container ? ' s-block--photos-slider-with-text-boxed' : ''}`,
   },
 });
 

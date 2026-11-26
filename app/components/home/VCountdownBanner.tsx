@@ -1,10 +1,11 @@
 import { memo, useEffect, useRef } from 'react';
-import type { CSSProperties } from 'react';
-import { SectionWrapper } from '../common/SectionWrapper';
+import { SallaCountDown } from '@salla.sa/twilight-components-react/count-down';
 import { BlockTitle } from '../common/BlockTitle';
 import { ActionBtn } from '../common/ActionBtn';
-import { CountdownTimer } from '../common/CountdownTimer';
-import { linkUrl, optionValue } from '../../lib/fieldValue';
+import { SectionSeparator } from '../common/SectionSeparator';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue, linkUrl, optionValue } from '../../lib/fieldValue';
+import { cx, separatorProps, text, twigDefaultTrue, twigPosition } from './ViewBlockUtils';
 
 export interface VCountdownBannerData {
   banner_height?: number;
@@ -20,6 +21,7 @@ export interface VCountdownBannerData {
   main_title?: string;
   sub_title?: string;
   sub_title_mini?: string;
+  has_jocer_image?: boolean;
   has_counter?: boolean;
   end_time_offer?: string;
   btn_fqa?: string;
@@ -28,180 +30,131 @@ export interface VCountdownBannerData {
   has_container?: boolean;
   notmrb?: boolean;
   saprator?: unknown;
+  use_custom_colors?: boolean;
   line_color?: string;
   star_color?: string;
   star_position_x?: number;
   merge_with_adjacent?: boolean;
   position?: number;
-  priority?: boolean;
+  [key: string]: unknown;
 }
 
+/**
+ * Port of `V_countdown_banner.twig`. Twig reads `use_custom_colorsbg|default(true)`,
+ * and `default` also replaces `false`, so the theme colours always win.
+ */
 export const VCountdownBanner = memo(function VCountdownBanner({
-  data,
+  data = {},
 }: {
   data?: VCountdownBannerData;
 }) {
-  if (!data) return null;
-
+  const { reveal, spacing } = useViewSettings();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const bgType = optionValue(data.background_type) || 'colo';
-  const useCustomColors = data.use_custom_colorsbg ?? true;
-  const height = data.banner_height || 400;
 
-  const btnUrl = linkUrl(data.btn_url);
-  const btnStyle = optionValue(data.btn_style) || 'filled';
-  const saprator = optionValue(data.saprator);
+  const position = twigPosition(data);
+  const custom = twigDefaultTrue(data.use_custom_colorsbg);
+  const bgType = optionValue(data.background_type);
+  const bgImage = text(data.background_image_url);
+  const bgVideo = text(data.background_video_url);
+  const hasBgImage = bgImage !== '' && bgType === 'img';
+  const height = text(data.banner_height);
+  const textColor = text(data.text_color);
+  const hasCounter = booleanValue(data.has_counter);
+  const subMini = text(data.sub_title_mini);
 
+  // React does not emit `muted` in SSR; autoplay needs it.
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      if (!mediaQuery.matches) {
-        videoRef.current.play().catch(() => {});
-      }
-    }
-  }, [data.background_video_url]);
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.play().catch(() => {});
+  }, [bgVideo, bgType]);
 
-  const bgStyle: CSSProperties = {
-    height: `${height}px`,
-  };
-
-  const textColor = useCustomColors ? data.text_color : 'var(--color-primary-dark)';
-  const btnColor = useCustomColors ? 'var(--color-primary-dark)' : data.text_color;
-  const btnBg = useCustomColors ? 'var(--color-primary-light)' : data.button_bg_color;
+  // Twig: `'color:' ~ c.text_color ~ ' !important;'` (empty colour = invalid declaration).
+  const customTextStyle = custom && textColor ? { color: textColor } : undefined;
 
   return (
-    <SectionWrapper
-      id={`V_countdown_banner-${data.position ?? 0}`}
-      ariaLabel="Section V_countdown_banner"
-      className="V__countdown_banner"
-      hasContainer={false}
-      notmrb={data.notmrb}
+    <section
+      className={cx('s-block V__countdown_banner', !booleanValue(data.notmrb) && spacing)}
+      aria-label={`Section V_countdown_banner-${position}`}
+      id={`V_countdown_banner-${position}`}
     >
-      <div className={data.has_container ? 'container' : ''}>
-        <div className="relative mx-auto overflow-hidden rounded-theme" style={bgStyle}>
-          {/* Background image or color */}
+      <div className={booleanValue(data.has_container) ? 'container' : ''}>
+        <div className=" relative mx-auto overflow-hidden" style={{ height: height ? `${height}px` : undefined }}>
           <div
-            className={`w-full h-full absolute inset-0 ${
-              bgType === 'img' && data.background_image_url
-                ? `bg-center bg-no-repeat ${data.background_fixed ? 'bg-fixed bg-cover' : 'bg-cover'}`
-                : ''
-            }`}
-            style={{
-              backgroundImage:
-                bgType === 'img' && data.background_image_url
-                  ? `url(${data.background_image_url})`
-                  : undefined,
-              backgroundColor:
-                bgType !== 'img'
-                  ? useCustomColors
-                    ? 'var(--color-primary-light)'
-                    : data.background_color || '#f2f6ef'
-                  : undefined,
-            }}
+            className={cx(
+              'w-full h-full absolute inset-0',
+              hasBgImage && 'bg-center bg-no-repeat lazy',
+              hasBgImage && (booleanValue(data.background_fixed) ? 'bg-fixed bg-cover' : 'bg-cover')
+            )}
+            data-bg={hasBgImage ? bgImage : undefined}
+            style={
+              hasBgImage
+                ? { backgroundImage: `url(${bgImage})` }
+                : { backgroundColor: custom ? 'var(--color-primary-light)' : text(data.background_color) }
+            }
           >
-            {bgType === 'vid' && data.background_video_url && (
+            {bgVideo !== '' && bgType === 'vid' && (
               <video
                 ref={videoRef}
                 autoPlay
                 muted
                 loop
                 playsInline
-                aria-label={data.main_title || 'Video background'}
+                aria-label={text(data.main_title)}
                 className="w-full h-full object-cover"
               >
-                <source src={data.background_video_url} />
+                <source src={bgVideo} />
+                Your browser does not support the video tag.
               </video>
             )}
           </div>
-
-          {/* Abstract background rings */}
           {bgType === 'colo' && (
             <div
-              className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full z-0 flex items-center justify-center opacity-50 pointer-events-none"
-              style={{
-                color: useCustomColors ? 'var(--color-primary-reverse)' : data.glow_color || '#5cd5c4',
-              }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full z-0 flex-center abstract-background opacity-50 pointer-events-none"
+              // `--color-primary-revers` (sic) as in Twig.
+              style={{ color: custom ? 'var(--color-primary-revers)' : text(data.glow_color) }}
             >
-              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-1" />
-              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-2 opacity-80" />
-              <span className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-3 opacity-85" />
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-1" />
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-2 opacity-80" />
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-current rinddg-3 opacity-85" />
             </div>
           )}
-
-          {/* Banner content */}
-          <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
-            {!data.has_counter && data.sub_title_mini && (
-              <p className="text-sm mb-2" style={{ color: textColor }}>
-                {data.sub_title_mini}
+          <div className="flex-center flex-col z-2 h-full ">
+            {!hasCounter && subMini !== '' && (
+              <p
+                className="text-sm"
+                style={{ color: custom ? textColor || undefined : 'var(--color-primary-revers)' }}
+              >
+                {subMini}
               </p>
             )}
-
             <BlockTitle
-              title={data.main_title}
-              sub={data.sub_title}
-              center
-              titleStyle={{ color: textColor }}
-              subStyle={{ color: textColor }}
-              className="!mb-4"
+              title={text(data.main_title)}
+              sub={text(data.sub_title)}
+              jocer={booleanValue(data.has_jocer_image)}
+              style={customTextStyle}
+              className="z-2"
+              level2Class="justify-center"
+              subStyle={customTextStyle}
             />
-
-            {data.has_counter && data.end_time_offer && (
-              <div className="mb-6 flex justify-center w-full">
-                <CountdownTimer targetDate={data.end_time_offer} />
-              </div>
+            {hasCounter && (
+              <SallaCountDown className="w-full" size="md" boxed labeled date={text(data.end_time_offer)} />
             )}
-
-            {data.btn_fqa && (
-              <div className="flex justify-center mt-2">
-                <ActionBtn
-                  text={data.btn_fqa}
-                  href={btnUrl}
-                  dataStyle={btnStyle}
-                  color={btnColor}
-                  backgroundColor={btnBg}
-                  icon
-                />
-              </div>
-            )}
+            <div className={cx('flex-center', reveal)}>
+              <ActionBtn
+                text={text(data.btn_fqa)}
+                href={linkUrl(data.btn_url)}
+                dataStyle={optionValue(data.btn_style)}
+                color={custom ? 'var(--color-primary-dark)' : text(data.text_color)}
+                backgroundColor={custom ? 'var(--color-primary-light)' : text(data.button_bg_color)}
+                icon
+              />
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Separator */}
-      {(saprator === 'solid' || saprator === 'star') && (
-        <div
-          className={`relative w-full py-6 ${data.merge_with_adjacent ? '-my-6' : 'mt-3'} ${
-            saprator === 'solid' ? 'container' : ''
-          }`}
-        >
-          <div
-            className="h-px w-full"
-            style={{
-              backgroundColor:
-                useCustomColors && data.line_color ? data.line_color : 'var(--color-primary-light)',
-            }}
-          />
-          {saprator === 'star' && (
-            <div
-              className="absolute top-1/2 -translate-y-1/2 z-10"
-              style={{
-                left: `${data.star_position_x ?? 50}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <svg width="48" height="57" viewBox="0 0 48 57" fill="none">
-                <path
-                  d="M24.2847 0.870117L19.0863 22.72L0.569443 28.8541L19.0863 34.9883L24.2847 56.8382L29.4832 34.9883L48 28.8541L29.4832 22.72L24.2847 0.870117Z"
-                  fill={
-                    useCustomColors && data.star_color ? data.star_color : 'var(--color-primary-light)'
-                  }
-                />
-              </svg>
-            </div>
-          )}
-        </div>
-      )}
-    </SectionWrapper>
+      <SectionSeparator {...separatorProps(data)} />
+    </section>
   );
 });

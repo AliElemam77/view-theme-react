@@ -1,1 +1,234 @@
-/* View: single-orders (filled by the port; see the Twig theme styles). */
+// View's `src/assets/styles/single-orders.scss`, rule for rule.
+//
+// Twig loads it as its own stylesheet (`singleOrders.css`) only on customer.orders.single,
+// customer.orders.index and customer.profile (`layouts/master.twig`). This theme compiles every
+// stylesheet into app.css, so each rule is scoped to those pages' body classes. The engine's
+// route-class map only names the legacy redirect paths (`/orders`, `/order/$id`, `/profile`), so
+// the forked account routes set the classes themselves (`app/routes/account.orders.tsx`,
+// `account.orders.$id.tsx`, `account.profile.tsx`). `.single-order-header-item` lives in
+// `02-generic/common.scss`, as in View.
+//
+// The tooltip selectors with a leading `[dir]` / ancestor (`.icon-trigger &`) are written out
+// in full: nesting them under the body scope would put `body` below `.icon-trigger` / `[dir]`.
+$single-orders-pages: "body:is(.customer-orders-single, [class*='customer-orders-index'], .customer-profile)";
+
+#{$single-orders-pages} {
+  .order-file {
+    .s-button-text {
+      @apply flex gap-2;
+    }
+  }
+
+  /* tags */
+  .tag {
+    @apply px-3 pt-0.5 pb-1 inline-block text-sm rounded-2xl border border-gray-200;
+
+    &--primary {
+      @apply text-primary border-primary;
+    }
+  }
+
+  /* Profile Header section */
+  .profile-header {
+    @apply relative lg:h-48 overflow-hidden;
+
+    .breadcrumbs {
+      @screen lg {
+        @apply mt-2.5;
+      }
+
+      a {
+        @apply text-primary-reverse hover:opacity-80;
+      }
+
+      span {
+        @apply text-primary-reverse opacity-80;
+      }
+
+      .arrow {
+        @apply text-primary-reverse opacity-70;
+      }
+    }
+  }
+
+  .s-file-upload-profile-image .s-file-upload-has-error .filepond--file-status {
+    @apply ltr:-left-1/2 rtl:right-1/2;
+  }
+
+  .rating-header {
+    @apply relative from-primary to-primary-d p-5 text-primary-reverse rounded-md;
+  }
+
+  /* Profile additional fields */
+  .form--user-profile {
+    .s-file-upload-wrapper {
+      min-height: 120px;
+
+      .filepond--list-scroller {
+        overflow-y: inherit !important;
+      }
+
+      .filepond--drop-label {
+        min-height: 120px !important;
+        @apply bg-primaryops cursor-pointer border-dashed rounded-md border border-lightgray;
+      }
+
+      .profile-filepond-placholder {
+        @apply flex flex-col justify-center items-center;
+
+        &-icon {
+          @apply mb-1;
+
+          i {
+            color: #7c8082;
+            @apply text-xl;
+          }
+        }
+      }
+    }
+  }
+
+  /*
+  * thank you page
+  */
+  .thankyou-block {
+    @apply duration-200 hover:shadow-default flex-1 bg-white p-8 rounded-md mb-6 md:mb-8 flex flex-col items-center justify-center;
+
+    &.sent {
+      @apply text-green-500 font-bold;
+
+      &:before {
+        @apply w-16 h-16 bg-green-100 text-green-500 flex items-center justify-center text-2xl rounded-full mb-2;
+        content: "\ea9d";
+        font-family: 'sallaicons';
+      }
+    }
+  }
+
+  /*
+  * Order rating actions
+  */
+  .rating-actions {
+    @apply flex items-center gap-2;
+
+    // `.s-button-wrap`: React's SallaButton renders that div instead of a <salla-button>.
+    salla-button,
+    .s-button-wrap {
+      button {
+        @apply rounded mx-0 w-8 h-8 #{!important};
+      }
+    }
+  }
+
+  /*
+  * Blog single page
+  */
+  .blog-single .s-comments-item-user-info-name {
+    @apply mx-0;
+  }
+
+  .tooltip-content {
+    position: absolute;
+    transform: translate(82px, -120px);
+    background: #fff;
+    padding: 15px 15px 15px 36px;
+    text-align: right;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s;
+
+    &:after {
+      content: "";
+      display: block;
+      position: absolute;
+      z-index: -1;
+      left: auto;
+      background: #fff;
+      width: 20px;
+      height: 20px;
+      transform: rotate(45deg);
+      border-radius: 2px;
+      @apply shadow-md;
+      left: 43%;
+      bottom: -7px;
+    }
+  }
+
+  .icon-trigger .tooltip-content {
+    background-color: var(--color-primary);
+    color: var(--color-primary-reverse);
+    padding: 10px;
+    width: 140px;
+    line-height: 1;
+    text-align: center;
+
+    @media (max-width: 991px) {
+      width: 110px;
+    }
+
+    &:after {
+      background-color: var(--color-primary);
+    }
+  }
+}
+
+[dir="rtl"] #{$single-orders-pages} .icon-trigger.mobile-shifted .tooltip-content {
+  transform: translate(53px, -73px);
+
+  @media (max-width: 991px) {
+    transform: translate(70px, -90px);
+  }
+
+  &:after {
+    @media (max-width: 991px) {
+      left: 13%;
+    }
+  }
+}
+
+[dir="ltr"] #{$single-orders-pages} .icon-trigger.mobile-shifted .tooltip-content {
+  transform: translate(-53px, -75px);
+
+  @media (max-width: 991px) {
+    transform: translate(-70px, -90px);
+  }
+
+  &:after {
+    @media (max-width: 991px) {
+      left: 69%;
+    }
+  }
+}
+
+#{$single-orders-pages} .visible .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(82px, -110px);
+}
+
+[dir="rtl"] #{$single-orders-pages} .icon-trigger.visible .tooltip-content {
+  transform: translate(53px, -63px);
+}
+
+[dir="ltr"] #{$single-orders-pages} .icon-trigger.visible .tooltip-content {
+  transform: translate(-54px, -65px);
+}
+
+[dir="rtl"] #{$single-orders-pages} .icon-trigger.mobile-shifted.visible .tooltip-content {
+  @media (max-width: 991px) {
+    transform: translate(70px, -80px);
+  }
+}
+
+[dir="ltr"] #{$single-orders-pages} .icon-trigger.mobile-shifted.visible .tooltip-content {
+  @media (max-width: 991px) {
+    transform: translate(-70px, -80px);
+  }
+}
+
+#{$single-orders-pages} .close-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 9px 7px !important;
+}

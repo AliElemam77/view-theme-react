@@ -102,14 +102,14 @@ export function BlockTitle({
             type="button"
             id="see-all-questions"
             onClick={onMoreClick}
-            className={cls('text-sm text-primary hover:underline duretion-200', reveal)}
+            className={cls('text-sm text-primary hover:underline duration-200', reveal)}
           >
             {moreAlt}
           </button>
         ) : (
           <Link
             to={moreUrl || '#'}
-            className={cls('text-sm text-primary hover:underline duretion-200', reveal)}
+            className={cls('text-sm text-primary hover:underline duration-200', reveal)}
           >
             {moreAlt}
           </Link>

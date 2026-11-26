@@ -1,6 +1,7 @@
 import { SallaAddProductButton } from '@salla.sa/twilight-components-react/add-product-button';
 import { SallaButton } from '@salla.sa/twilight-components-react/button';
 import { SallaCountDown } from '@salla.sa/twilight-components-react/count-down';
+import { SallaMetadata } from '@salla.sa/twilight-components-react/metadata';
 import { SallaFileUpload } from '@salla.sa/twilight-components-react/file-upload';
 import { SallaGifting } from '@salla.sa/twilight-components-react/gifting';
 import { SallaMultipleBundleProduct } from '@salla.sa/twilight-components-react/multiple-bundle-product';
@@ -13,13 +14,12 @@ import { SallaQuantityInput } from '@salla.sa/twilight-components-react/quantity
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { hapticImpact } from '@salla.sa/twilight-theme-engine/native-app';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
-import { getActiveCurrency } from '@salla.sa/twilight-theme-engine/api/client';
-import { CurrencySymbol } from '@salla.sa/twilight-theme-engine/common';
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePriceBump } from '../../hooks/usePriceBump';
-import { ProductOptionsPanel, type PanelOption } from '../common/ProductOptionsPanel';
+import { booleanValue, optionValue } from '../../lib/fieldValue';
+import { CollapsePanel } from '../common/CollapsePanel';
+import { PriceBit, usePriceFailed } from './ProductDetails';
 
 /** The web component's `type="submit"` path skips its own loader, so drive the
     inner `<salla-button>` spinner by hand. */
@@ -88,110 +88,88 @@ const handleChange = (e: React.FormEvent<HTMLFormElement>) => {
   }
 };
 
-/** Weight line + a link that opens the size-guide modal. Renders nothing for a
- * product with neither. */
-function WeightAndSizeGuideSection({ product }: { product: Product }) {
+/** The size-guide row of `partials/product/options.twig`. Twig gates the weight
+ * row on a `whight` flag the page never passes, so only the size guide shows. */
+function SizeGuideSection({ product }: { product: Product }) {
   const { t } = useTranslation();
-  if (!product.weight && !product.has_size_guide) return null;
-
+  if (!product.has_size_guide) return null;
   return (
-    <section>
-      {product.weight && (
-        <div
-          className={`center-between ${product.has_size_guide ? 'pb-5 mb-5 border-b-[1px]' : ''}`}
+    <section className="">
+      <div className="center-between">
+        <b className="form-label rtl:space-x-reverse space-x-1">
+          <i className="sicon-pencil-ruler"></i>
+          <span>{t('pages.products.size_guides')}</span>
+        </b>
+        <SallaButton
+          shape="link"
+          color="primary"
+          className="!p-0 text-sm with-arrow"
+          onClick={() => window.salla?.event?.dispatch('size-guide::open', String(product.id))}
         >
-          <b className="form-label rtl:space-x-reverse space-x-1">
-            <i className="sicon-luggage-cart"></i>
-            <span>{t('pages.products.weight')}</span>
-          </b>
-          <span className="product-weight text-sm">{product.weight}</span>
-        </div>
-      )}
-      {product.has_size_guide && (
-        <>
-          <div className="center-between">
-            <b className="form-label rtl:space-x-reverse space-x-1">
-              <i className="sicon-pencil-ruler"></i>
-              <span>{t('pages.products.size_guides')}</span>
-            </b>
-            <SallaButton
-              shape="link"
-              color="primary"
-              className="!p-0 text-sm with-arrow"
-              onClick={() => window.salla?.event?.dispatch('size-guide::open', String(product.id))}
-            >
-              {t('pages.products.show_size_guides')}
-              <i className="sicon-keyboard_arrow_left"></i>
-            </SallaButton>
-          </div>
-          <SallaProductSizeGuide />
-        </>
-      )}
+          {t('pages.products.show_size_guides')}
+          <i className="sicon-keyboard_arrow_left"></i>
+        </SallaButton>
+      </div>
+      <SallaProductSizeGuide />
     </section>
   );
 }
 
-/** The note / file-upload tabs and their collapse panels. Renders nothing for a
- * product with neither. A closed panel is only collapsed visually, so it is
- * also `inert`: Tab skips its field until the tab opens it. */
-function AttachmentsSection({
-  product,
-  activeCollapse,
-  onToggle,
-}: {
-  product: Product;
-  activeCollapse: string | null;
-  onToggle: (id: string) => void;
-}) {
+/** The attachments section of `partials/product/options.twig`. */
+function AttachmentsSection({ product }: { product: Product }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState<Record<string, boolean>>({});
   if (!product.can_add_note && !product.can_upload_file) return null;
-
   const noteId = `note_${product.id}`;
   const fileId = `file_${product.id}`;
+  const toggle = (id: string) => setOpen((current) => ({ ...current, [id]: !current[id] }));
 
   return (
     <section>
-      <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start">
-        <div className="form-label">
+      <div className="flex flex-col sm:items-start sm:mb-3 mb-1.5">
+        <label className="form-label">
           <b className="block">{t('pages.products.attachments')}</b>
-        </div>
-        <div className="mt-1 sm:mt-0 sm:col-span-2 text-end">
+        </label>
+        <div className="mt-1 sm:mt-0 w-full text-end">
           <div className="flex rtl:space-x-reverse space-x-3">
             {product.can_add_note && (
               <button
+                data-testid="store-product-add-note"
+                className={`btn--collapse transition ${open[noteId] ? 'is-opened' : 'is-closed'}`}
                 type="button"
-                onClick={() => onToggle(noteId)}
-                aria-expanded={activeCollapse === noteId}
-                aria-controls={`${noteId}_panel`}
-                className={`btn-tab btn--collapse ${activeCollapse === noteId ? 'is-opened' : 'is-closed'}`}
+                aria-expanded={!!open[noteId]}
+                aria-controls={noteId}
+                onClick={() => toggle(noteId)}
               >
-                <i className="font-medium sicon-chat-conversation-alt rtl:ml-1.5 ltr:mr-1.5"></i>
-                <span className="fix-align">{t('pages.products.add_note')}</span>
+                <span className="flex items-center gap-1 text-sm font-bold">
+                  <i className="sicon-chat-conversation-alt text-beige-500 text-base text-primary"></i>
+                  {t('pages.products.add_note')}
+                </span>
+                <i className="sicon-send-down text-primary text-2xl"></i>
               </button>
             )}
             {product.can_upload_file && (
               <button
+                data-testid="store-product-attach-file"
+                className={`btn--collapse transition ${open[fileId] ? 'is-opened' : 'is-closed'}`}
                 type="button"
-                onClick={() => onToggle(fileId)}
-                aria-expanded={activeCollapse === fileId}
-                aria-controls={`${fileId}_panel`}
-                className={`btn-tab btn--collapse ${activeCollapse === fileId ? 'is-opened' : 'is-closed'}`}
+                aria-expanded={!!open[fileId]}
+                aria-controls={fileId}
+                onClick={() => toggle(fileId)}
               >
-                <i className="font-medium sicon-paperclip rtl:ml-1.5 ltr:mr-1.5"></i>
-                <span className="fix-align">{t('pages.products.add_file')}</span>
+                <span className="flex items-center gap-1 text-sm font-bold">
+                  <i className="sicon-paperclip text-beige-500 text-base text-primary"></i>
+                  {t('pages.products.add_file')}
+                </span>
+                <i className="sicon-send-down text-primary text-2xl"></i>
               </button>
             )}
           </div>
-
           {product.can_add_note && (
-            <div
-              id={`${noteId}_panel`}
-              inert={activeCollapse !== noteId}
-              className={`collapse-content ${activeCollapse === noteId ? 'is-opened' : 'is-closed'}`}
-            >
+            <CollapsePanel id={noteId} open={!!open[noteId]}>
               <div className="pt-4">
                 <textarea
-                  className="animated animatedfadeInDown fadeInDown form-input h-16 bg-gray-50 block"
+                  className="animated animatedfadeInDown fadeInDown form-input h-16 bg-gray-50 block rounded-theme"
                   placeholder={t('pages.products.notes_placeholder')}
                   name="notes"
                   cols={30}
@@ -199,15 +177,10 @@ function AttachmentsSection({
                   defaultValue={product.notes}
                 ></textarea>
               </div>
-            </div>
+            </CollapsePanel>
           )}
-
           {product.can_upload_file && (
-            <div
-              id={`${fileId}_panel`}
-              inert={activeCollapse !== fileId}
-              className={`collapse-content ${activeCollapse === fileId ? 'is-opened' : 'is-closed'}`}
-            >
+            <CollapsePanel id={fileId} open={!!open[fileId]}>
               <div className="pt-4 px-1">
                 <SallaFileUpload
                   accept="image/png, image/jpeg, image/jpg, image/gif, video/*, application/pdf"
@@ -217,14 +190,12 @@ function AttachmentsSection({
                     <span className="product-option-uploader-placholder-icon">
                       <i className="sicon-camera"></i>
                     </span>
-                    <p className="profile-filepond-placholder-text">
-                      {t('common.uploader.drag_and_drop')}
-                    </p>
+                    <p className="profile-filepond-placholder-text">{t('common.uploader.drag_and_drop')}</p>
                     <span className="filepond--label-action">{t('common.uploader.browse')}</span>
                   </div>
                 </SallaFileUpload>
               </div>
-            </div>
+            </CollapsePanel>
           )}
         </div>
       </div>
@@ -232,170 +203,35 @@ function AttachmentsSection({
   );
 }
 
-/** Sale / starting-or-normal price, plus the out-of-stock message — the
- * left-hand side of the sticky bar's quantity row. */
-function StickyPriceDisplay({ product, priceBump }: { product: Product; priceBump: number }) {
-  const { t } = useTranslation();
-  // The API converts the amounts but still labels them in the store's own currency.
-  const priceCurrency = getActiveCurrency(product.currency);
-  const priceBumpClass = priceBump ? ' price-bump' : '';
-
+/** `ProductCard.DEFAULT__ICON`, used by the `def` cart icon. */
+function DefaultCartIcon() {
   return (
-    <>
-      <div
-        className={`price-wrapper flex items-center gap-4 whitespace-nowrap ${product.is_out_of_stock ? 'hidden' : ''}`}
-      >
-        <div
-          key={`sale-${priceBump}`}
-          className={`price_is_on_sale${priceBumpClass} space-x-2 rtl:space-x-reverse whitespace-nowrap ${product.is_on_sale ? '' : 'hidden'}`}
-        >
-          <span className="price-bump__now total-price text-red-800 font-bold text-xl inline-block">
-            {product.sale_price} <CurrencySymbol currency={priceCurrency} />
-          </span>
-          <span className="before-price text-gray-500 line-through">
-            {product.regular_price} <CurrencySymbol currency={priceCurrency} />
-          </span>
-        </div>
-        <div
-          key={`plain-${priceBump}`}
-          className={`starting-or-normal-price${priceBumpClass} gap-4 ${product.is_on_sale ? 'hidden' : 'flex'}`}
-        >
-          {product.starting_price && (
-            <span className="starting-price-title">{t('pages.products.starting_price')}</span>
-          )}
-          <span className="price-bump__now total-price font-bold text-xl inline-block">
-            {String(product.starting_price ?? product.price)}{' '}
-            <CurrencySymbol currency={priceCurrency} />
-          </span>
-        </div>
-      </div>
-
-      <div
-        className={`out-of-stock min-h-7 leading-7 text-base text-red-600 !opacity-50 font-bold ${product.is_out_of_stock ? 'scale-pulse' : 'hidden'}`}
-      >
-        {t('pages.products.out_of_stock')}
-      </div>
-    </>
-  );
-}
-
-/** A booking / hidden-quantity product always orders exactly one — post a
- * hidden `1` instead of the stepper. */
-function StickyQuantityField({ product }: { product: Product }) {
-  const { t } = useTranslation();
-  const max = product.max_quantity;
-  // The loaded salla-quantity-input reads `name`/`max` from attributes; the wrapper sets properties.
-  const quantityRef = useCallback(
-    (el: HTMLElement | null) => {
-      if (!el) return;
-      el.setAttribute('name', 'quantity');
-      if (max) el.setAttribute('max', String(max));
-      else el.removeAttribute('max');
-    },
-    [max]
-  );
-
-  if (product.is_hidden_quantity || product.type === 'booking') {
-    return (
-      <input type="hidden" value="1" name="quantity" aria-label={t('pages.products.quantity')} />
-    );
-  }
-
-  return (
-    <SallaQuantityInput
-      ref={quantityRef}
-      max={product.max_quantity ?? undefined}
-      value={1}
-      name="quantity"
-      aria-label={t('pages.products.quantity')}
-      className="border-gray-200 flex ms-auto"
-    />
-  );
-}
-
-/** Live price + quantity stepper + the add-to-cart button itself. */
-function StickyProductBar({
-  product,
-  stickyAddToCart,
-  priceBump,
-  hasPreorder,
-}: {
-  product: Product;
-  stickyAddToCart?: boolean;
-  priceBump: number;
-  hasPreorder: boolean;
-}) {
-  const { store } = useTwilight();
-  // The storefront API doesn't send `can_quick_buy` for a product, so gating on it
-  // alone never shows the buy-now (+ Apple Pay) widget. Fall back to the store's
-  // quick-purchase setting; the button itself still checks status, product type
-  // and the wallet's availability before it renders anything.
-  const quickBuy = product.can_quick_buy ?? !!store?.settings?.buy_now;
-  // The loaded component copies host attributes (not properties) onto its inner salla-button.
-  const addButtonRef = useCallback((el: HTMLElement | null) => {
-    el?.setAttribute('width', 'wide');
-    el?.setAttribute('type', 'submit');
-  }, []);
-  // Sold out with nothing to sign up for: on phones the sticky bar shows only the
-  // out-of-stock label (`product.scss`). "Notify me" (`out-and-notify`) keeps its button.
-  const soldOut = product.is_out_of_stock && product.status !== 'out-and-notify';
-  return (
-    <section
-      className={`sticky-product-bar bg-white${soldOut ? ' sticky-product-bar--sold-out' : ''}`}
-    >
-      {/* Live price on the start side, quantity stepper on the end side
-          (replaces the standalone price section and the "Quantity" label). */}
-      <div className="sticky-product-bar__quantity center-between mb-5">
-        <StickyPriceDisplay product={product} priceBump={priceBump} />
-        <StickyQuantityField product={product} />
-      </div>
-
-      <SallaAddProductButton
-        ref={addButtonRef}
-        {...(quickBuy ? { quickBuy: true } : {})}
-        {...(stickyAddToCart ? { supportStickyBar: true } : {})}
-        {...(product.is_require_shipping ? { requiredShipping: true } : {})}
-        {...(hasPreorder ? { hasPreOrder: true } : {})}
-        amount={
-          typeof product.base_currency_price === 'object'
-            ? product.base_currency_price.amount
-            : product.base_currency_price
-        }
-        className="mt-5 w-full sticky-product-bar__btn"
-        productStatus={product.status}
-        productType={product.type}
-        productId={product.id}
-        type="submit"
-        width="wide"
-        {...(product.notify_availability
-          ? {
-              ...(product.notify_availability.subscribed ? { isSubscribed: true } : {}),
-              channels: product.notify_availability.channels.join(','),
-              ...(product.notify_availability.subscribed_options
-                ? {
-                    subscribedOptions: JSON.stringify(
-                      product.notify_availability.subscribed_options
-                    ),
-                  }
-                : {}),
-              ...(product.notify_availability.options ? { notifyOptionsAvailability: true } : {}),
-            }
-          : {})}
-      >
-        {product.add_to_cart_label}
-      </SallaAddProductButton>
-    </section>
+    <svg xmlns="http://www.w3.org/2000/svg" width="31" height="34" viewBox="0 0 31 34" fill="none">
+      <path
+        d="M14.3177 30.7024H8.09314C6.957 30.7023 5.85841 30.2956 4.99615 29.5558C4.1339 28.816 3.56495 27.7919 3.39226 26.669L1.40251 13.7443C1.33301 13.2924 1.36206 12.8309 1.48765 12.3913C1.61325 11.9517 1.83242 11.5444 2.13015 11.1975C2.42787 10.8505 2.7971 10.572 3.21253 10.3811C3.62796 10.1902 4.07976 10.0914 4.53696 10.0914H22.5145C22.9717 10.0914 23.4235 10.1902 23.8389 10.3811C24.2543 10.572 24.6236 10.8505 24.9213 11.1975C25.219 11.5444 25.4382 11.9517 25.5638 12.3913C25.6894 12.8309 25.7184 13.2924 25.6489 13.7443L25.232 16.4523M19.8668 27.5315H29.3795M24.6231 22.7751V32.2879"
+        stroke="white"
+        strokeWidth="2.57355"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.76849 14.8461V6.91885C8.76849 5.65738 9.26961 4.44758 10.1616 3.55559C11.0536 2.66359 12.2634 2.16248 13.5249 2.16248C14.7863 2.16248 15.9961 2.66359 16.8881 3.55559C17.7801 4.44758 18.2812 5.65738 18.2812 6.91885V14.8461"
+        stroke="white"
+        strokeWidth="2.57355"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
 /**
- * Theme fork of the engine `AddToCartForm`.
- *
- * Differs from the engine version: the form is a `flex flex-col gap-8` column and its
- * section blocks (weight / size-guide, attachments, price, quantity) render flat:
- * no `bg-white` card padding, no `rounded`, no per-block `mb`. The sticky
- * add-to-cart bar keeps `bg-white` for its mobile fixed-position backdrop.
- * Upgrade notes: `FORKS.md`.
+ * Port of `pages/templates/base_content.twig` (`form_base`, `product_card_pic: main`):
+ * the metadata, then the form — options (`partials/product/options.twig`: single and
+ * multiple options as buttons by default), the quantity and final-price grid, the
+ * add-to-cart button with the store's cart icon (`btn-text-one/two` hover swap) and
+ * gifting. Submit / buy-now / option pricing behave as before (`handleSubmit`,
+ * `handleChange`, `handleQuickBuyClick`).
  */
 export function AddToCartForm({
   product,
@@ -404,22 +240,14 @@ export function AddToCartForm({
   formStartSlot,
   formEndSlot,
 }: AddToCartFormProps) {
-  const [activeCollapse, setActiveCollapse] = useState<string | null>(null);
+  const { t } = useTranslation();
+  const { theme, store } = useTwilight();
+  const settings = (theme?.settings ?? {}) as Record<string, unknown>;
   const formRef = useRef<HTMLFormElement>(null);
-  // Replays the little pulse whenever the figures change (quantity / options).
-  const priceBump = usePriceBump(
-    product.sale_price,
-    product.price,
-    product.regular_price,
-    product.starting_price
-  );
+  const priceFailed = usePriceFailed();
 
   // Stop the add-to-cart spinner once the cart request resolves (either way).
-  // Unsubscribe through the same `cart` reference `on*` used — `off*` finds the
-  // wrapper `on*` registered by identity, so re-reading `window.salla.cart.event`
-  // fresh in the cleanup wouldn't reliably remove it. Without this, navigating
-  // product to product (this component remounts per product) left every prior
-  // product's listeners still firing.
+  // Unsubscribe through the same `cart` reference `on*` used.
   useEffect(() => {
     const stop = () => addButton(formRef.current)?.stop?.();
     const cart = window.salla?.cart?.event;
@@ -438,11 +266,8 @@ export function AddToCartForm({
     [product.options]
   );
 
-  // salla-product-options reads its `options` prop only in its constructor (no
-  // @Watch), and on first load that constructor runs before sdk.init has set
-  // page.id — so its getDetails(page.id) fallback fetches nothing and the options
-  // never reflect. Seed page.id (=== product.id) and wait for the SDK to be ready
-  // before mounting the element so its fallback resolves on first load too.
+  // salla-product-options reads its `options` prop only in its constructor, and on
+  // first load that runs before sdk.init has set page.id: seed it and wait for the SDK.
   const [optionsReady, setOptionsReady] = useState(false);
   useEffect(() => {
     const salla = window.salla;
@@ -457,73 +282,149 @@ export function AddToCartForm({
     };
   }, [product.id]);
 
-  const handleCollapseToggle = useCallback((id: string) => {
-    setActiveCollapse((current) => (current === id ? null : id));
+  // The form reads `name` / `max` from the host's attributes, not the wrapper's properties.
+  const maxQuantity = product.max_quantity;
+  const quantityRef = useCallback(
+    (el: HTMLElement | null) => {
+      if (!el) return;
+      el.setAttribute('name', 'quantity');
+      if (maxQuantity) el.setAttribute('max', String(maxQuantity));
+      else el.removeAttribute('max');
+    },
+    [maxQuantity]
+  );
+
+  const addButtonRef = useCallback((el: HTMLElement | null) => {
+    el?.setAttribute('width', 'wide');
+    el?.setAttribute('type', 'submit');
+    el?.setAttribute('loader-position', 'end');
   }, []);
 
+  const quickBuy = product.can_quick_buy ?? !!store?.settings?.buy_now;
   const hasPreorder = Boolean(product.has_preorder_campaign && product.preorder);
+  const config: Record<string, { type: string }> = {};
+  if (booleanValue(settings.show_singleOption, true)) config['single-option'] = { type: 'button' };
+  if (booleanValue(settings.show_multipleOption, true)) config['multiple-option'] = { type: 'button' };
+  const cartIcon = optionValue(settings.product_cart_icon) || 'sicon-cart2';
+  const icon = cartIcon === 'def' ? <DefaultCartIcon /> : <i className={cartIcon}></i>;
+  const label =
+    (product as { add_to_cart_label?: string }).add_to_cart_label ||
+    (product.status === 'sale' ? t('pages.cart.add_to_cart') : t('pages.products.out_of_stock'));
+  const notify = product.notify_availability;
 
   return (
-    <form
-      ref={formRef}
-      className="form product-form mt-6 flex flex-col gap-8"
-      encType="multipart/form-data"
-      method="post"
-      onClickCapture={handleQuickBuyClick}
-      onSubmit={handleSubmit}
-      onChange={handleChange}
-    >
-      <input type="hidden" name="id" value={product.id} />
-
-      {formStartSlot}
-
-      {optionsReady && product.options && product.options.length > 0 && (
-        <ProductOptionsPanel options={product.options as PanelOption[]}>
+    <>
+      {product.has_metadata && <SallaMetadata data-testid="store-product-metadata" />}
+      <form
+        ref={formRef}
+        data-testid="store-product-form"
+        className="form product-form"
+        encType="multipart/form-data"
+        method="post"
+        onClickCapture={handleQuickBuyClick}
+        onSubmit={handleSubmit}
+        onChange={handleChange}
+      >
+        <input type="hidden" name="id" value={product.id} />
+        {formStartSlot}
+        {optionsReady && product.options && product.options.length > 0 && (
           <SallaProductOptions
             key={product.id}
-            // constructor-only options parse: push data via ref on client remount
             ref={optionsRef}
+            data-testid="store-product-options"
             options={JSON.stringify(product.options)}
             productId={product.id}
+            config={JSON.stringify(config)}
+            className="twig_option"
           />
-        </ProductOptionsPanel>
-      )}
-
-      {product.has_bundle_products && (
-        <SallaMultipleBundleProduct bundleSections={JSON.stringify(product)} />
-      )}
-
-      <WeightAndSizeGuideSection product={product} />
-
-      <AttachmentsSection
-        product={product}
-        activeCollapse={activeCollapse}
-        onToggle={handleCollapseToggle}
-      />
-
-      {formEndSlot}
-
-      {hasPreorder ? (
-        <section className="mt-5">
-          <SallaCountDown preOrder={JSON.stringify(product.preorder)} boxed labeled />
+        )}
+        {product.has_bundle_products && <SallaMultipleBundleProduct bundleSections={JSON.stringify(product)} />}
+        <SizeGuideSection product={product} />
+        <AttachmentsSection product={product} />
+        {formEndSlot}
+        {hasPreorder ? (
+          <section className="mt-5">
+            <SallaCountDown preOrder={JSON.stringify(product.preorder)} boxed labeled />
+          </section>
+        ) : null}
+        <section className="flex-col flex">
+          <div className="grid grid-cols-2 gap-3">
+            {product.is_hidden_quantity || product.type === 'booking' ? (
+              <input type="hidden" value="1" name="quantity" aria-label="Quantity" />
+            ) : (
+              <div className="sticky-product-bar__quantity flex-col flex">
+                <label className="form-label">{t('pages.products.quantity')}</label>
+                <SallaQuantityInput
+                  ref={quantityRef}
+                  data-testid="store-product-quantity"
+                  max={product.max_quantity}
+                  value={1}
+                  name="quantity"
+                  aria-label="Quantity"
+                  className="w-full"
+                />
+              </div>
+            )}
+            <div className="flex flex-col">
+              <label className="form-label">
+                <b className="block">
+                  {t('pages.products.price')}
+                  <span className="ms-1">{t('pages.cart.final_total')}</span>
+                </b>
+              </label>
+              {!priceFailed && <PriceBit product={product} total />}
+              <div
+                data-testid="store-product-out-of-stock"
+                className={`out-of-stock min-h-7 leading-7 text-base text-red-600 !opacity-50 font-bold${priceFailed ? '' : ' hidden'}`}
+              >
+                {t('pages.products.out_of_stock')}
+              </div>
+            </div>
+          </div>
+          <SallaAddProductButton
+            ref={addButtonRef}
+            data-testid="store-product-add-to-cart"
+            {...(quickBuy ? { quickBuy: true } : {})}
+            {...(stickyAddToCart !== false ? { supportStickyBar: true } : {})}
+            {...(product.is_require_shipping ? { requiredShipping: true } : {})}
+            {...(hasPreorder ? { hasPreOrder: true } : {})}
+            amount={
+              typeof product.base_currency_price === 'object'
+                ? product.base_currency_price.amount
+                : product.base_currency_price
+            }
+            className="sm:mt-3 mt-1.5 w-full sticky-product-bar__btn"
+            productStatus={product.status}
+            productType={product.type}
+            productId={product.id}
+            {...(notify
+              ? {
+                  ...(notify.subscribed ? { isSubscribed: true } : {}),
+                  channels: (notify.channels ?? []).join(','),
+                  subscribedOptions: JSON.stringify(notify.subscribed_options ?? []),
+                  ...(notify.options ? { notifyOptionsAvailability: true } : {}),
+                }
+              : {})}
+          >
+            <span className="btn-text-one flex-center gap-1.5">
+              {icon}
+              {label}
+            </span>
+            <span className="btn-text-two flex-center gap-1.5">
+              {icon}
+              {label}
+            </span>
+          </SallaAddProductButton>
         </section>
-      ) : null}
-
-      <StickyProductBar
-        product={product}
-        stickyAddToCart={stickyAddToCart}
-        priceBump={priceBump}
-        hasPreorder={hasPreorder}
-      />
-
-      {product.giftable && (
-        <SallaGifting
-          className="mt-5"
-          widgetSubtitle={giftingIntro}
-          productId={product.id}
-          {...(product.is_require_shipping ? { physicalProducts: true } : {})}
-        />
-      )}
-    </form>
+        {product.giftable && (
+          <SallaGifting
+            className="mt-5"
+            widgetSubtitle={giftingIntro}
+            productId={product.id}
+            {...(product.is_require_shipping ? { physicalProducts: true } : {})}
+          />
+        )}
+      </form>
+    </>
   );
 }

@@ -1,13 +1,13 @@
 import { memo } from 'react';
-import { SectionWrapper } from '../common/SectionWrapper';
 import { BlockTitle } from '../common/BlockTitle';
 import { ActionBtn } from '../common/ActionBtn';
-import { linkUrl, optionValue } from '../../lib/fieldValue';
+import { SectionSeparator } from '../common/SectionSeparator';
+import { useViewSettings } from '../../hooks/useViewSettings';
+import { booleanValue, linkUrl, optionValue } from '../../lib/fieldValue';
+import { BrandsBreak, type BreakBrand } from './BrandsBreak';
+import { asArray, cx, separatorProps, text, twigPosition } from './ViewBlockUtils';
 
-export interface BrandItem {
-  name?: string;
-  logo?: string;
-}
+export type BrandItem = BreakBrand;
 
 export interface VTextBlockData {
   style_component?: unknown;
@@ -23,8 +23,8 @@ export interface VTextBlockData {
   bg_one_color?: string;
   text_color_one?: string;
   use_custom_colors?: boolean;
-  brands_one?: BrandItem[];
-  brands_two?: BrandItem[];
+  brands_one?: unknown;
+  brands_two?: unknown;
   has_container?: boolean;
   notmrb?: boolean;
   saprator?: unknown;
@@ -34,178 +34,127 @@ export interface VTextBlockData {
   merge_with_adjacent?: boolean;
   use_custom_colors_sep?: boolean;
   position?: number;
+  [key: string]: unknown;
 }
 
-export const VTextBlock = memo(function VTextBlock({
-  data,
-}: {
-  data?: VTextBlockData;
-}) {
-  if (!data) return null;
-
-  const styleComponent = optionValue(data.style_component) || 'only';
-  const posImage = optionValue(data.position_image) || 'center';
-  const saprator = optionValue(data.saprator);
-  const btnUrl = linkUrl(data.btn_url_two);
-  const btnStyle = optionValue(data.btn_style) || 'filled';
-
-  const useCustomColors = Boolean(data.use_custom_colors);
-  const textColor = useCustomColors && data.text_color_one ? data.text_color_one : 'var(--color-primary)';
-  const lineBg = useCustomColors && data.text_color_one ? data.text_color_one : 'var(--color-primary-light)';
-
-  const isBrandLayout = styleComponent === 'tow_brand' || styleComponent === 'side_brand';
+/**
+ * Port of `V_text_block.twig`: a title + paragraph (+ button in `classic`),
+ * optionally between one or two vertical `custom/break` brand carousels, over a
+ * decorative background image. The separator reads `use_custom_colors_sep`.
+ */
+export const VTextBlock = memo(function VTextBlock({ data = {} }: { data?: VTextBlockData }) {
+  const { reveal, spacing } = useViewSettings();
+  const position = twigPosition(data);
+  // twilight.json defaults when the setting was never saved.
+  const style = data.style_component === undefined ? 'only' : optionValue(data.style_component);
+  const posImage = data.position_image === undefined ? 'end' : optionValue(data.position_image);
+  const isOnly = style === 'only';
+  const isSide = style === 'side_brand';
+  const isTwo = style === 'tow_brand';
+  const custom = booleanValue(data.use_custom_colors);
+  const textColor = text(data.text_color_one);
+  const lineStyle = { backgroundColor: custom ? textColor : 'var(--color-primary-light)' };
+  const backgroundImage = text(data.background_image);
+  const showBackground = !isOnly && !!backgroundImage;
 
   return (
-    <SectionWrapper
-      id={`V_text_block-${data.position ?? 0}`}
-      ariaLabel="Section V_text_block"
-      className={`V__text_block overflow-hidden relative ${
-        styleComponent !== 'only' && data.background_image ? 'md:py-10 py-6' : ''
-      }`}
-      hasContainer={data.has_container}
-      notmrb={data.notmrb}
+    <section
+      className={cx(
+        's-block overflow-hidden relative V__text_block',
+        showBackground && 'md:py-10 py-6',
+        !booleanValue(data.notmrb) && spacing
+      )}
+      aria-label={`Section V_text_block-${position}`}
+      id={`V_text_block-${position}`}
     >
       <div
-        className={
-          isBrandLayout
-            ? 'flex justify-between md:flex-row flex-col lg:gap-8 md:gap-6 gap-4'
-            : ''
-        }
+        className={cx(
+          booleanValue(data.has_container) && 'container',
+          (isTwo || isSide) && 'flex justify-between md:flex-row flex-col lg:gap-8 md:gap-6 gap-4'
+        )}
       >
-        {/* Brand slider one if tow_brand */}
-        {styleComponent === 'tow_brand' && data.brands_one && data.brands_one.length > 0 && (
-          <div className="flex items-center gap-4 max-h-64 overflow-hidden">
-            {data.brands_one.map((b, i) => (
-              <img
-                key={i}
-                src={b.logo || '/images/placeholder.webp'}
-                alt={b.name || ''}
-                className="max-w-32 object-contain"
-                loading="lazy"
-              />
-            ))}
-          </div>
+        {isTwo && (
+          <>
+            <div className="max-h-64">
+              <BrandsBreak position={position} brands={asArray<BreakBrand>(data.brands_one)} reverse vertical />
+            </div>
+            <span className={cx(reveal, 'md:w-px md:h-auto h-px w-full')} style={lineStyle} />
+          </>
         )}
-
-        {styleComponent === 'tow_brand' && (
-          <span className="md:w-px md:h-auto h-px w-full" style={{ backgroundColor: lineBg }} />
-        )}
-
-        {/* Center text content */}
         <div
-          className={`flex ${
-            styleComponent !== 'only' ? 'flex-col' : 'md:flex-row flex-col'
-          } ${styleComponent !== 'side_brand' ? 'items-center' : ''} justify-between lg:gap-8 md:gap-6 gap-4 flex-1`}
+          className={cx(
+            'flex',
+            !isOnly ? 'flex-col' : 'md:flex-row flex-col',
+            !isSide && 'items-center',
+            'justify-between lg:gap-8 md:gap-6 gap-4 flex-1'
+          )}
         >
-          <div className={isBrandLayout || styleComponent === 'only' ? 'md:max-w-1/4' : ''}>
+          <div className={isSide || isOnly ? 'md:max-w-1/4' : ''}>
             <BlockTitle
-              title={data.main_title}
-              sub={data.sub_title}
-              center={styleComponent !== 'side_brand'}
+              title={text(data.main_title)}
+              sub={text(data.sub_title)}
+              jocer={booleanValue(data.has_jocer_image)}
+              levelClass={isTwo || isOnly ? '!text-center' : ''}
               className="!mb-0"
+              level2Class={!isSide ? '!justify-center' : ''}
             />
           </div>
-
-          {data.text_area && (
-            <p
-              className={`flex-1 ${styleComponent !== 'only' ? 'text-center' : 'text-start'}`}
-              style={{ color: textColor }}
-            >
-              {data.text_area}
-            </p>
-          )}
-
-          {styleComponent === 'classic' && data.btn_text_two && (
+          <p
+            className={cx(reveal, 'flex-1', !isOnly && 'text-center')}
+            style={{ color: custom ? textColor : 'var(--color-primary)' }}
+          >
+            {text(data.text_area)}
+          </p>
+          {style === 'classic' && (
+            // btn.twig has no `style` parameter, so Twig's `style:` argument is dropped there too.
             <ActionBtn
-              text={data.btn_text_two}
-              href={btnUrl}
-              dataStyle={btnStyle}
-              color={useCustomColors ? data.text_color_one : 'var(--color-bg)'}
-              backgroundColor={useCustomColors ? data.bg_one_color : 'var(--color-primary)'}
+              text={text(data.btn_text_two)}
+              href={linkUrl(data.btn_url_two)}
+              dataStyle={optionValue(data.btn_style)}
+              color={custom ? textColor : 'var(--color-bg)'}
+              backgroundColor={custom ? text(data.bg_one_color) : 'var(--color-primary)'}
               icon
             />
           )}
         </div>
-
-        {/* Brand slider two if brand layout */}
-        {isBrandLayout && (
+        {(isTwo || isSide) && (
           <>
-            <span className="md:w-px md:h-auto h-px w-full" style={{ backgroundColor: lineBg }} />
-            {data.brands_two && data.brands_two.length > 0 && (
-              <div className="flex items-center gap-4 max-h-64 overflow-hidden">
-                {data.brands_two.map((b, i) => (
-                  <img
-                    key={i}
-                    src={b.logo || '/images/placeholder.webp'}
-                    alt={b.name || ''}
-                    className="max-w-32 object-contain"
-                    loading="lazy"
-                  />
-                ))}
-              </div>
-            )}
+            <span className={cx('md:w-px md:h-auto h-px w-full', reveal)} style={lineStyle} />
+            <div className="max-h-64">
+              <BrandsBreak position={position} brands={asArray<BreakBrand>(data.brands_two)} vertical />
+            </div>
           </>
         )}
       </div>
-
-      {/* Background image */}
-      {styleComponent !== 'only' && data.background_image && (
+      {showBackground && (
         <div
-          className={`absolute pointer-events-none ${
+          className={cx(
+            reveal,
+            'absolute',
             posImage === 'center'
-              ? 'top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-full'
+              ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full'
               : posImage === 'start'
-              ? 'end-0 top-0'
-              : 'start-0 top-0'
-          }`}
+                ? 'right-0 top-0'
+                : 'left-0 top-0',
+            'pointer-events-none'
+          )}
         >
           <img
-            src={data.background_image}
-            alt=""
-            className="object-contain w-full"
+            src={backgroundImage}
+            alt="background image"
+            className="lazy object-contain w-full"
+            width={1280}
+            height={720}
             loading="lazy"
+            decoding="async"
+            fetchPriority="auto"
           />
         </div>
       )}
-
-      {/* Separator */}
-      {(saprator === 'solid' || saprator === 'star') && (
-        <div
-          className={`relative w-full py-6 ${data.merge_with_adjacent ? '-my-6' : 'mt-3'} ${
-            saprator === 'solid' ? 'container' : ''
-          }`}
-        >
-          <div
-            className="h-px w-full"
-            style={{
-              backgroundColor:
-                data.use_custom_colors_sep && data.line_color
-                  ? data.line_color
-                  : 'var(--color-primary-light)',
-            }}
-          />
-          {saprator === 'star' && (
-            <div
-              className="absolute top-1/2 -translate-y-1/2 z-10"
-              style={{
-                left: `${data.star_position_x ?? 50}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <svg width="48" height="57" viewBox="0 0 48 57" fill="none">
-                <path
-                  d="M24.2847 0.870117L19.0863 22.72L0.569443 28.8541L19.0863 34.9883L24.2847 56.8382L29.4832 34.9883L48 28.8541L29.4832 22.72L24.2847 0.870117Z"
-                  fill={
-                    data.use_custom_colors_sep && data.star_color
-                      ? data.star_color
-                      : 'var(--color-primary-light)'
-                  }
-                />
-              </svg>
-            </div>
-          )}
-        </div>
-      )}
-    </SectionWrapper>
+      <SectionSeparator
+        {...separatorProps(data)}
+        use_custom_colors={booleanValue(data.use_custom_colors_sep)}
+      />
+    </section>
   );
 });

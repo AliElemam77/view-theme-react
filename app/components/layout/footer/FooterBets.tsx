@@ -169,13 +169,18 @@ export function FooterBasic() {
         </div>
         <div className="relative md:ml-0 ml-3">
           <span className="lineafter block h-full" />
-          <button className="group h-16 rounded-full w-6 bg-primary absolute top-1/2 -translate-y-1/2 -left-3">
-            <div
-              className="flex-center h-full w-full"
-              tooltip={t('pages.cart.btn_up', 'الرجوع الى اعلى الصفحة')}
-              flow="right"
+          <button
+            type="button"
+            aria-label={t('pages.cart.btn_up', 'الرجوع الى اعلى الصفحة')}
+            className="group h-16 rounded-full w-6 bg-primary !absolute top-1/2 -translate-y-1/2 rtl:-left-3 ltr:-right-3"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <span
               id="to_up"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              tooltip={t('pages.cart.btn_up', 'الرجوع الى اعلى الصفحة')}
+              flow=""
+              className="flex-center h-full w-full"
+              aria-hidden="true"
               dangerouslySetInnerHTML={{ __html: TO_UP_ICON }}
             />
           </button>

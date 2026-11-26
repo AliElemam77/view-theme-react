@@ -33,7 +33,7 @@ export interface MainLinksProps {
     vertical_links?: boolean;
     grayscale_links?: boolean;
     simplified_links?: boolean;
-    merge_links_with_top_component?: boolean;
+    merge_with_top_component?: boolean;
     title?: string;
     description?: string;
     position?: number;
@@ -50,7 +50,7 @@ export const MainLinks = memo(function MainLinks({ data }: MainLinksProps) {
     show_cats: showCats = false,
     show_controls: showControls = false,
     title,
-    merge_links_with_top_component: mergeWithTop = false,
+    merge_with_top_component: mergeWithTop = false,
   } = data;
 
   const items = showCats ? categories : links;
@@ -65,8 +65,7 @@ export const MainLinks = memo(function MainLinks({ data }: MainLinksProps) {
           controlsOuter
           showControls={showControls}
           id={`main-links-${position}`}
-          // Links that fit without scrolling sit in the middle, not against the start edge.
-          sliderConfig={{ watchOverflow: true, centerInsufficientSlides: true }}
+          sliderConfig={{ watchOverflow: true }}
         >
           <div slot="items">
             {items.map((item, index) => {
@@ -85,27 +84,25 @@ export const MainLinks = memo(function MainLinks({ data }: MainLinksProps) {
                   // exists: see .react-doctor/false-positives.md.
                   // react-doctor-disable-next-line react-doctor/no-array-index-as-key
                   key={itemUrl === '#' ? index : itemUrl}
-                  className="swiper-slide slide--one-eighth"
+                  className="swiper-slide slide--one-sixth"
                 >
                   <Link to={itemUrl} className="slide--cat-entry">
-                    {/* The item's image when it has one, filling the circle; its icon
-                        otherwise. */}
-                    <span className="slide--cat-entry__media">
-                      {itemImage ? (
-                        <img
-                          // The CDN's 128px copy (sharp at 64px on 2x screens), not the original upload.
-                          src={getCdnImageUrl(itemImage, { width: 128 }) ?? itemImage}
-                          width="64"
-                          height="64"
-                          // The title right after it names the link; an alt would say it twice.
-                          alt=""
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ) : itemIcon ? (
-                        <i className={itemIcon} />
-                      ) : null}
-                    </span>
+                    {/* As main-links.twig: a category shows its image (else its icon), a link its icon. */}
+                    {showCats && itemImage ? (
+                      <img
+                        // The CDN's 128px copy (sharp at 64px on 2x screens), not the original upload.
+                        src={getCdnImageUrl(itemImage, { width: 128 }) ?? itemImage}
+                        className="w-16 h-16 object-cover rounded-full mb-2.5"
+                        width="64"
+                        height="64"
+                        // The title right after it names the link; an alt would say it twice.
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : itemIcon ? (
+                      <i className={itemIcon} />
+                    ) : null}
                     <h2>{itemTitle}</h2>
                   </Link>
                 </div>

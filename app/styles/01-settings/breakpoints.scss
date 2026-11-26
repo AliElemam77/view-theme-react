@@ -116,7 +116,7 @@
   transform: scaleY(1);
   opacity: 1;
 }
-#theme-list li[role="menuitemradio"][data-selected] {
+#theme-list [role="menuitemradio"][data-selected] {
   background: var(--color-primary-ops);
 }
 .fg{

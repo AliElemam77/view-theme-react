@@ -28,48 +28,48 @@ export function DigitalFilesSettings({
   const formatsDisplay = Array.isArray(formats) ? formats.join(', ') : formats || '-';
 
   return (
-    <section className="bg-white p-5 rounded mb-5 last:mb-0">
+    <section className="bg-primary-reverse border border-lightgray p-5 rounded-theme mb-5 last:mb-0">
       <ul className="space-y-4">
         <li className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <i className="sicon-page" />
-            <div className="text-gray-600 text-sm">
+          <div className="flex items-center gap-3 text-mediumgray">
+            <i className="sicon-page" aria-hidden="true" />
+            <div className="text-mediumgray text-sm">
               {t('pages.products.number_of_files', 'Number of Files')}
             </div>
           </div>
-          <div className="text-gray-900">{count || '-'}</div>
+          <div className="text-darkgray font-medium">{count || '-'}</div>
         </li>
 
         <li className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <i className="sicon-file-archive" />
-            <div className="text-gray-600 text-sm">
+          <div className="flex items-center gap-3 text-mediumgray">
+            <i className="sicon-file-archive" aria-hidden="true" />
+            <div className="text-mediumgray text-sm">
               {t('pages.products.file_formats', 'File Formats')}
             </div>
           </div>
-          <div className="text-gray-900 text-sm">{formatsDisplay}</div>
+          <div className="text-darkgray font-medium text-sm">{formatsDisplay}</div>
         </li>
 
         <li className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <i className="sicon-calendar" />
-            <div className="text-gray-600 text-sm">
+          <div className="flex items-center gap-3 text-mediumgray">
+            <i className="sicon-calendar" aria-hidden="true" />
+            <div className="text-mediumgray text-sm">
               {t('pages.products.file_expiration_period', 'File Expiration Period')}
             </div>
           </div>
-          <div className="text-gray-900 text-sm">{download_period || '-'}</div>
+          <div className="text-darkgray font-medium text-sm">{download_period || '-'}</div>
         </li>
 
         {access_new_files && (
           <li className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <i className="sicon-rotate" />
-              <div className="text-gray-600 text-sm">
+            <div className="flex items-center gap-3 text-mediumgray">
+              <i className="sicon-rotate" aria-hidden="true" />
+              <div className="text-mediumgray text-sm">
                 {t('pages.products.free_access_to_new_files', 'Free Access to New Files')}
               </div>
             </div>
-            <div className="text-gray-900 text-sm">
-              <i className="sicon-check-circle text-lg" />
+            <div className="text-darkgray text-sm">
+              <i className="sicon-check-circle text-lg" aria-hidden="true" />
             </div>
           </li>
         )}

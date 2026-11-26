@@ -199,7 +199,8 @@
 
 /* slider with bg block */
 .s-block--slider-with-bg {
-  @apply bg-gray-100 pb-8 sm:pb-16 mt-8 sm:mt-16 first-of-type:mt-0;
+  @apply pb-8 sm:pb-16 mt-8 sm:mt-16 first-of-type:mt-0;
+  background-color: var(--light-gray-color);
 
   .slider-bg {
     @apply h-96 sm:h-116 transition-opacity bg-center bg-cover text-white relative;
@@ -229,7 +230,10 @@
   Main Links Block
 */
 .slide--cat-entry {
-  @apply bg-white rounded-md h-36 p-3 text-center flex flex-col items-center justify-center transition duration-200 hover:shadow-default hover:text-mediumgray border border-gray-100;
+  @apply rounded-md h-36 p-3 text-center flex flex-col items-center justify-center transition duration-200 hover:shadow-default hover:text-mediumgray border;
+  background-color: var(--cards-color);
+  color: var(--cards-color-text);
+  border-color: var(--light-gray-color);
 
   i {
     @apply inline-block text-primary text-icon-lg mb-4;
@@ -244,7 +248,10 @@
   offers slider
 */
 .slide--offer-entry {
-  @apply bg-white rounded-md h-36 text-center flex flex-col items-center justify-between text-gray-600 transition duration-200 hover:shadow-default border border-gray-200;
+  @apply rounded-md h-36 text-center flex flex-col items-center justify-between transition duration-200 hover:shadow-default border;
+  background-color: var(--cards-color);
+  color: var(--cards-color-text);
+  border-color: var(--light-gray-color);
 }
 
 
@@ -285,7 +292,9 @@
 
   &--features {
     &__item {
-      @apply cursor-pointer bg-white transition-shadow duration-200 hover:shadow-default rounded-md flex-grow flex flex-col items-center px-4 py-8 md:px-8 text-center;
+      @apply cursor-pointer transition-shadow duration-200 hover:shadow-default rounded-md flex-grow flex flex-col items-center px-4 py-8 md:px-8 text-center;
+      background-color: var(--cards-color);
+      color: var(--cards-color-text);
 
       &:first-child {
         @apply col-span-2 md:col-span-1;
@@ -562,6 +571,11 @@ salla-slider.photos-slider {
   &__reviews_with_product {
     .s-rating-stars-selected {
       @apply fill-primary;
+    }
+
+    // React only: View compiles the star spacing into app.css, React leaves it to the component.
+    .s-rating-stars-wrapper {
+      @apply inline-flex items-center gap-2;
     }
   }
 

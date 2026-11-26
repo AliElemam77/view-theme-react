@@ -165,7 +165,7 @@ export function FooterNewsletter() {
   const { t, isRTL } = useTranslation();
   const { settings, reveal } = useViewSettings();
   const action = optionValue(settings.newsletter_action) || undefined;
-  const promo = optionValue(settings.newsletter_promo_text) || 'جمالكِ يستحق البداية الأفضل...';
+  const promo = optionValue(settings.newsletter_promo_text) || t('blocks.footer.desdes');
 
   return (
     <div id="mc_embed_shell" className="bg-primary-l flex-center lg:py-9 md:py-6 py-4  text-bgcolor">
@@ -178,8 +178,11 @@ export function FooterNewsletter() {
           className={`container flex flex-col md:flex-row justify-around items-center validate gap-2 ${reveal}`.trim()}
           target="_self"
           noValidate
+          onSubmit={(event) => {
+            if (!action) event.preventDefault();
+          }}
         >
-          <h1>{promo}</h1>
+          <h2 className="text-base font-bold">{promo}</h2>
           {/* Twig writes a second `class="text-center"` here when centred; browsers keep the first. */}
           <div
             id="mc_embed_signup_scroll"
@@ -187,6 +190,9 @@ export function FooterNewsletter() {
           >
             <div className="indicates-required hidden" />
             <div className="mc-field-group min-w-60">
+              <label htmlFor="mce-EMAIL" className="sr-only">
+                {t('blocks.footer.mailer', 'ادخل البريد الألكترونى')}
+              </label>
               <input
                 type="email"
                 name="EMAIL"
@@ -217,6 +223,7 @@ export function FooterNewsletter() {
                   id="mc-embedded-subscribe"
                   className={`button ${isRTL ? '' : 'flip-x'} group rtl:border-r ltr:border-l border-primary-d w-full h-full cursor-pointer py-2 px-3 flex items-center justify-center gap-2`}
                   tooltip={t('blocks.footer.supmeter', 'اشتراك')}
+                  aria-label={t('blocks.footer.supmeter', 'اشتراك')}
                   dangerouslySetInnerHTML={{ __html: NEWSLETTER_ARROW_ICON }}
                 />
               </div>

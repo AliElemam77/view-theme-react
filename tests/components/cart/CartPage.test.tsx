@@ -39,35 +39,68 @@ vi.mock('@salla.sa/twilight-components-react/offer', () => ({ SallaOffer: () => 
 vi.mock('@salla.sa/twilight-components-react/cart-item-offers', () => ({
   SallaCartItemOffers: () => null,
 }));
+vi.mock('@salla.sa/twilight-components-react/file-upload', () => ({ SallaFileUpload: () => null }));
+vi.mock('@salla.sa/twilight-components-react/multiple-bundle-product', () => ({
+  SallaMultipleBundleProduct: () => null,
+}));
+vi.mock('@salla.sa/twilight-components-react/quantity-input', () => ({
+  SallaQuantityInputCore: () => <salla-quantity-input />,
+}));
+vi.mock('@salla.sa/twilight-components-react/cart-coupons', () => ({
+  SallaCartCoupons: () => <div data-testid="store-cart-coupons" />,
+}));
+vi.mock('@salla.sa/twilight-components-react/cart-summary-card', () => ({
+  SallaCartSummaryCard: () => <div data-testid="store-cart-summary" />,
+}));
+vi.mock('@salla.sa/twilight-components-react/loyalty-panel', () => ({
+  SallaLoyaltyPanel: (props: { customerPoints?: number; prizePoints?: string }) => (
+    <div data-testid="store-cart-loyalty" data-points={props.customerPoints} data-prize={props.prizePoints} />
+  ),
+}));
+vi.mock('@salla.sa/twilight-components-react/gifting', () => ({
+  SallaGifting: (props: Record<string, unknown>) => (
+    <div data-testid="store-cart-gifting" data-physical={String(!!props.physicalProducts)} />
+  ),
+}));
+vi.mock('@salla.sa/twilight-components-react/tiered-offer', () => ({
+  SallaTieredOffer: () => null,
+}));
 
 vi.mock('@salla.sa/twilight-theme-engine/hooks', () => ({
   HookSlot: () => null,
   usePageConfig: () => {},
 }));
 vi.mock('@salla.sa/twilight-theme-engine/hooks/useMoney', () => ({
-  useMoney: () => ({ format: (amount: unknown) => String(amount) }),
+  useMoney: () => ({ format: (amount: unknown) => <b className="money">{String(amount)}</b> }),
+}));
+vi.mock('@salla.sa/twilight-theme-engine/utils', () => ({
+  stripUnsafeHtml: (html: string) => html,
 }));
 vi.mock('@salla.sa/twilight-theme-engine/i18n', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => (key === 'pages.cart.free_shipping_alert' ? 'Add :amount more' : key),
+    isRTL: true,
+  }),
 }));
 vi.mock('@salla.sa/twilight-theme-engine/common', () => ({
   Breadcrumb: () => null,
-  NoContent: ({ message }: { message: string }) => <p data-testid="cart-empty-message">{message}</p>,
-  Link: ({ children }: { children?: unknown }) => <a>{children as never}</a>,
-  Image: () => <img alt="" />,
+  Link: ({ children, className }: { children?: unknown; className?: string }) => (
+    <a className={className}>{children as never}</a>
+  ),
 }));
 vi.mock('@salla.sa/twilight-theme-engine/cart', () => ({
-  CartSummary: () => null,
   SeoCartWidget: () => null,
 }));
+let storeSettings: Record<string, unknown> = {};
 vi.mock('@salla.sa/twilight-theme-engine/providers', () => ({
-  useTwilight: () => ({ store: { settings: {} } }),
+  useTwilight: () => ({ store: { settings: storeSettings }, theme: { settings: {} } }),
 }));
 vi.mock('@salla.sa/twilight-theme-engine/skeleton', () => ({
   CartSkeleton: () => <div data-testid="skeleton" />,
 }));
+let loyaltyPoints: number | null = null;
 vi.mock('@salla.sa/twilight-theme-engine/api/loyalty', () => ({
-  loyalty: { queries: { points: () => ({ queryKey: ['points'], queryFn: () => null }) } },
+  loyalty: { queries: { points: () => ({ queryKey: ['points'], queryFn: () => loyaltyPoints }) } },
 }));
 vi.mock('@salla.sa/twilight-theme-engine/api/cart', async (importOriginal) => {
   const { cart } =
@@ -105,12 +138,15 @@ describe('CartPage', () => {
   beforeEach(() => {
     cartData = makeCart();
     cartError = null;
+    storeSettings = {};
+    loyaltyPoints = null;
     getCurrentCartId = vi.fn(() => Promise.resolve(5));
     originalSalla = (window as { salla?: unknown }).salla;
     (window as { salla?: unknown }).salla = {
       onReady: () => Promise.resolve(),
       cart: { api: { getCurrentCartId } },
       event: { on: vi.fn(), off: vi.fn() },
+      product: { getDetails: () => Promise.resolve({ data: { tags: [] } }) },
     };
   });
 
@@ -201,7 +237,7 @@ describe('CartPage', () => {
       const { getByTestId, queryByText } = renderPage();
 
       await waitFor(() =>
-        expect(getByTestId('cart-empty-message').textContent).toBe('pages.cart.empty_cart')
+        expect(getByTestId('store-cart-empty').querySelector('p')!.textContent).toBe('pages.cart.empty_cart')
       );
       expect(reset).toHaveBeenCalledTimes(1);
       expect(queryByText('common.errors.error_occurred')).toBeNull();
@@ -220,9 +256,90 @@ describe('CartPage', () => {
       const { getByTestId, queryByTestId } = renderPage();
 
       await waitFor(() =>
-        expect(getByTestId('cart-empty-message').textContent).toBe('pages.cart.empty_cart')
+        expect(getByTestId('store-cart-empty').querySelector('p')!.textContent).toBe('pages.cart.empty_cart')
       );
       expect(queryByTestId('skeleton')).toBeNull();
+    });
+  });
+
+  describe('Twig layout', () => {
+    it('has no column-heading row and a flex-1 main column', async () => {
+      const { container } = renderPage();
+      await waitFor(() => expect(container.querySelector('.cart-item')).toBeTruthy());
+      expect(container.querySelector('.cart-titles')).toBeNull();
+      expect(container.querySelector('.main-content')!.className).toBe('main-content flex-1 w-full');
+    });
+
+    it('renders the Twig sidebar: gifting on bg-primaryops, the summary card, coupons only when enabled', async () => {
+      const { container, getByTestId, queryByTestId } = renderPage();
+      await waitFor(() => expect(getByTestId('store-cart-summary')).toBeTruthy());
+      expect(container.querySelector('#cart-gifting')!.className).toContain('bg-primaryops');
+      expect(getByTestId('store-cart-gifting')).toBeTruthy();
+      expect(queryByTestId('store-cart-coupons')).toBeNull();
+      expect(queryByTestId('store-cart-loyalty')).toBeNull();
+      expect(container.querySelector('#free-shipping')).toBeNull();
+    });
+
+    it('wraps the coupons in a shadow-default card when the store enables them', async () => {
+      storeSettings = { cart: { apply_coupon_enabled: true } };
+      const { getByTestId } = renderPage();
+      const coupons = await waitFor(() => getByTestId('store-cart-coupons'));
+      expect(coupons.parentElement!.className).toBe('shadow-default p-4 rounded-theme mb-5 relative');
+    });
+
+    it('shows the loyalty panel on bg-primaryops when the cart has a prize with points', async () => {
+      Object.assign(cartData, { loyalty: { prize: { points: 50, title: 'Gift' } } });
+      const { getByTestId } = renderPage();
+      const panel = await waitFor(() => getByTestId('store-cart-loyalty'));
+      expect(panel.getAttribute('data-prize')).toBe('50');
+      expect(panel.parentElement!.className).toContain('bg-primaryops');
+    });
+
+    it('formats the free-shipping amount as money and flips the trucks in RTL', async () => {
+      Object.assign(cartData, {
+        free_shipping_bar: { has_free_shipping: false, remaining: 40, percent: 60 },
+      });
+      const { container } = renderPage();
+      const box = await waitFor(() => {
+        const found = container.querySelector('#free-shipping');
+        expect(found).toBeTruthy();
+        return found!;
+      });
+      expect(box.className).toBe('shadow-default p-4 rounded-theme mb-5 relative');
+      expect(box.querySelector('#free-shipping-msg')!.textContent).toBe('Add 40 more');
+      expect(box.querySelector('#free-shipping-msg .money')).toBeTruthy();
+      expect(box.querySelector('h4')!.className).toContain('text-darkgray');
+      expect(box.querySelectorAll('i.sicon-shipping-fast.flip-x')).toHaveLength(2);
+      expect((box.querySelector('.progress-bg') as HTMLElement).style.width).toBe('60%');
+    });
+  });
+
+  describe("other customers' favorites", () => {
+    it('lists products sharing a tag with the cart, leaving out what is in it', async () => {
+      const fetch = vi.fn(() =>
+        Promise.resolve({
+          data: [
+            { id: 2, name: 'In cart', price: 10 },
+            { id: 7, name: 'Related', price: 25 },
+          ],
+        })
+      );
+      Object.assign((window as unknown as { salla: Record<string, unknown> }).salla, {
+        product: {
+          getDetails: () => Promise.resolve({ data: { tags: [{ url: 'https://s.test/tag-11' }] } }),
+          fetch,
+        },
+      });
+      const { container, getByText } = renderPage();
+
+      await waitFor(() => expect(getByText('Related')).toBeTruthy());
+      expect(fetch).toHaveBeenCalledWith({ source: 'tags', source_value: ['11'] });
+      expect(container.querySelector('#related-products-container h3')!.textContent).toBe(
+        'pages.cart.rel_you'
+      );
+      expect(container.querySelectorAll('#products-list .custom-product-view')).toHaveLength(1);
+      // One tag, one batch: nothing left to load.
+      expect(container.querySelector('#load-more-btn')).toBeNull();
     });
   });
 });

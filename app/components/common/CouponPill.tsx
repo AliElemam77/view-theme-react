@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useViewSettings } from '../../hooks/useViewSettings';
+import { copyToClipboard } from '../../lib/clipboard';
 
 export interface CouponPillProps {
   label?: string;
@@ -19,21 +20,17 @@ export function CouponPill({ label = '', code, className = '' }: CouponPillProps
   const { t } = useTranslation();
   const { reveal } = useViewSettings();
   const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 1000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
   if (!code) return null;
 
   const onCopy = () => {
-    const fallback = () => {
-      const aux = document.createElement('input');
-      aux.value = code;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand('copy');
-      aux.remove();
-    };
-    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(code).catch(fallback);
-    else fallback();
+    copyToClipboard(code);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1000);
     try {
       const salla = window.salla as
         | { notify?: { success?: (m: string) => void }; lang?: { get?: (k: string) => string } }
@@ -56,7 +53,7 @@ export function CouponPill({ label = '', code, className = '' }: CouponPillProps
         className={`inline-flex items-center justify-center transition hover:opacity-90 ${copied ? 'copied' : 'code-to-copy'}`}
         onClick={onCopy}
         data-content={code}
-        aria-label={t('blocks.header.copy_code_aria', { code })}
+        aria-label={String(t('blocks.header.copy_code_aria', { code })).replace(':code', code)}
       >
         <svg width="24" height="24" viewBox="0 0 24 25" fill="none" className="md:h-6 md:w-6 w-4 h-4" xmlns="http://www.w3.org/2000/svg">
           <path d={COPY_ICON} fill="var(--color-primary-dark)" />

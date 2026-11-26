@@ -108,19 +108,6 @@
   animation-iteration-count: 1;
 }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 25s linear infinite;
-}
-
 /* Expand ring ripple animations (VCountdownBanner) */
 @keyframes expandRinddg1 {
   0% {
